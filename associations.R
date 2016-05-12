@@ -1,4 +1,4 @@
-setwd("~/Dropbox/Summer 2016/CSE 5390/")
+setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
 
 load("titanic.raw.rdata")
 str(titanic.raw)
@@ -116,18 +116,25 @@ rules.for.classifier <- strongRules & rules.correct > 0
 ####Part 3 (TODO)####
 
 inspect(rules.pruned[rules.for.classifier])
+classifier <- rules.pruned[rules.for.classifier]
 
 
 results <- vector('logical', length = length(titanic.mat))
 results[1:length(results)] <- FALSE
-rulesMatchLHS <- is.subset(rules.pruned[rules.for.classifier]@lhs, titanic.mat)
 
+rulesMatchLHS <- is.subset(classifier@lhs, titanic.mat)
+
+survived <- titanic.raw$Survived
+table(survived)
+
+inspect(classifier)
+
+classifier.results <- as(classifier@rhs, "ngCMatrix")[10,]
 
 for(i in 1:length(titanic.mat)){
   if(Reduce("|", rulesMatchLHS[,i])){
-    firstMatch <- match(TRUE, rulesMatchLHS[,i])
-    result <- rules.pruned[rules.for.classifier][firstMatch]@rhs
-    result <- as(result, "ngCMatrix")[10]
+   firstMatch <- match(TRUE, rulesMatchLHS[,i])
+    result <- classifier.results[firstMatch]
     results[i] <- result == (titanic.raw$Survived[i] == "Survived=Yes")
   }
 }
