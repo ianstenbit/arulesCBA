@@ -1,19 +1,15 @@
 setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
 
 load("titanic.raw.rdata")
-str(titanic.raw)
 
 require(arules)
 rules <- apriori(titanic.raw, parameter = list(minlen=2, supp=0.005, conf=0.6), appearance = list(rhs=c("Survived=No", "Survived=Yes"), default="lhs"), control=list(verbose=FALSE))
 rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
-inspect(rules.sorted)
 
-#subset.matrix <- is.subset(rules.sorted, rules.sorted)
-#subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
-#redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
-#which(redundant)
-
-#rules.pruned <- rules.sorted[!redundant]
+# subset.matrix <- is.subset(rules.sorted, rules.sorted)
+# subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
+# redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
+# rules.pruned <- rules.sorted[!redundant]
 
 rules.pruned <- rules.sorted
 inspect(rules.pruned)
@@ -25,15 +21,6 @@ rulesMatchRHS <- is.subset(rules.pruned@rhs, titanic.mat)
 
 matches <- rulesMatchLHS & rulesMatchRHS
 falseMatches <- rulesMatchLHS & !rulesMatchRHS
-
-table(matches)
-table(falseMatches)
-
-inspect(rules.pruned)
-
-#for(i in 1:2201){
-#  inspect(rules.pruned[falseMatches[,i]])
-#}
 
 correct <- apply(matches, 2, function(x) Reduce("|", x))
 table(correct)
@@ -94,13 +81,13 @@ titanic.mat <- as(titanic.raw, "transactions")
 #   }
 # }
 
-table(strongRules)
-strongRules
+#table(strongRules)
+#strongRules
 
-table(incorrect)
-incorrect.transactions <- titanic.mat[incorrect,]
+#table(incorrect)
+#incorrect.transactions <- titanic.mat[incorrect,]
 
-str(incorrect)
+#str(incorrect)
 
 # for(i in 1:length(incorrect)){
 #   
@@ -138,9 +125,12 @@ str(incorrect)
 
 ####Part 3 (TODO)####
 
-inspect(rules.pruned[rules.for.classifier])
-classifier <- rules.pruned[rules.for.classifier]
+#inspect(rules.pruned[rules.for.classifier])
+#classifier <- rules.pruned[rules.for.classifier]
 
+
+inspect(rules.pruned[strongRules])
+classifier <- rules.pruned[strongRules]
 
 results <- vector('logical', length = length(titanic.mat))
 results[1:length(results)] <- FALSE
