@@ -10,16 +10,22 @@ titanic.mat <- as(titanic.raw, "transactions")
 
 strongRules <- vector('logical', length=length(rules.sorted))
 
+#defaultClass <- "None"
+rightHand <- titanic.raw$Survived
+
 for(i in 1:length(rules.sorted)){
   
   outcome <-as(rules.sorted[i]@rhs, "ngCMatrix")[10,]
   matches <- is.subset(rules.sorted[i]@lhs, titanic.mat)
   
   titanic.mat <- titanic.mat[!matches, ]
+  rightHand <- rightHand[!matches]
   
   if(length(matches) == 0){next}
   
   strongRules[i] <- Reduce('|', matches)
+  defaultClass <- sort(table(rightHand), decreasing=TRUE)[1]
+  print(table(rightHand), decreasing=TRUE)
   
 }
 
@@ -31,8 +37,8 @@ classifier <- rules.sorted[strongRules]
 
 titanic.mat <- as(titanic.raw, "transactions")
 
-results <- vector('logical', length = length(titanic.mat))
-results[1:length(results)] <- FALSE
+results <- vector('factor', length = length(titanic.mat))
+results[1:length(results)] <- defaultClass
 
 rulesMatchLHS <- is.subset(classifier@lhs, titanic.mat)
 
