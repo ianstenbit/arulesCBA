@@ -54,28 +54,45 @@ falseMatches[,both]
 
 strongRules <- vector('logical', length=length(rules.pruned))
 rules.correct <- vector('numeric', length = length(rules.pruned))
-incorrect <- vector('logical', length = length(titanic.mat))
-incorrect[1:length(titanic.mat)] <- FALSE
+#incorrect <- vector('logical', length = length(titanic.mat))
+#incorrect[1:length(titanic.mat)] <- FALSE
 
-for(i in 1:length(titanic.mat)){
-  match <- Reduce("|", matches[, i])
-  if(!match){next}
-  rule <- match(TRUE, matches[,i])
-  falseMatch <- Reduce("|", falseMatches[,i])
-  strong <- match & !falseMatch
-  orderedCorrect <- TRUE
-  orderedCorrect <- !falseMatch | rule < match(TRUE, falseMatches[,i])
-  strong <- strong | orderedCorrect
-  strongRules[rule] <- strong | strongRules[rule]
+for(i in 1:length(rules.pruned)){
   
-  if(strong){
-    rules.correct[rule] <- rules.correct[rule] + 1
-  }
+  outcome <-as(rules.pruned[i]@rhs, "ngCMatrix")[10,]
+  matches <- is.subset(rules.pruned[i]@lhs, titanic.mat)
   
-  if(!orderedCorrect){
-    incorrect[i] <- TRUE  
-  }
+  titanic.mat <- titanic.mat[!matches, ]
+  
+  if(length(matches) == 0){next}
+  
+  strongRules[i] <- Reduce('|', matches)
+  
 }
+
+titanic.mat <- as(titanic.raw, "transactions")
+
+
+
+# for(i in 1:length(titanic.mat)){
+#   match <- Reduce("|", matches[, i])
+#   if(!match){next}
+#   rule <- match(TRUE, matches[,i])
+#   falseMatch <- Reduce("|", falseMatches[,i])
+#   strong <- match & !falseMatch
+#   orderedCorrect <- TRUE
+#   orderedCorrect <- !falseMatch | rule < match(TRUE, falseMatches[,i])
+#   strong <- strong | orderedCorrect
+#   strongRules[rule] <- strong | strongRules[rule]
+#   
+#   if(strong){
+#     rules.correct[rule] <- rules.correct[rule] + 1
+#   }
+#   
+#   if(!orderedCorrect){
+#     incorrect[i] <- TRUE  
+#   }
+# }
 
 table(strongRules)
 strongRules
@@ -85,33 +102,39 @@ incorrect.transactions <- titanic.mat[incorrect,]
 
 str(incorrect)
 
-for(i in 1:length(incorrect)){
-  
-  if(!incorrect[i]){next}
-  
-  wrule <- match(TRUE, falseMatches[,i])
-  
-  is.strong.rule <- strongRules[wrule]
-  crule.exists <- Reduce('|', matches[,i])
-  
-  if(is.strong.rule){
-    
-    if(crule.exists){
-      crule <- match(TRUE, matches[,i])
-      rules.correct[crule] <- rules.correct[crule] - 1
-    }
-  
-    rules.correct[wrule] <- rules.correct[wrule] + 1
-  }
-  
-  if(crule.exists){
-    crule <- match(TRUE, matches[,i])
-    strongRules[crule] <- TRUE
-  }
-  ####Override stuff (TODO)####
-}
+# for(i in 1:length(incorrect)){
+#   
+#   if(!incorrect[i]){next}
+#   
+#   wrule <- match(TRUE, falseMatches[,i])
+#   
+#   is.strong.rule <- strongRules[wrule]
+#   crule.exists <- Reduce('|', matches[,i])
+#   
+#   if(is.strong.rule){
+#     
+#     if(crule.exists){
+#       crule <- match(TRUE, matches[,i])
+#       rules.correct[crule] <- rules.correct[crule] - 1
+#     }
+#   
+#     rules.correct[wrule] <- rules.correct[wrule] + 1
+#   }
+#   
+#   if(crule.exists){
+#     crule <- match(TRUE, matches[,i])
+#     strongRules[crule] <- TRUE
+#   }
+#   
+#   if(length(falseMatches[,i][falseMatches[,i] == TRUE]) > 1){
+#     print(falseMatches[,i])
+#     secondFalseRule <- falseMatches[,i][(falseMatches[,i] == TRUE)[2]]
+#     print(secondFalseRule)  
+#   }
+#   ####Override stuff (TODO)####
+# }
 
-rules.for.classifier <- strongRules & rules.correct > 0
+#rules.for.classifier <- strongRules & rules.correct > 0
 
 ####Part 3 (TODO)####
 
@@ -128,6 +151,7 @@ survived <- titanic.raw$Survived
 table(survived)
 
 inspect(classifier)
+length(classifier)
 
 classifier.results <- as(classifier@rhs, "ngCMatrix")[10,]
 
