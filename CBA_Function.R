@@ -8,6 +8,11 @@ load("titanic.raw.rdata")
 dataset <- read.csv("wisc_bc_data.csv", stringsAsFactors = TRUE)
 dataset$id <- NULL
 
+
+dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categories = 5)))
+dsDisc$diagnosis <- factor(dataset$diagnosis)
+dsDisc <- dsDisc[c(1:10, 31)]
+
 head(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=5)))
 irisDisc$Species <- iris$Species
@@ -15,14 +20,11 @@ irisDisc$Species <- iris$Species
 classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 inspect(classifier)
 
-
-dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categories = 5)))
-dsDisc$diagnosis <- factor(dataset$diagnosis)
-dsDisc <- dsDisc[c(1:10, 31)]
-
-
 classifier <- CBA(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.75))
-classifier <- CBA(dsDisc, "diagnosis")
+classifier <- CBA(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.75))
+
+results <- classify(dsDisc, classifier)
+CrossTable(x = dsDisc$diagnosis == "M", y = results, prop.chisq = FALSE)
 
 inspect(classifier)
 
@@ -64,38 +66,22 @@ CBA <- function(dataset, column, apriori_parameter){
   
 }
 
-# ###### Using classifier on set used to build it ######
-#
-# #titanic.mat <- as(titanic.raw, "transactions")
-# ds.mat <- as(dsDisc, "transactions")
-#
-# #results <- vector('logical', length = length(titanic.mat))
-# results <- vector('logical', length = length(ds.mat))
-# results[1:length(results)] <- defaultClass
-#
-# #rulesMatchLHS <- is.subset(classifier@lhs, titanic.mat)
-# rulesMatchLHS <- is.subset(classifier@lhs, ds.mat)
-#
-# #survived <- titanic.raw$Survived
-# diagnosis <- dsDisc$diagnosis
-#
-# classifier.results <- as(classifier@rhs, "ngCMatrix")
-# classifier.results <- classifier.results[length(classifier.results[,1]),]
-#
-# output <- vector('logical', length=length(ds.mat))
-#
-# #for(i in 1:length(titanic.mat)){
-# for(i in 1:length(ds.mat)){
-#   if(Reduce("|", rulesMatchLHS[,i])){
-#     firstMatch <- match(TRUE, rulesMatchLHS[,i])
-#     result <- classifier.results[firstMatch]
-#     #results[i] <- result == (titanic.raw$Survived[i] == "Survived=Yes")
-#     results[i] <- result == (dsDisc$diagnosis[i] == "M")
-#     output[i] <- result
-#   }
-# }
-#
-# table(as.logical(results))
-#
-# CrossTable(x = dsDisc$diagnosis == "M", y = output, prop.chisq = FALSE)
-
+classify <- function(dataset, classifier){
+  ds.mat <- as(dataset, "transactions")
+  rulesMatchLHS <- is.subset(classifier@lhs, ds.mat)
+  classifier.results <- as(classifier@rhs, "ngCMatrix")
+  classifier.results <- classifier.results[length(classifier.results[,1]),]
+  
+  output <- vector('character', length = length(ds.mat))
+  
+  for(i in 1:length(ds.mat)){
+       if(Reduce("|", rulesMatchLHS[,i])){
+         firstMatch <- match(TRUE, rulesMatchLHS[,i])
+         result <- classifier.results[firstMatch]
+         output[i] <- result
+       }
+  }
+  
+  return(output)
+  
+}
