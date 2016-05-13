@@ -12,18 +12,13 @@ dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categori
 dsDisc$diagnosis <- factor(dataset$diagnosis)
 dsDisc <- dsDisc[c(1:10, 31)]
 
-head(dsDisc)
-rules <- apriori(dsDisc, parameter = list(minlen=2, supp = 0.005, conf=0.8), appearance = list(rhs=c("diagnosis=M", "diagnosis=B"), default = "lhs"), control=list(verbose=FALSE))
-
+rules <- apriori(dsDisc, parameter = list(minlen=2, supp = 0.05, conf=0.9), appearance = list(rhs=c("diagnosis=M", "diagnosis=B"), default = "lhs"), control=list(verbose=FALSE))
 rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
 
 subset.matrix <- is.subset(rules.sorted, rules.sorted)
 subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
 redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
 rules.sorted <- rules.sorted[!redundant]
-
-
-length(rules.sorted)
 
 #titanic.mat <- as(titanic.raw, "transactions")
 ds.mat <- as(dsDisc, 'transactions')
@@ -49,7 +44,6 @@ for(i in 1:length(rules.sorted)){
   
 }
 
-inspect(rules.sorted[strongRules])
 classifier <- rules.sorted[strongRules]
 
 ###### Using classifier on set used to build it ######
@@ -65,18 +59,10 @@ results[1:length(results)] <- defaultClass
 rulesMatchLHS <- is.subset(classifier@lhs, ds.mat)
 
 #survived <- titanic.raw$Survived
-#table(survived)
-
 diagnosis <- dsDisc$diagnosis
-
-#inspect(classifier)
-#length(classifier)
 
 classifier.results <- as(classifier@rhs, "ngCMatrix")
 classifier.results <- classifier.results[length(classifier.results[,1]),]
-
-inspect(classifier[1:10])
-classifier.results[1:10]
 
 output <- vector('logical', length=length(ds.mat))
 
@@ -90,9 +76,6 @@ for(i in 1:length(ds.mat)){
     output[i] <- result
   }
 }
-
-dsDisc$diagnosis[2]
-classifier.results[2]
 
 table(as.logical(results))
 
