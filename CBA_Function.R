@@ -2,31 +2,33 @@ require(arules)
 require(gmodels)
 setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
 
+
+
 load("titanic.raw.rdata")
+classifier <- CBA(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+results <- classify(titanic.raw, classifier)
+CrossTable(x = titanic.raw$Survived, y = results, prop.chisq = FALSE)
+
+
 
 dataset <- read.csv("wisc_bc_data.csv", stringsAsFactors = TRUE)
 dataset$id <- NULL
 dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categories = 5)))
 dsDisc$diagnosis <- factor(dataset$diagnosis)
 dsDisc <- dsDisc[c(1:10, 31)]
+classifier <- CBA(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.75))
+results <- classify(dsDisc, classifier)
+CrossTable(x = dsDisc$diagnosis, y = results, prop.chisq = FALSE)
+
+
 
 data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=5)))
 irisDisc$Species <- iris$Species
-
 classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
-classifier <- CBA(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
-classifier <- CBA(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.75))
-
-results <- classify(dsDisc, classifier)
-CrossTable(x = dsDisc$diagnosis, y = results, prop.chisq = FALSE)
-head(classifier)
-
 results <- classify(irisDisc, classifier)
 CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE)
 
-results <- classify(titanic.raw, classifier)
-CrossTable(x = titanic.raw$Survived, y = results, prop.chisq = FALSE)
 
 
 CBA <- function(dataset, column, apriori_parameter){
@@ -61,8 +63,6 @@ CBA <- function(dataset, column, apriori_parameter){
   }
 
   classifier <- rules.sorted[strongRules]
-  #classifier <- as(classifier, "data.frame")
-  #classifier$default <- defaultClasses[strongRules]
   df <- paste(column, names(defaultClass), sep="=")
   classifier <- list(classifier, df)
   return(classifier)
