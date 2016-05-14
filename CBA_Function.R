@@ -3,7 +3,7 @@ require(gmodels)
 setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
 
 
-
+#Test data set 1: Titanic survival
 load("titanic.raw.rdata")
 head(titanic.raw)
 classifier <- CBA(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
@@ -11,7 +11,7 @@ results <- classify(titanic.raw, classifier)
 CrossTable(x = titanic.raw$Survived, y = results, prop.chisq = FALSE)
 
 
-
+#Test data set 2: Benign and Malignant tumors
 dataset <- read.csv("wisc_bc_data.csv", stringsAsFactors = TRUE)
 dataset$id <- NULL
 dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categories = 5)))
@@ -22,7 +22,7 @@ results <- classify(dsDisc, classifier)
 CrossTable(x = dsDisc$diagnosis, y = results, prop.chisq = FALSE)
 
 
-
+#Test data set 3: Flower species classification
 data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=5)))
 irisDisc$Species <- iris$Species
@@ -86,12 +86,18 @@ CBA <- function(dataset, column, apriori_parameter){
 }
 
 classify <- function(dataset, classifier){
-  ds.mat <- as(dataset, "transactions")
-  rulesMatchLHS <- is.subset(classifier[[1]]@lhs, ds.mat)
-  classifier.mat <- as(classifier[[1]]@rhs, "ngCMatrix")
   
+  #Save dataset as transaction matrix
+  ds.mat <- as(dataset, "transactions")
+
+  #Matrix of which rules match which transactions
+  rulesMatchLHS <- is.subset(classifier[[1]]@lhs, ds.mat)
+  
+  #Build a vector of the right hand sides of the rules
+  classifier.mat <- as(classifier[[1]]@rhs, "ngCMatrix")
   classifier.results <- vector('numeric', length=length(classifier.mat[0,]))
   
+  #Populate RHS vector from binary transaction matrix
   for(i in 1:length(classifier.mat[1,])){
     result <- match(TRUE,classifier.mat[,i])
     classifier.results[i] <- result
@@ -99,9 +105,11 @@ classify <- function(dataset, classifier){
   
   classifier.results <- rownames(classifier.mat)[classifier.results]
   
+  #Build output of classifications for input data, populate it with the default class
   output <- vector('character', length = length(ds.mat))
   output[1:length(ds.mat)] <- classifier[[2]]
   
+  #For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
   for(i in 1:length(ds.mat)){
        if(Reduce("|", rulesMatchLHS[,i])){
          firstMatch <- match(TRUE, rulesMatchLHS[,i])
