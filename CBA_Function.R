@@ -123,6 +123,8 @@ classify <- function(dataset, classifier){
 }
 
 CBA.2 <- function(dataset, column, apriori_parameter){
+  
+  ####Preparing data####
   #Generate and sort association rules
   rules <- apriori(dataset, parameter = apriori_parameter, appearance = list(rhs=paste(column, levels(dataset[,column]), sep="="), default = "lhs"), control=list(verbose=FALSE))
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
@@ -139,7 +141,7 @@ CBA.2 <- function(dataset, column, apriori_parameter){
   #Vector used to identify rules as being 'strong' rules for the final classifier 
   strongRules <- vector('logical', length=length(rules.sorted))
   
-  #Remaining rhs of transaction records, used to calculate default class
+  #right-hand side of data records
   rightHand <- dataset[,column]
   
   rulesMatchLHS <- is.subset(rules.sorted@lhs, ds.mat)
@@ -156,49 +158,80 @@ CBA.2 <- function(dataset, column, apriori_parameter){
                   wrule=integer(),
                   stringsAsFactors = FALSE)
   
+  #matrix of rules and classification factor to identify how many times the rule correctly identifies the class
   classCasesCovered <- matrix(0, nrow=length(rules.sorted), ncol=length(levels(dataset[,column])))
   colnames(classCasesCovered) <- levels(dataset[,column])
   
-  #Stage 1
+  ####Stage 1####
+  
+  #for each record
   for(i in 1:length(ds.mat)){
+    #find first correct and incorrect rule match for this record
     crule <- match(TRUE, matches[,i])
     wrule <- match(TRUE, falseMatches[,i])
+    
+    #formatting
     if(is.na(wrule)){wrule <- -1}
     if(is.na(crule)){crule <- -1}
+    
+    #identify the correct classification of this class by this rule
     class <- as.character((dataset[i, column]))
     if(crule != -1){
       classCasesCovered[crule, class] <- classCasesCovered[crule, class] + 1
     }
+    
+    #If this was correctly classified, mark the classifying rule for use in the final classifier
     if(crule > wrule){
       strongRules[crule] <- TRUE
-    } else if (wrule > crule){
+    } 
+    #otherwise, record this false classification
+    else if (wrule > crule){
       a[nrow(a)+1,] <- c(i, class, crule, wrule)
     }
   }
   
+  #list of all possible rule replacements for correct rules which were trumped by false rules
   replace <- data.frame(rule=integer(),
                         replaceRule=integer(),
                         dID=integer(),
                         class=character(),
                         stringsAsFactors = FALSE)
   
-  #Stage 2
+  ####Stage 2####
+  
+  #for every wrongly classified record
   for(i in 1:length(a)){
+    
+    #if the wrong rule was identified for use in our final classifier
     if(strongRules[as.numeric(a$wrule[i])]){
+      #modify class cases covered accordingly
       if(a$crule[i] != -1) {classCasesCovered[as.integer(a$crule[i]),a$class[i]] <- classCasesCovered[as.integer(a$crule[i]), a$class[i]] - 1}
       classCasesCovered[as.integer(a$wrule[i]),a$class[i]] <- classCasesCovered[as.integer(a$wrule[i]), a$class[i]] + 1
-    } else {
+    } 
+    
+    #if the wrong rule was not identified for use
+    else {
+      #list of all possible replacements for this rule
       wSet <- matches[,as.numeric(a$dID[i])]
+      
+      #for every other rule
       for(j in 1:length(wSet)){
+        
+        #make sure we're not comparing rule to itself
         if(wSet[j] & j != as.numeric(a$crule[i])){
+          
+          #mark this rule for use in final classifier
           strongRules[j] <- TRUE
           class <- as.character(a$class[i])
+          
+          #populate data frame of possible rule replacement
           replace[nrow(replace)+1,] <- c(as.numeric(a$crule[i]), j, a$dID[i], class)
         }
       }
     }
   }
   
+  #initializing variables for stage 3
   ruleErrors <- 0
   classDistr <- dataset[,column]
   
@@ -210,36 +243,67 @@ CBA.2 <- function(dataset, column, apriori_parameter){
   defaultClasses <- vector('character', length=length(rules.sorted))
   totalErrors <- vector('numeric', length=length(rules.sorted))
   
-  #Stage 3
+  ####Stage 3####
+  
+  #for every rule in the sorted list of rules
   for(i in 1:length(rules.sorted)){
+    
+    #if this rule was marked for use in the classifier
     if(strongRules[i]){ 
+      
+      #if this rule no longer correctly identifies at least one thing, remove it from the list of rules for classifier
       if(Reduce('|', classCasesCovered[i,]) == FALSE){
         strongRules[i] <- FALSE
         next
       }
+      
+      #get list of possible rules to replace this rule
       rule.replace <- replace[replace$rule == i,]
+      
+      #if there are possible replacements
       if(nrow(rule.replace) > 0){
+        
+        # for every possible replacement
         for(j in 1:ncol(rule.replace)){
+          
+          #if the entry for which this rule has been labeled a possible replacement has already been classified by the classifier, decrement its correct classification
           if(covered[as.integer(rule.replace$dID[j])]){
             classCasesCovered[i,rule.replace$class[j]] <- classCasesCovered[i,rule.replace$class[j]] - 1
-          } else {
+          } 
+          #if it hasn't been covered, decrement correct classification counter for replacement rule
+          else {
             classCasesCovered[rule.replace$rule[j],rule.replace$class[j]] <- classCasesCovered[rule.replace$rule[j],rule.replace$class[j]] - 1
           }
         }
       }
+      
+      #recognize which entried we've now covered with the current rule
       covered <- covered | matches[i,]
+      
+      #save the remaining distribution of classes of those entries which haven't been classified
       classDistr <- dataset[,column][!covered]
+      
+      #add all of the false matches of this rule to the rule error count
       ruleErrors <- ruleErrors + sum(falseMatches[i,] == TRUE)
+      
+      #save the default class and calculate how many errors use of that defualt class will generate
       defaultClass <- names(sort(table(classDistr), decreasing=TRUE)[1])
       defaultErrors <- sum(sort(table(classDistr), decreasing=TRUE)[2:length(table(classDistr))])
+      
+      #save the total number of errors for the current classifier and the default class at this stage
       totalErrors[i] <- ruleErrors + defaultErrors
       defaultClasses[i] <- defaultClass
     }
   }
   
+  #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
+ 
+  #add a default class to the classifier (the default class from the last rule included in the classifier)
   defaultClass <- defaultClasses[strongRules][which.min(totalErrors[strongRules])]
   df <- paste(column, defaultClass, sep="=")
   classifier <- list(classifier, df)
+  
   return(classifier)
 }
+
