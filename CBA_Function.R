@@ -233,7 +233,7 @@ CBA.2 <- function(dataset, column, apriori_parameter){
       if(nrow(rule.replace) > 0){
         
         # for every possible replacement
-        for(j in 1:ncol(rule.replace)){
+        for(j in 1:nrow(rule.replace)){
           
           #if the entry for which this rule has been labeled a possible replacement has already been classified by the classifier, decrement its correct classification
           if(covered[as.integer(rule.replace$dID[j])]){
