@@ -1,5 +1,5 @@
 require(gmodels)
-setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
+setwd("PUT WORKING DIRECTORY HERE")
 
 #Test data set 1: Titanic survival
 load("titanic.raw.rdata")
@@ -26,3 +26,11 @@ irisDisc$Species <- iris$Species
 classifier <- CBA.2(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 results <- classify(irisDisc, classifier)
 CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+
+#Test data set 4: Congressional voting records
+congressData <- read.csv("house-votes-84.data", stringsAsFactors=TRUE, header=FALSE)
+colnames(congressData)[1] <- "Party"
+head(congressData)
+classifier <- CBA.2(congressData, "Party", list(minlen=2, supp = 0.10, conf=0.99))
+results <- classify(congressData, classifier)
+CrossTable(x=congressData$Party, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
