@@ -91,7 +91,7 @@ classify <- function(dataset, classifier){
   
 }
 
-CBA.2 <- function(dataset, column, apriori_parameter){
+CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   ####Preparing data####
   #Generate and sort association rules
@@ -272,6 +272,13 @@ CBA.2 <- function(dataset, column, apriori_parameter){
   defaultClass <- defaultClasses[strongRules][which.min(totalErrors[strongRules])]
   df <- paste(column, defaultClass, sep="=")
   classifier <- list(classifier, df)
+  
+  if(verbose){
+    print(defaultClass)
+    print(inspect(classifier[[1]]))
+    print(min(totalErrors[strongRules]))
+    print(c(which.min(totalErrors[strongRules]), length(classifier[[1]])))
+  }
   
   return(classifier)
 }

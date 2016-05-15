@@ -1,9 +1,9 @@
 require(gmodels)
-setwd("PUT WORKING DIRECTORY HERE")
+setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/")
 
 #Test data set 1: Titanic survival
 load("titanic.raw.rdata")
-classifier <- CBA.2(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+classifier <- CBA.2(titanic.raw, "Survived", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.6))
 results <- classify(titanic.raw, classifier)
 CrossTable(x = titanic.raw$Survived, y = results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
 
@@ -26,3 +26,12 @@ irisDisc$Species <- iris$Species
 classifier <- CBA.2(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 results <- classify(irisDisc, classifier)
 CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+
+
+#Test data set 4: cars
+#interestingly, this test data set yields association rules which only classify things as 'acc' or 'unacc'
+# dataset <- read.csv("car.data", stringsAsFactors = TRUE, header=FALSE)
+# colnames(dataset) <- c("buying","maint","doors","persons","lug_boot","safety","condition")
+# classifier <- CBA.2(dataset, "condition", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.75))
+# results <- classify(dataset, classifier)
+# CrossTable(x=dataset$condition, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
