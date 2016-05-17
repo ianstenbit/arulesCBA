@@ -17,7 +17,5 @@ SEXP test(SEXP ds, SEXP rightHand, SEXP rules, SEXP numRows, SEXP numRules){
 	nRules = INTEGER(numRules)[0];
 	printf("Rows: %u, Columns: %u, Rules: %u\n", nRows, nCols, nRules);
 
-	//VECTOR_ELT(dsMat);
-
 	return ds;
 }
