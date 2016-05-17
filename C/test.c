@@ -7,3 +7,17 @@ SEXP test_func(SEXP input) {
   UNPROTECT(1);
   return p1;
 }
+
+SEXP test(SEXP ds, SEXP rightHand, SEXP rules, SEXP numRows, SEXP numRules){
+	printf("Test Function\n");
+	int nRows, nRules, nCols = 0;
+
+	nRows = INTEGER(numRows)[0];
+	nCols = Rf_length(ds);
+	nRules = INTEGER(numRules)[0];
+	printf("Rows: %u, Columns: %u, Rules: %u\n", nRows, nCols, nRules);
+
+	//VECTOR_ELT(dsMat);
+
+	return ds;
+}
