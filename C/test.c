@@ -92,7 +92,8 @@ int* getReplacements(int* replace, int rule, int numRules, int rLen){
 
 int getMajorityClass(int* classes, int* covered, int classLevels, int numEntries){
 
-	int* counts = malloc(numEntries * sizeof *counts);
+	int* counts = malloc(classLevels * sizeof *counts);
+	memset(counts, 0, sizeof(int)*classLevels);
 
 	for(int i = 0; i < numEntries; i++)
 		if(!covered[i])
@@ -281,8 +282,6 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		defaultErrors = getDefaultErrors(classes, covered_arr, nRows, classNum);
 		ruleErrors += countRecordMatches(false_matches_matrix, i, numRules, nRows);
-
-		printf("Default: %u, Rule: %u\n", defaultErrors, ruleErrors);
 
 		total_errors_arr[i] = defaultErrors + ruleErrors;
 

@@ -268,6 +268,8 @@ CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
  
+  print(defaultClasses)
+  
   #add a default class to the classifier (the default class from the last rule included in the classifier)
   defaultClass <- defaultClasses[strongRules][which.min(totalErrors[strongRules])]
   df <- paste(column, defaultClass, sep="=")
