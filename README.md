@@ -28,3 +28,5 @@ In the UnitTests.R file, all of the function calls to CBA.C can be replaced with
 
 The SpeedComparison.R file in the /C directory has a basic little speed test to demonstrate the speed difference between the C and R implementations. 
 
+Extensive, but far from exhaustive, testing seems to indicate that the CBA.C implementation is approximately twice as fast as the CBA.2 optimized R implementation
+
