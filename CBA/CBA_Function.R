@@ -99,10 +99,10 @@ CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
   
   #Prune association rule set to remove redundant rules
-  subset.matrix <- is.subset(rules.sorted, rules.sorted)
-  subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
-  redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
-  rules.sorted <- rules.sorted[!redundant]
+  # subset.matrix <- is.subset(rules.sorted, rules.sorted)
+  # subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
+  # redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
+  # rules.sorted <- rules.sorted[!redundant]
   
   #Build transaction matrix from dataset
   ds.mat <- as(dataset, 'transactions')
