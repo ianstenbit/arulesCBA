@@ -46,6 +46,37 @@ int* getMatches(int* matrix, int entry_row, int numRules){
 	return r;
 }
 
+int* getRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
+
+	int* r = malloc(numRecords * sizeof *r);
+
+	for(int i = 0; i < numRecords; i++){
+		if(matrix[_ind(rule_column, i, numRules)] == 1)
+			r[i] = 1;
+		else
+			r[i] = 0;
+	}
+
+	return r;
+
+}
+
+int* getReplacements(int* replace, int rule, int numRules, int rLen){
+	int* repl = malloc((numRules-1) * 2 * sizeof *repl);
+	int repl_size = 0;
+
+	for(int i = 0; i < numRules - 1; i++) repl[i] = -1;
+
+	for(int i = 0; i < rLen; i+=3){
+		if(replace[i] == rule){
+			repl[repl_size++] = replace[i+1];
+			repl[repl_size++] = replace[i+2];
+		}
+	}
+
+	return repl;
+}
+
 SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules, SEXP classify_column){
 
 	R_len_t i, nrows, ncols, nrules;
@@ -84,6 +115,8 @@ SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SE
 	for(i = 0; i < a_size; i++){
 		INTEGER(a)[i] = a_vector[i];
 	}
+
+	free(a_vector);
 
 	return a;
 }
@@ -127,6 +160,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 
 			}
 
+			free(wSet);
+
 		}
 	}
 
@@ -135,11 +170,80 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 		INTEGER(rep)[i] = replace[i];
 	}
 
+	free(replace);
+
 	return rep;
 
 }
 
-SEXP stage3(SEXP strong_rules, SEXP casesCovered){
+SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClasses, SEXP totalErrors, SEXP classDistr, SEXP replace, SEXP matches){
+
+	int nRows = length(covered);
+	int numRules = length(strong_rules);
+	int replace_len = length(replace);
+
+	int* strong_rules_arr = LOGICAL(strong_rules);
+	int* cases_covered_arr = INTEGER(casesCovered);
+	int* replace_arr = INTEGER(replace);
+	int* covered_arr = LOGICAL(covered);
+	int* matches_matrix = INTEGER(matches);
+
+	int* replace_list = 0;
+	int* rule_covered = 0;
+
+	for(int i = 0; i < numRules; i++){
+
+		if(strong_rules_arr[i] == 0) continue;
+
+		if(cases_covered_arr[i] == 0){
+			strong_rules_arr[i] = FALSE;
+			continue;
+		}
+
+		replace_list = getReplacements(replace_arr, i, numRules, replace_len);
+			
+		int repl_index = 0;
+
+		while(replace_list[repl_index] != -1){
+
+			if(covered_arr[replace_list[repl_index+1]])
+				cases_covered_arr[i]--;
+			else
+				cases_covered_arr[replace_list[repl_index]]--;
+
+			repl_index+=2;
+
+		}
+
+		free(replace_list);
+
+		rule_covered = getRecordMatches(matches_matrix, i, numRules, nRows);
+		
+		for(int i = 0; i < nRows; i++){
+			covered_arr[i] |= rule_covered[i];
+		}
+		/*
+		  
+		  #recognize which entried we've now covered with the current rule
+		  covered <- covered | matches[i,]
+		  
+		  #save the remaining distribution of classes of those entries which haven't been classified
+		  classDistr <- dataset[,column][!covered]
+		  
+		  #add all of the false matches of this rule to the rule error count
+		  ruleErrors <- ruleErrors + sum(falseMatches[i,] == TRUE)
+		  
+		  #save the default class and calculate how many errors use of that defualt class will generate
+		  defaultClass <- names(sort(table(classDistr), decreasing=TRUE)[1])
+		  defaultErrors <- sum(sort(table(classDistr), decreasing=TRUE)[2:length(table(classDistr))])
+		  
+		  #save the total number of errors for the current classifier and the default class at this stage
+		  totalErrors[i] <- ruleErrors + defaultErrors
+		  defaultClasses[i] <- defaultClass
+		
+		*/
+
+	}
 
 }
 
