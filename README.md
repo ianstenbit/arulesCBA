@@ -18,7 +18,7 @@ Finally, navigate to the /C directory of this repository in a terminal, and run 
 
 First, run the CBA/CBA_Function.R file to load the three CBA functions (CBA, CBA.2, and CBA.C) into memory.
 
-Second, run the Tests/UnitTests.R file. This will load 4 data sets and run the classifier on them. The fourth data set runs somewhat slowly, as there is a very large number of association rules for that data set.
+Second, run the Tests/UnitTests.R file. This will load 4 data sets and run the classifier on them. The fourth data set runs somewhat slowly (takes as much as .5 seconds), as there is a very large number of association rules for that data set.
 
 After the classifier is run on each data set, a crosstable will be displayed to demonstrate the results of the classification algorithm.
 
@@ -28,4 +28,3 @@ In the UnitTests.R file, all of the function calls to CBA.C can be replaced with
 
 The SpeedComparison.R file in the /C directory has a basic little speed test to demonstrate the speed difference between the C and R implementations. 
 
-Currently, the most computationally expensive part of the algorithm is pruning the list of association rules for large rulesets. This will eventually be implemented in C. It currently takes anywhere from 75% to 95% of the time it takes the algorithm to run.
