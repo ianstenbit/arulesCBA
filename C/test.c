@@ -46,6 +46,19 @@ int* getMatches(int* matrix, int entry_row, int numRules){
 	return r;
 }
 
+int countRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
+
+	int count = 0;
+
+	for(int i = 0; i < numRecords; i++){
+		if(matrix[_ind(rule_column, i, numRules)] == 1)
+			count++;
+	}
+
+	return count;
+
+}
+
 int* getRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
 
 	int* r = malloc(numRecords * sizeof *r);
@@ -75,6 +88,35 @@ int* getReplacements(int* replace, int rule, int numRules, int rLen){
 	}
 
 	return repl;
+}
+
+int getMajorityClass(int* classes, int* covered, int classLevels, int numEntries){
+
+	int* counts = malloc(numEntries * sizeof *counts);
+
+	for(int i = 0; i < numEntries; i++)
+		if(!covered[i])
+			counts[classes[i]-1]++;
+
+	int max_index = 0;
+
+	for(int i = 0; i < classLevels; i++){
+		if(counts[i] > counts[max_index]){
+			max_index = i;
+		}
+	}
+
+	return max_index+1;
+}
+
+int getDefaultErrors(int* classes, int* covered, int numEntries, int defaultClass){
+	int count = 0;
+
+	for(int i = 0; i < numEntries; i++)
+		if(!covered[i] && classes[i] != defaultClass)
+			count++;
+
+	return count;
 }
 
 SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules, SEXP classify_column){
@@ -176,20 +218,28 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 
 }
 
-SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClasses, SEXP totalErrors, SEXP classDistr, SEXP replace, SEXP matches){
+SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClasses, SEXP totalErrors, SEXP classDistr, SEXP replace, SEXP matches, SEXP falseMatches, SEXP classLevels){
 
 	int nRows = length(covered);
 	int numRules = length(strong_rules);
 	int replace_len = length(replace);
+	int numClasses = INTEGER(classLevels)[0];
 
 	int* strong_rules_arr = LOGICAL(strong_rules);
 	int* cases_covered_arr = INTEGER(casesCovered);
 	int* replace_arr = INTEGER(replace);
 	int* covered_arr = LOGICAL(covered);
 	int* matches_matrix = INTEGER(matches);
+	int* classes = INTEGER(classDistr);
+	int* defaultClasses_arr = INTEGER(defaultClasses);
+	int* false_matches_matrix = INTEGER(falseMatches);
+	int* total_errors_arr = INTEGER(totalErrors);
 
 	int* replace_list = 0;
 	int* rule_covered = 0;
+
+	int ruleErrors = 0;
+	int defaultErrors = 0;
 
 	for(int i = 0; i < numRules; i++){
 
@@ -219,31 +269,26 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		rule_covered = getRecordMatches(matches_matrix, i, numRules, nRows);
 		
-		for(int i = 0; i < nRows; i++){
-			covered_arr[i] |= rule_covered[i];
+		for(int j = 0; j < nRows; j++){
+			covered_arr[j] |= rule_covered[j];
 		}
-		/*
-		  
-		  #recognize which entried we've now covered with the current rule
-		  covered <- covered | matches[i,]
-		  
-		  #save the remaining distribution of classes of those entries which haven't been classified
-		  classDistr <- dataset[,column][!covered]
-		  
-		  #add all of the false matches of this rule to the rule error count
-		  ruleErrors <- ruleErrors + sum(falseMatches[i,] == TRUE)
-		  
-		  #save the default class and calculate how many errors use of that defualt class will generate
-		  defaultClass <- names(sort(table(classDistr), decreasing=TRUE)[1])
-		  defaultErrors <- sum(sort(table(classDistr), decreasing=TRUE)[2:length(table(classDistr))])
-		  
-		  #save the total number of errors for the current classifier and the default class at this stage
-		  totalErrors[i] <- ruleErrors + defaultErrors
-		  defaultClasses[i] <- defaultClass
-		
-		*/
+
+		free(rule_covered);
+
+		int classNum = getMajorityClass(classes, covered_arr, numClasses, nRows);
+
+		defaultClasses_arr[i] = classNum;
+
+		defaultErrors = getDefaultErrors(classes, covered_arr, nRows, classNum);
+		ruleErrors += countRecordMatches(false_matches_matrix, i, numRules, nRows);
+
+		printf("Default: %u, Rule: %u\n", defaultErrors, ruleErrors);
+
+		total_errors_arr[i] = defaultErrors + ruleErrors;
 
 	}
+
+	return R_NilValue;
 
 }
 

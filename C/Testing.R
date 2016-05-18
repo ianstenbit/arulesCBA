@@ -49,16 +49,19 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   #initializing variables for stage 3
   ruleErrors <- 0
   classDistr <- as.integer(dataset[,column])
-  print(classDistr)
   
   covered <- vector('logical', length=length(ds.mat))
   covered[1:length(ds.mat)] <- FALSE
   
   defaultClasses <- vector('integer', length=length(rules.sorted))
-  totalErrors <- vector('numeric', length=length(rules.sorted))
+  totalErrors <- vector('integer', length=length(rules.sorted))
   
   
-  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches)
+  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(dataset[,column])))
+  
+  print(totalErrors)
+  print(which.min(totalErrors[strongRules]))
+  print(defaultClasses)
   
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
