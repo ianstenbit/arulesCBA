@@ -59,15 +59,11 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(dataset[,column])))
   
-  print(totalErrors)
-  print(which.min(totalErrors[strongRules]))
-  print(defaultClasses)
-  
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
   
   #add a default class to the classifier (the default class from the last rule included in the classifier)
-  defaultClass <- defaultClasses[strongRules][which.min(totalErrors[strongRules])]
+  defaultClass <- levels(dataset[,column])[defaultClasses[[as.numeric(min(totalErrors[strongRules]))]]]
   df <- paste(column, defaultClass, sep="=")
   classifier <- list(classifier, df)
   
@@ -79,5 +75,5 @@ data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 classifier <- CBA.C(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
-#results <- classify(irisDisc, classifier)
-#CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+results <- classify(irisDisc, classifier)
+CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
