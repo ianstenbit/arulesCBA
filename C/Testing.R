@@ -71,9 +71,18 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
 
 }
 
-data(iris)
-irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
-irisDisc$Species <- iris$Species
-classifier <- CBA.C(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
-results <- classify(irisDisc, classifier)
-CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+# data(iris)
+# irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
+# irisDisc$Species <- iris$Species
+# classifier <- CBA.C(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+# results <- classify(irisDisc, classifier)
+# CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/Tests/")
+dataset <- read.csv("wisc_bc_data.csv", stringsAsFactors = TRUE)
+dataset$id <- NULL
+dsDisc <- as.data.frame(lapply(dataset[2:31], function(x) discretize(x, categories = 6)))
+dsDisc$diagnosis <- factor(dataset$diagnosis)
+dsDisc <- dsDisc[c(1:10, 31)]
+classifier <- CBA.C(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+results <- classify(dsDisc, classifier)
+CrossTable(x = dsDisc$diagnosis, y = results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
