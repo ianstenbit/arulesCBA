@@ -1,7 +1,7 @@
 require(gmodels)
 require(arules)
 
-CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
+CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   ####Preparing data####
   #Generate and sort association rules
@@ -129,3 +129,5 @@ data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 classifier <- CBA.2(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+results <- classify(irisDisc, classifier)
+CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)

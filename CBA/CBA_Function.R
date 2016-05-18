@@ -200,8 +200,6 @@ CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
     }
   }
   
-  print(replace)
-  
   #initializing variables for stage 3
   ruleErrors <- 0
   classDistr <- dataset[,column]
