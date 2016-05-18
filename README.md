@@ -1,6 +1,6 @@
 ##CBA Algorithm in R and C
 
-This repository has a version of the CBA algorithm described in Liu, et al, 1998.
+This repository has a version of the CBA algorithm described in Liu, et al., 1998.
 
 ###How to use / test
 
@@ -28,4 +28,4 @@ In the UnitTests.R file, all of the function calls to CBA.C can be replaced with
 
 The SpeedComparison.R file in the /C directory has a basic little speed test to demonstrate the speed difference between the C and R implementations. 
 
-Currently, the most computationally expensive part of the algorithm is pruning the list of association rules for large rulesets. This will eventually be implemented in C.
+Currently, the most computationally expensive part of the algorithm is pruning the list of association rules for large rulesets. This will eventually be implemented in C. It currently takes anywhere from 75% to 95% of the time it takes the algorithm to run.
