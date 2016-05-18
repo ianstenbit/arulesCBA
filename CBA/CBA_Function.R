@@ -5,43 +5,43 @@ CBA <- function(dataset, column, apriori_parameter){
   #Generate and sort association rules
   rules <- apriori(dataset, parameter = apriori_parameter, appearance = list(rhs=paste(column, levels(dataset[,column]), sep="="), default = "lhs"), control=list(verbose=FALSE))
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
-
+  
   #Prune association rule set to remove redundant rules
   subset.matrix <- is.subset(rules.sorted, rules.sorted)
   subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
   redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
   rules.sorted <- rules.sorted[!redundant]
-
+  
   #Build transaction matrix from dataset
   ds.mat <- as(dataset, 'transactions')
-
+  
   #Vector used to identify rules as being 'strong' rules for the final classifier 
   strongRules <- vector('logical', length=length(rules.sorted))
-
+  
   #Remaining rhs of transaction records, used to calculate default class
   rightHand <- dataset[,column]
-
+  
   #For all of the pruned, sorted rules
   for(i in 1:length(rules.sorted)){
-  
+    
     #List of transactions which match this rule
     matches <- is.subset(rules.sorted[i]@lhs, ds.mat)
-  
+    
     #Remove matching transactions from remaining dataset
     ds.mat <- ds.mat[!matches,]
     rightHand <- rightHand[!matches]
-  
+    
     #If no transactions match this rule, skip it
     if(length(matches) == 0){next}
-  
+    
     #Save this rule as being a strong rule if it matched any transaction
     strongRules[i] <- Reduce('|', matches)
     
     #Save the default class after this rule
     defaultClass <- sort(table(rightHand), decreasing=TRUE)[1]
-  
+    
   }
-
+  
   #Take the subset of pruned, sorted rules which are considered strong. These are our classifier
   classifier <- rules.sorted[strongRules]
   
@@ -58,7 +58,7 @@ classify <- function(dataset, classifier){
   
   #Save dataset as transaction matrix
   ds.mat <- as(dataset, "transactions")
-
+  
   #Matrix of which rules match which transactions
   rulesMatchLHS <- is.subset(classifier[[1]]@lhs, ds.mat)
   
@@ -80,11 +80,11 @@ classify <- function(dataset, classifier){
   
   #For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
   for(i in 1:length(ds.mat)){
-       if(Reduce("|", rulesMatchLHS[,i])){
-         firstMatch <- match(TRUE, rulesMatchLHS[,i])
-         result <- classifier.results[firstMatch]
-         output[i] <- result
-       }
+    if(Reduce("|", rulesMatchLHS[,i])){
+      firstMatch <- match(TRUE, rulesMatchLHS[,i])
+      result <- classifier.results[firstMatch]
+      output[i] <- result
+    }
   }
   
   return(output)
@@ -98,11 +98,11 @@ CBA.2 <- function(dataset, column, apriori_parameter, verbose=FALSE){
   rules <- apriori(dataset, parameter = apriori_parameter, appearance = list(rhs=paste(column, levels(dataset[,column]), sep="="), default = "lhs"), control=list(verbose=FALSE))
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
   
-  #Prune association rule set to remove redundant rules
-  subset.matrix <- is.subset(rules.sorted, rules.sorted)
-  subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
-  redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
-  rules.sorted <- rules.sorted[!redundant]
+  # #Prune association rule set to remove redundant rules
+  # subset.matrix <- is.subset(rules.sorted, rules.sorted)
+  # subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
+  # redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
+  # rules.sorted <- rules.sorted[!redundant]
   
   #Build transaction matrix from dataset
   ds.mat <- as(dataset, 'transactions')
@@ -336,7 +336,7 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
-      
+  
   #add a default class to the classifier (the default class from the last rule included in the classifier)
   defaultClass <- levels(dataset[,column])[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
   
