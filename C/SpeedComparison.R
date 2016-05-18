@@ -8,14 +8,14 @@ dsDisc <- dsDisc[c(1:10, 31)]
 
 
 startTime <- Sys.time()
-for(i in 1:10){
+for(i in 1:100){
   classifier <- CBA.C(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 }
 endTime <- Sys.time()
 endTime - startTime
 
 startTime <- Sys.time()
-for(i in 1:10){
+for(i in 1:100){
   classifier <- CBA.2(dsDisc, "diagnosis", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 }
 endTime <- Sys.time()
