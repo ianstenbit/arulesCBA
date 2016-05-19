@@ -86,12 +86,33 @@ int* getRecordMatches(int* matrix, int rule_column){
 
 }
 
+/*
+Builds a c-array of replacement rule data. This data was originally stored in a data.frame in R,
+but it has been linearized for ease of use in C.
+@param replace: a linear array of the replace structure from R.
+Note:
+	- Indeces where i%3 = 0 represent a crule
+	- Indeces where i%3 = 1 represent a wrule to replace the crule
+	- Indeces where i%3 = 2 represent the entry for which this replacement may occur
+@param rule: the index of the crule whose replacements are being found
+@param numRules: the number of rules in the data set
+@param rLen: the length of the replace array
+@return: a list of replacements for rule 'rule'
+Note: 
+	- What's returned by this method bust be freed by the calling function
+	- Indeces where i%2 = 0 represent a wrule
+	- Indeces where i%2 = 1 represent an entry index for which this wrule might replace the given crule
+*/
 int* getReplacements(int* replace, int rule, int numRules, int rLen){
+
+	/*Allocate an int array of all the possible replacements*/
 	int* repl = malloc((numRules-1) * 2 * sizeof *repl);
 	int repl_size = 0;
 
+	/*Fill the array with -1s*/
 	for(int i = 0; i < numRules - 1; i++) repl[i] = -1;
 
+	/*For each replacement, copy over the info if the crule matches the rule for which we're searching*/
 	for(int i = 0; i < rLen; i+=3){
 		if(replace[i] == rule){
 			repl[repl_size++] = replace[i+1];
@@ -99,6 +120,7 @@ int* getReplacements(int* replace, int rule, int numRules, int rLen){
 		}
 	}
 
+	/*Return the new replacement array*/
 	return repl;
 }
 
