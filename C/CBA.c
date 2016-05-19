@@ -124,15 +124,27 @@ int* getReplacements(int* replace, int rule, int numRules, int rLen){
 	return repl;
 }
 
+/*
+Get the majority class of the remaining unclassified records
+Note that the class is stored numerically, as opposed to by factor-string as is done in R
+@param classes: the classes of all of the training records
+@param covered: a binary array representing wether or not each record has been classified
+@param classLevels: the number of different classes
+@param numEntries: the number of entries in the training dataset
+@return: an integer in [0...classLevels) representing the majority class of the unclassified records in the data set
+*/
 int getMajorityClass(int* classes, int* covered, int classLevels, int numEntries){
 
+	/*Allocate an array to count the instances of each class*/
 	int* counts = malloc(classLevels * sizeof *counts);
 	memset(counts, 0, sizeof(int)*classLevels);
 
+	/*Populate the array by parsing through the classes array*/
 	for(int i = 0; i < numEntries; i++)
 		if(!covered[i])
 			counts[classes[i]-1]++;
 
+	/*Calculate the max*/
 	int max_index = 0;
 
 	for(int i = 0; i < classLevels; i++){
@@ -141,6 +153,10 @@ int getMajorityClass(int* classes, int* covered, int classLevels, int numEntries
 		}
 	}
 
+	/*Free the temp array*/
+	free(counts);
+
+	/*Return the majority class*/
 	return max_index+1;
 }
 
