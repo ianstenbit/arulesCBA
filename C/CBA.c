@@ -1,55 +1,64 @@
+/*
+A C implementation of stages I, II, and III of the CBA algorithm described by Liu, et al 1998
+Author: Ian Johnson
+*/
+
 #include <R.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
 
-#define _ind(x,y,cols) (x) + (y) * (cols)
+#define _ind(x,y,cols) (x) + (y) * (cols) /*Macro for R matrix access in linear c-array*/
 
-SEXP test_func(SEXP input) {
-  SEXP p1;
-  PROTECT(p1 = NEW_INTEGER(1));
-  INTEGER(p1)[0] = INTEGER(input)[0] + 1;
-  UNPROTECT(1);
-  return p1;
-}
-
-SEXP test(SEXP ds, SEXP rightHand, SEXP rules, SEXP numRows, SEXP numRules){
-	printf("Test Function\n");
-	int nRows, nRules, nCols = 0;
-
-	nRows = INTEGER(numRows)[0];
-	nCols = Rf_length(ds);
-	nRules = INTEGER(numRules)[0];
-	printf("Rows: %u, Columns: %u, Rules: %u\n", nRows, nCols, nRules);
-
-	return ds;
-}
-
+/*
+Finds the first 1 in the binary matrix 'matrix' in row 'entry_row'
+Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
+@param matrix: a binary matrix representing which rules match which entries in the dataset
+@param entry_row: the row of the current entry for which we're searching for the first rule
+@param numRules: the number of rules in the matrix (the 'width' of the matrix)
+@param numEntries: the number of entries in the dataset (the 'height' of the matrix)
+@return: the index of the first rule which matches the entry specified, or -1 if no rule is found
+*/
 int firstMatch(int* matrix, int entry_row, int numRules, int numEntries){
+
+	/*Iterate sideways through one row of the matrix*/
 	for(int i = 0; i < numRules; i++)
 		if(matrix[_ind(i, entry_row, numRules)] == 1)
 			return i;
 
+	/*Default return if no match found*/
 	return -1;
 }
 
+/*
+Finds the all 1s in the binary matrix 'matrix' in row 'entry_row'
+Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
+@param matrix: a binary matrix representing which rules match which entries in the dataset
+@param entry_row: the row of the current entry for which we're searching for the first rule
+@param numRules: the number of rules in the matrix (the 'width' of the matrix)
+@return: a pointer to an int c-array containing ones and zeroes.
+A 1 at index i indicates that rule i matches this entry.
+Note: this pointer MUST NOT be freed by the calling function. It points to a location inside 'matrix'
+*/
 int* getMatches(int* matrix, int entry_row, int numRules){
 
-	int* r = malloc(numRules * sizeof *r);
+	/*return a pointer to the row of the matrix for this entry*/
+	return &(matrix[_ind(0, entry_row, numRules)]);
 
-	for(int i = 0; i < numRules; i++){
-		if(matrix[_ind(i, entry_row, numRules)] == 1)
-			r[i] = 1;
-		else
-			r[i] = 0;
-	}
-
-	return r;
 }
 
+/*
+Counds the number of records/entries which a given rule matches
+Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
+@param matrix: a binary matrix representing which rules match which entries in the dataset
+@param rule_column: the column index in 'matrix' which refers to the rule whose matches are being counted
+@param numRules: the number of rules in the matrix (the 'width' of the matrix)
+@param numRecords: the number of records/entries in the matrix (the 'height' of the matrix)
+*/
 int countRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
 
 	int count = 0;
 
+	/*Iterate vertically through a column of the matrix, counting the 1s*/
 	for(int i = 0; i < numRecords; i++){
 		if(matrix[_ind(rule_column, i, numRules)] == 1)
 			count++;
@@ -59,18 +68,21 @@ int countRecordMatches(int* matrix, int rule_column, int numRules, int numRecord
 
 }
 
-int* getRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
+/*
+Finds the all 1s in the binary matrix 'matrix' in column 'rule_column'
+Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
+@param matrix: a binary matrix representing which rules match which entries in the dataset
+@param rule_column: the column of the current rule for which we're searching for entry matches
+@return: a pointer to an int c-array containing ones and zeroes.
+A 1 at index i indicates that entry i matches this rule.
+Note: this pointer MUST NOT be freed by the calling function. It points to a location inside 'matrix'
+Note: this pointer MUST only be accessed at indeces i where i%numRules == 0.
+This is because it points to a column inside a matrix saved as a c-array
+*/
+int* getRecordMatches(int* matrix, int rule_column){
 
-	int* r = malloc(numRecords * sizeof *r);
-
-	for(int i = 0; i < numRecords; i++){
-		if(matrix[_ind(rule_column, i, numRules)] == 1)
-			r[i] = 1;
-		else
-			r[i] = 0;
-	}
-
-	return r;
+	/*return a pointer to the first element in rule_column in matrix*/
+	return &(matrix[rule_column]);
 
 }
 
@@ -203,8 +215,6 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 
 			}
 
-			free(wSet);
-
 		}
 	}
 
@@ -271,10 +281,8 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		rule_covered = getRecordMatches(matches_matrix, i, numRules, nRows);
 		
 		for(int j = 0; j < nRows; j++){
-			covered_arr[j] |= rule_covered[j];
+			covered_arr[j] |= rule_covered[j*numRules];
 		}
-
-		free(rule_covered);
 
 		int classNum = getMajorityClass(classes, covered_arr, numClasses, nRows);
 

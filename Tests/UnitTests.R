@@ -1,5 +1,5 @@
 require(gmodels)
-setwd("PUT WORKING DIRECTORY HERE")
+setwd("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/Tests/")
 
 #Test data set 1: Titanic survival
 load("titanic.raw.rdata")
