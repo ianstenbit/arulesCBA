@@ -160,9 +160,19 @@ int getMajorityClass(int* classes, int* covered, int classLevels, int numEntries
 	return max_index+1;
 }
 
+/*
+Counts the number of default errors caused by a rule with a given default class
+@param classes: the classes of all of the training records
+@param covered: a binary array representing wether or not each record has been classified
+@param numEntries: the number of entries in the training dataset
+@param defaultClass: the integer representation of the default class of the rule whose default errors are being counted
+@return the number of entries which are not currently covered and whose class does not match the default class
+*/
 int getDefaultErrors(int* classes, int* covered, int numEntries, int defaultClass){
+
 	int count = 0;
 
+	/*Iterate through the entries and count the unclassified false matches*/
 	for(int i = 0; i < numEntries; i++)
 		if(!covered[i] && classes[i] != defaultClass)
 			count++;
@@ -170,14 +180,23 @@ int getDefaultErrors(int* classes, int* covered, int numEntries, int defaultClas
 	return count;
 }
 
-SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules, SEXP classify_column){
+/*
+Stage 1 of the CBA algorithm as described by Liu, et al. 1998
+This stage populates and returns a list A of all falsely classified records, along with the crules and wrules associated with that record
+It also constructs a vector of "strong rules" which will be used in the final classifier
+All parameters are S Expressions from R, whose purpose is explained within the function declaration
+*/
+SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules){
 
-	R_len_t i, nrows, ncols, nrules;
+	/*Wrapper class for integers*/
+	R_len_t i, nrows, nrules;
+
+	/*Integers for use inside the for loop*/
 	int crule, wrule, classify;
-	ncols = length(dataset);
+
+	/*nrules and nrows are the number of rules and the number of entries in the training data set, respectivelly*/
 	nrules = INTEGER(numRules)[0];
 	nrows = length(getAttrib(dataset, R_RowNamesSymbol));
-	classify = INTEGER(classify_column)[0];
 
 	int* matchMatrix = INTEGER(matches);
 	int* falseMatchMatrix = INTEGER(falseMatches);
@@ -186,6 +205,7 @@ SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SE
 	int a_size = 0;
 
 	for(i = 0; i < nrows; i++){
+
 		crule = firstMatch(matchMatrix, i, nrules, nrows);
 		wrule = firstMatch(falseMatchMatrix, i, nrules, nrows);
 
@@ -316,7 +336,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		free(replace_list);
 
-		rule_covered = getRecordMatches(matches_matrix, i, numRules, nRows);
+		rule_covered = getRecordMatches(matches_matrix, i);
 		
 		for(int j = 0; j < nRows; j++){
 			covered_arr[j] |= rule_covered[j*numRules];

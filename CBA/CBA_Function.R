@@ -318,7 +318,7 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   strongRules <- vector('logical', length=length(rules.sorted))
   
   dyn.load("~/Dropbox/Summer 2016/CSE 5390/CBA_Algorithm/C/CBA.so")
-  a <- .Call("stage1", dataset, strongRules, casesCovered, matches, falseMatches, length(rules.sorted), grep(column, colnames(dataset)))
+  a <- .Call("stage1", dataset, strongRules, casesCovered, matches, falseMatches, length(rules.sorted))
   
   replace <- .Call("stage2", a, casesCovered, matches, strongRules)
   
