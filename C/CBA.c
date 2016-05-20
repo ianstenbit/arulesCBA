@@ -192,7 +192,7 @@ SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SE
 	R_len_t i, nrows, nrules;
 
 	/*Integers for use inside the for loop*/
-	int crule, wrule, classify;
+	int crule, wrule;
 
 	/*nrules and nrows are the number of rules and the number of entries in the training data set, respectivelly*/
 	nrules = INTEGER(numRules)[0];

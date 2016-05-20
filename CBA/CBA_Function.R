@@ -334,8 +334,6 @@ CBA.C <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(dataset[,column])))
   
-  print(table(covered))
-  
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
   
