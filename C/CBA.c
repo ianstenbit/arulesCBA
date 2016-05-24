@@ -54,13 +54,13 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 @param numRules: the number of rules in the matrix (the 'width' of the matrix)
 @param numRecords: the number of records/entries in the matrix (the 'height' of the matrix)
 */
-int countRecordMatches(int* matrix, int rule_column, int numRules, int numRecords){
+int countRecordMatches(int* matrix, int* covered, int rule_column, int numRules, int numRecords){
 
 	int count = 0;
 
 	/*Iterate vertically through a column of the matrix, counting the 1s*/
 	for(int i = 0; i < numRecords; i++){
-		if(matrix[_ind(rule_column, i, numRules)] == 1)
+		if(covered[i] == 0 && matrix[_ind(rule_column, i, numRules)] == 1)
 			count++;
 	}
 
@@ -397,11 +397,6 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		/*Get a list of all of the records which this rule covers*/
 		rule_covered = getRecordMatches(matches_matrix, i);
-		
-		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
-		for(int j = 0; j < nRows; j++){
-			covered_arr[j] |= rule_covered[j*numRules];
-		}
 
 		/*Calculate the best default class for the classifier after this rule has been processed*/
 		int classNum = getMajorityClass(classes, covered_arr, numClasses, nRows);
@@ -411,12 +406,17 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		/*Count the rule errors and the default errors*/
 		defaultErrors = getDefaultErrors(classes, covered_arr, nRows, classNum);
-		ruleErrors += countRecordMatches(false_matches_matrix, i, numRules, nRows);
+		ruleErrors += countRecordMatches(false_matches_matrix, covered_arr, i, numRules, nRows);
 
 		/*Save the number of total errors. In R, the algorithm will prune the classifier to be the subset of the rules in the classifier
 		up to the point where the minimum number of errors occur. If the minimum occurs in two places, the smaller of the two possible subsets
 		will be chosen*/
 		total_errors_arr[i] = defaultErrors + ruleErrors;
+
+		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
+		for(int j = 0; j < nRows; j++){
+			covered_arr[j] |= rule_covered[j*numRules];
+		}
 
 	}
 
