@@ -32,9 +32,11 @@ CBA(dataset, column, apriori_parameter, verbose=FALSE)
 \author{Ian Johnson}
 \examples{
 data(iris)
+require(gmodels)
 require(arules)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
 results <- predict.CBA(classifier, irisDisc)
+CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
 }

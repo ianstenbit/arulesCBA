@@ -1,14 +1,14 @@
 print.CBA <- function(x, ...){
   
-  print("CBA Object\n")
+  print("CBA Object")
 
-  print("Number of rules:\n")
+  print("Number of rules:")
   print(length(x[[1]]))
 
-  print("First rules:\n")
-  print(inspect(head(x[[1]])))
+  print("First rules:")
+  inspect(head(x[[1]]))
 
-  print("Default class:\n")
+  print("Default class:")
   print(x[[2]])
   
 }
