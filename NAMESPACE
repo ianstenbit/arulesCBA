@@ -5,6 +5,7 @@ import("gmodels")
 import("Matrix")
 
 S3method(predict, CBA)
+S3method(print, CBA)
 
 
-export("CBA", "predict.CBA")
+export("CBA", "predict.CBA", "print.CBA")
