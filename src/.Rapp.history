@@ -1,0 +1,2 @@
+load("/Users/ianjohnson/Dropbox/Summer 2016/CSE 5390/CBAssociation/src/symbols.rds")
+ls()

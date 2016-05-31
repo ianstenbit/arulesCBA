@@ -1,0 +1,10 @@
+useDynLib(CBAssociation)
+
+import("arules")
+import("gmodels")
+import("Matrix")
+
+S3method(predict, CBA)
+
+
+export("CBA", "predict.CBA")
