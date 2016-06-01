@@ -1,5 +1,5 @@
-\name{print.CBA}
-\alias{print.CBA}
+\name{print}
+\alias{print}
 \title{Printing a CBA classifier}
 \description{
   Prints basic information about a CBA classifier object
@@ -17,7 +17,7 @@
 \author{Ian Johnson}
 \examples{
 data(iris)
-require(arules)
+library(arules)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))

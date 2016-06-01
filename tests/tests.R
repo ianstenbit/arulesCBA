@@ -1,5 +1,5 @@
 library("arules")
-library("CBAssociation")
+library("arulesCBA")
 
 data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))

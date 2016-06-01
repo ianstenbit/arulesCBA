@@ -1,11 +1,11 @@
-Package: CBAssociation
+Package: arulesCBA
 Version: 1.0
 Date: 2016-05-30
 Title: Classification Based on Association Rules
 Author: Ian Johnson
 Description: Provides a function to build an association rule-based classifier for data frames, and to classify incoming data frames using such a classifier.
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
-Depends: R (>= 3.2.0), Matrix (>= 1.2-0)
-Imports: arules, gmodels
+Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules
+Imports: gmodels
 License: GPL-3
 BugReports: https://github.com/ianjjohnson/CBA

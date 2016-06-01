@@ -1,4 +1,4 @@
-useDynLib(CBAssociation)
+useDynLib(arulesCBA)
 
 import("arules")
 import("gmodels")

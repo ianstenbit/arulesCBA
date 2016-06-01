@@ -1,5 +1,5 @@
-\name{predict.CBA}
-\alias{predict.CBA}
+\name{predict}
+\alias{predict}
 \title{Classification with CBA classifier}
 \description{
   Uses a classifier based on association rules to classify a new set of data entries.
@@ -21,7 +21,7 @@
 \author{Ian Johnson}
 \examples{
 data(iris)
-require(arules)
+library(arules)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))

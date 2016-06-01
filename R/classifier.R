@@ -32,9 +32,9 @@ CBA <- function(dataset, column, apriori_parameter, verbose=FALSE){
   
   strongRules <- vector('logical', length=length(rules.sorted))
   
-  a <- .Call("stage1", dataset, strongRules, casesCovered, matches, falseMatches, length(rules.sorted), PACKAGE = "CBAssociation")
+  a <- .Call("stage1", dataset, strongRules, casesCovered, matches, falseMatches, length(rules.sorted), PACKAGE = "arulesCBA")
   
-  replace <- .Call("stage2", a, casesCovered, matches, strongRules,  PACKAGE = "CBAssociation")
+  replace <- .Call("stage2", a, casesCovered, matches, strongRules,  PACKAGE = "arulesCBA")
   
   #initializing variables for stage 3
   ruleErrors <- 0
@@ -46,7 +46,7 @@ CBA <- function(dataset, column, apriori_parameter, verbose=FALSE){
   defaultClasses <- vector('integer', length=length(rules.sorted))
   totalErrors <- vector('integer', length=length(rules.sorted))
   
-  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(dataset[,column])),  PACKAGE = "CBAssociation")
+  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(dataset[,column])),  PACKAGE = "arulesCBA")
   
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
@@ -57,7 +57,7 @@ CBA <- function(dataset, column, apriori_parameter, verbose=FALSE){
   df <- paste(column, defaultClass, sep="=")
   classifier <- list(classifier, df)
   
-  class(classifier) <- 
+  class(classifier) <- "CBA"
   
   return(classifier)
   
