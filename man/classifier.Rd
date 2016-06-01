@@ -7,12 +7,13 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(dataset, column, apriori_parameter, verbose=FALSE)
+CBA(data, column, support = 0.2, confidence = 0.8, verbose=FALSE)
 }
 \arguments{
-  \item{dataset}{A data.frame containing at least two columns, where one column is the class of the data entry for each row.}
+  \item{data}{A data.frame containing at least two columns, where one column is the class of the data entry for each row.}
   \item{column}{A character vector of size 1 indicating the name of the column which represents the class of the input data entries.}
-  \item{apriori_parameter}{An object of class \code{\linkS4class{APparameter}} or named list. This is a control parameter for apriori, the algorithm from arules used to generate association rules. The default behavior is to mine rules with support 0.1, confidence 0.8, and maxlen 10.}
+  \item{support}{The minimum support for association rules mined from apriori}
+  \item{confidence}{The minimum confidence for association rules mined from apriori}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
 
 }
@@ -34,9 +35,10 @@ CBA(dataset, column, apriori_parameter, verbose=FALSE)
 data(iris)
 library(gmodels)
 library(arules)
+library(caret)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
-classifier <- CBA(irisDisc, "Species", apriori_parameter = list(minlen=2, supp = 0.05, conf=0.9))
+classifier <- CBA(irisDisc, "Species", supp = 0.05, conf=0.9)
 results <- predict.CBA(classifier, irisDisc)
-CrossTable(x=irisDisc$Species, y=results, prop.chisq = FALSE)
+confusionMatrix(irisDisc$Species, results)
 }

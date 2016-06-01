@@ -30,6 +30,8 @@ predict.CBA <- function(object, newdata, ...){
       output[i] <- result
     }
   }
+
+  output <- sapply(strsplit(output,"="),'[',2)
   
   return(output)
   
