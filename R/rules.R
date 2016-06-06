@@ -1,4 +1,4 @@
-rules.CBA <- function(classifier, ...){
+rules <- function(classifier, ...){
   
   return(classifier[[1]])
   
