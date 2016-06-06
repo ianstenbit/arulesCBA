@@ -4,6 +4,8 @@ import("arules")
 import("Matrix")
 import("caret")
 
+importFrom("methods", "as", "is")
+
 S3method(predict, CBA)
 S3method(print, CBA)
 
