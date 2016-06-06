@@ -1,3 +1,5 @@
+[![Travis-CI Build Status](https://travis-ci.org/ianjjohnson/CBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/CBA)
+
 #Classification Based on Association Rules
 
 This R package implements the CBA algorithm described in Liu, et al. 1998.
