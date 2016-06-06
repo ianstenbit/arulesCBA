@@ -1,4 +1,4 @@
-rules <- function(classifier, ...){
+rules <- function(classifier){
   
   return(classifier[[1]])
   

@@ -186,7 +186,7 @@ This stage populates and returns a list A of all falsely classified records, alo
 It also constructs a vector of "strong rules" which will be used in the final classifier
 All parameters, and the returned object, are S Expressions from R, whose purpose is explained within the function declaration
 */
-SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules){
+SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules){
 
 	/*Wrapper class for integers*/
 	R_len_t i, nrows, nrules;
@@ -196,7 +196,7 @@ SEXP stage1(SEXP dataset, SEXP strong_rules, SEXP casesCovered, SEXP matches, SE
 
 	/*nrules and nrows are the number of rules and the number of entries in the training data set, respectivelly*/
 	nrules = INTEGER(numRules)[0];
-	nrows = length(getAttrib(dataset, R_RowNamesSymbol));
+	nrows = INTEGER(data_rows)[0];
 
 	/*Local pointers to the binary matrices input from R which represent rule/entry matches */
 	int* matchMatrix = INTEGER(matches);
