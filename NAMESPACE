@@ -2,9 +2,9 @@ useDynLib(arulesCBA)
 
 import("arules")
 import("Matrix")
+import("caret")
 
 S3method(predict, CBA)
 S3method(print, CBA)
-
 
 export("CBA", "predict.CBA", "print.CBA", "rules")

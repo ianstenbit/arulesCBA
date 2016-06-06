@@ -43,7 +43,6 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE){
   
   strongRules <- vector('logical', length=length(rules.sorted))
   
-  dyn.load("~/Dropbox/Summer 2016/CSE 5390/CBAssociation/src/arulesCBA.so")
   a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches, falseMatches, length(rules.sorted), PACKAGE = "arulesCBA")
   
   replace <- .Call("stage2", a, casesCovered, matches, strongRules,  PACKAGE = "arulesCBA")

@@ -7,11 +7,11 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(data, column, support = 0.2, confidence = 0.8, verbose=FALSE)
+CBA(data, class, support = 0.2, confidence = 0.8, verbose=FALSE)
 }
 \arguments{
   \item{data}{A data.frame containing at least two columns, where one column is the class of the data entry for each row.}
-  \item{column}{A character vector of size 1 indicating the name of the column which represents the class of the input data entries.}
+  \item{class}{A character vector of size 1 indicating the name of the column which represents the class of the input data entries.}
   \item{support}{The minimum support for association rules mined from apriori}
   \item{confidence}{The minimum confidence for association rules mined from apriori}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
@@ -33,7 +33,6 @@ CBA(data, column, support = 0.2, confidence = 0.8, verbose=FALSE)
 \author{Ian Johnson}
 \examples{
 data(iris)
-library(gmodels)
 library(arules)
 library(caret)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
