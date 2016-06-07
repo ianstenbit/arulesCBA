@@ -4,6 +4,11 @@ language: r
 sudo: required
 warnings_are_errors: false
 
+before_install:
+  - sudo apt-get install libv8-dev
+# to avoid cyclic dependency warning
+  - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" > ~/.Rprofile
+
 env:
   global:
     - CRAN: http://cran.rstudio.com
