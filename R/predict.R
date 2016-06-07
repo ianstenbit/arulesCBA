@@ -1,7 +1,9 @@
 predict.CBA <- function(object, newdata, ...){
   
   #Save dataset as transaction matrix
-  ds.mat <- as(newdata, "transactions")
+  if(!is(newdata, "transactions")){
+    ds.mat <- as(newdata, "transactions")
+  } else { ds.mat <- newdata }
   
   #Matrix of which rules match which transactions
   rulesMatchLHS <- is.subset(object[[1]]@lhs, ds.mat)
