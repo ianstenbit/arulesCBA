@@ -1,11 +1,12 @@
-\name{predict}
+\name{predict.CBA}
+\alias{predict.CBA}
 \alias{predict}
 \title{Classification with CBA classifier}
 \description{
   Uses a classifier based on association rules to classify a new set of data entries.
 }
 \usage{
-\method{predict}{CBA}(object, classifier, \dots)
+\method{predict}{CBA}(object, newdata, \dots)
 }
 \arguments{
   \item{object}{An S3 object (a CBA classifier) with a default class and a sorted list of association rules}

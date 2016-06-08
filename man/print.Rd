@@ -1,4 +1,5 @@
-\name{print}
+\name{print.CBA}
+\alias{print.CBA}
 \alias{print}
 \title{Printing a CBA classifier}
 \description{
