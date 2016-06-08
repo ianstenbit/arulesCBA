@@ -3,6 +3,7 @@ useDynLib(arulesCBA)
 import("arules")
 import("Matrix")
 import("caret")
+import("testthat")
 
 importFrom("methods", "as", "is")
 

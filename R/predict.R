@@ -4,6 +4,11 @@ predict.CBA <- function(object, newdata, ...){
   if(!is(newdata, "transactions")){
     ds.mat <- as(newdata, "transactions")
   } else { ds.mat <- newdata }
+
+
+  if(!all(itemInfo(as(newdata, 'transactions'))$labels %in% itemInfo(as(object[[1]]@lhs, 'transactions'))$labels)){
+    stop('The data in classifier does not match the data to classify.')
+  }
   
   #Matrix of which rules match which transactions
   rulesMatchLHS <- is.subset(object[[1]]@lhs, ds.mat)

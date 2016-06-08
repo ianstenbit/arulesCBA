@@ -5,11 +5,11 @@
   Uses a classifier based on association rules to classify a new set of data entries.
 }
 \usage{
-\method{predict}{CBA}(object, newdata, \dots)
+\method{predict}{CBA}(object, classifier, \dots)
 }
 \arguments{
   \item{object}{An S3 object (a CBA classifier) with a default class and a sorted list of association rules}
-  \item{newdata}{A data.frame containing rows of new entries to be classified}
+  \item{newdata}{A data.frame or arules transaction set containing rows of new entries to be classified}
   \item{\dots}{Additional arguments not used}
 }
 \details{
