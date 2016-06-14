@@ -31,8 +31,8 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE){
   #Vector used to identify rules as being 'strong' rules for the final classifier 
   strongRules <- vector('logical', length=length(rules.sorted))
   
-  rulesMatchLHS <- is.subset(rules.sorted@lhs, ds.mat)
-  rulesMatchRHS <- is.subset(rules.sorted@rhs, ds.mat)
+  rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat)
+  rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat)
   
   #matrix of rules and records which constitute correct and false matches
   matches <- rulesMatchLHS & rulesMatchRHS

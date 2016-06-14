@@ -11,20 +11,12 @@ predict.CBA <- function(object, newdata, ...){
   }
   
   #Matrix of which rules match which transactions
-  rulesMatchLHS <- is.subset(object[[1]]@lhs, ds.mat)
+  rulesMatchLHS <- is.subset(lhs(object[[1]]), ds.mat)
   
-  #Build a vector of the right hand sides of the rules
-  classifier.mat <- as(object[[1]]@rhs, "ngCMatrix")
-  classifier.results <- vector('numeric', length=length(classifier.mat[0,]))
-  
-  #Populate RHS vector from binary transaction matrix
-  for(i in 1:length(classifier.mat[1,])){
-    result <- match(TRUE,classifier.mat[,i])
-    classifier.results[i] <- result
-  }
-  
+  classifier.mat <- as(rhs(object[[1]]), "ngCMatrix")
+  classifier.results <- apply(classifier.mat, MARGIN = 2, which)
   classifier.results <- rownames(classifier.mat)[classifier.results]
-  
+
   #Build output of classifications for input data, populate it with the default class
   output <- vector('character', length = length(ds.mat))
   output[1:length(ds.mat)] <- object[[2]]
@@ -32,7 +24,7 @@ predict.CBA <- function(object, newdata, ...){
   #For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
   for(i in 1:length(ds.mat)){
     if(Reduce("|", rulesMatchLHS[,i])){
-      firstMatch <- match(TRUE, rulesMatchLHS[,i])
+      firstMatch <- which(rulesMatchLHS[,i])[1]
       result <- classifier.results[firstMatch]
       output[i] <- result
     }
