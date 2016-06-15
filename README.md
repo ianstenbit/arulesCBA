@@ -1,6 +1,6 @@
 #Classification Based on Association Rules
 
-[![Travis-CI Build Status](https://travis-ci.org/ianjjohnson/CBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/CBA)
+[![Travis-CI Build Status](https://api.travis-ci.org/ianjjohnson/arulesCBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/arulesCBA)
 
 This R package implements the CBA algorithm described in Liu, et al. 1998.
 It creates classifiers based on association rules and can then use those classifiers to classify incoming datasets.
