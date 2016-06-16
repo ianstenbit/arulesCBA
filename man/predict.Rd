@@ -1,5 +1,4 @@
-\name{predict.CBA}
-\alias{predict.CBA}
+\name{predict}
 \alias{predict}
 \title{Classification with CBA classifier}
 \description{
@@ -17,16 +16,27 @@
   Runs a linear pass through newdata and uses the CBA classifier to assign it a class
 }
 \value{
-  Returns a factor array of the classes of the rows in newdata
+  Returns a vector of class labels, one for rows in newdata.
 }
 \author{Ian Johnson}
 \examples{
+# prepare data
 data(iris)
-library(arules)
-library(caret)
 irisDisc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
-classifier <- CBA(irisDisc, "Species", supp = 0.05, conf=0.9)
-results <- predict(classifier, irisDisc)
-\dontrun{confusionMatrix(results, irisDisc$Species)}
+irisDisc <- irisDisc[sample(1:nrow(irisDisc)),]
+
+
+# train classifier on the first 100 examples
+classifier <- CBA(irisDisc[1:100,], "Species", supp = 0.05, conf=0.9)
+
+# predict the class for the remaining 50 examples
+results <- predict(classifier, irisDisc[101:150,])
+table(results, irisDisc$Species[101:150])
+
+\dontrun{
+# use caret to get more statistics
+library("caret")
+confusionMatrix(results, irisDisc$Species[101:150])
+}
 }
