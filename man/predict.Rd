@@ -1,5 +1,6 @@
 \name{predict}
 \alias{predict}
+\alias{predict.CBA}
 \title{Classification with CBA classifier}
 \description{
   Uses a classifier based on association rules to classify a new set of data entries.

@@ -1,11 +1,8 @@
 print.CBA <- function(x, ...){
-  
-  print("CBA Object")
 
-  print("Number of rules:")
-  print(length(x[[1]]))
+  cat("CBA Object\n")
+  cat("Number of rules:", length(x$rules), "\n")
+  cat("Class labels:", x$levels, "\n")
+  cat("Default class:", x$default, "\n")
 
-  print("Default class:")
-  print(x[[2]])
-  
 }
