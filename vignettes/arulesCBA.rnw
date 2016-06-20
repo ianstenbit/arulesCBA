@@ -1,6 +1,7 @@
 \documentclass[nojss]{jss}
 
 \usepackage{Sweave}
+%\VignetteIndexEntry{Introduction to arulesCBA}
 
 \author{Ian Johnson\\Southern Methodist University}
 \title{\pkg{arulesCBA}:  Classification for Factor and Transactional Data Sets Using Association Rules }
