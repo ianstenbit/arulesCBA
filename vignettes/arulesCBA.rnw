@@ -179,12 +179,14 @@ table(classes)
 @
 
 \subsection[results]{Checking the Results}
-In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{caret} library:
+In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{gmodels} library:
 
 <<echo=TRUE>>=
-library(caret)
-confusionMatrix(classes, iris.disc$Species)
+library(gmodels)
+CrossTable(classes, iris.disc$Species, 
+           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE)
 @
+
 
 
 \end{document}
