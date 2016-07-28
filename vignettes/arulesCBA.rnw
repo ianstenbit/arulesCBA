@@ -159,10 +159,19 @@ classifier <- CBA(iris.disc, "Species", supp = 0.05, conf=0.9)
 
 Note that the second parameter to the \code{CBA} function, \code{class}, is the name of the column of \code{iris.disc} which contains the class of each entry.
 
+
+\subsection[rules]{Accessing the Rules of the Classifier}
+
 The association rules of the classifier can be found seen using:
 
 <<echo=TRUE>>=
-inspect(classifier[[1]])
+inspect(rules(classifier))
+@
+
+The rules as an arules rule list can be retreived using:
+
+<<echo=TRUE>>=
+rules(classifier)
 @
 
 \subsection[predict]{Using the Classifier}
