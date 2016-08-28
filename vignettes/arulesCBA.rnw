@@ -206,8 +206,9 @@ This table shows that the \pkg{arulesCBA} classifier predicted that there is a 5
 In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{caret} library:
 
 <<echo=TRUE>>=
-library(caret)
-confusionMatrix(classes, iris.disc$Species)
+library(gmodels)
+CrossTable(classes, iris.disc$Species,           
+           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE)
 @
 
 \end{document}
