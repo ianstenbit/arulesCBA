@@ -116,8 +116,10 @@ The following is an example of how \pkg{arulesCBA} can be used to classify flowe
 \subsection[install]{Installing arulesCBA}
 
 Prior to executing the following example, install \pkg{arulesCBA} using:
+ \code{install.packages("arulesCBA")}\\
 
- \code{> install_github("ianjjohnson/arulesCBA")}. 
+To install the most recent development version, use:
+ \code{> install_github("ianjjohnson/arulesCBA")}. \\
  
  \code{install_github} is available through the \pkg{devtools} package.
 
@@ -132,7 +134,11 @@ Note that the package \pkg{caret} can be installed using \code{install.packages(
 
 \subsection[disc]{Discretizing the Data}
 
-The first step in classifying the data set is loading the data and discretizing the columns:
+The first step in classifying the data set is loading the data and discretizing the columns.
+For this example, the Iris test data from the \pkg{datasets} will be used. The Iris dataset consists of 150 observations of 5 variables: sepal length, sepal width, pedal length, pedal width, and species for flowers. There are three species in the data set, and there are 50 instances of each species.
+
+The data needs to be discretized because the CBA algorithm will convert the data set to \pkg{arules} transaction data, which can only be resolved from discrete or factor data. Refer to the \pkg{arules} documentation for more information on transaction data.
+
 <<echo=TRUE>>=
 data(iris)
 iris.disc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
@@ -157,21 +163,27 @@ Building the classifier can be done with a simple call to the \code{CBA} functio
 classifier <- CBA(iris.disc, "Species", supp = 0.05, conf=0.9)
 @
 
-Note that the second parameter to the \code{CBA} function, \code{class}, is the name of the column of \code{iris.disc} which contains the class of each entry.
+Note that the second parameter to the \code{CBA} function, \code{class}, is the name of the column of \code{iris.disc} which contains the class of each entry. Also recall that the \code{iris.disc} data must be convertible to \pkg{arules} transaction data at this point in execution.
+
+Basic information about the classifier can be found using the \code{print} function:
+
+<<echo=TRUE>>=
+print(classifier)
+@
 
 
 \subsection[rules]{Accessing the Rules of the Classifier}
-
-The association rules of the classifier can be found seen using:
-
-<<echo=TRUE>>=
-inspect(rules(classifier))
-@
 
 The rules as an arules rule list can be retreived using:
 
 <<echo=TRUE>>=
 rules(classifier)
+@
+
+The association rules of the classifier can be read found seen using:
+
+<<echo=TRUE>>=
+inspect(rules(classifier))
 @
 
 \subsection[predict]{Using the Classifier}
@@ -188,15 +200,14 @@ head(classes)
 table(classes)
 @
 
+This table shows that the \pkg{arulesCBA} classifier predicted that there is a 50-48-52 split of the 3 species in the test data.
+
 \subsection[results]{Checking the Results}
-In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{gmodels} library:
+In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{caret} library:
 
 <<echo=TRUE>>=
-library(gmodels)
-CrossTable(classes, iris.disc$Species, 
-           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE)
+library(caret)
+confusionMatrix(classes, iris.disc$Species)
 @
-
-
 
 \end{document}
