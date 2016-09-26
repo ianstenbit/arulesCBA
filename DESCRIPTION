@@ -7,5 +7,6 @@ Description: Provides a function to build an association rule-based classifier f
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules
 Imports: caret, methods, testthat, gmodels
+Suggests: e1071
 License: GPL-3
 BugReports: https://github.com/ianjjohnson/CBA
