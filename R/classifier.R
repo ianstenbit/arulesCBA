@@ -1,4 +1,4 @@
-CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE){
+CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbose=FALSE){
 
   ####Preparing data####
   lvls <- NULL
@@ -13,27 +13,9 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE){
   if(!all(sapply(rightHand, length) == 1L)) stop("Problem with items used for class. Examples with multiple/no class label!")
   rightHand <- as.factor(unlist(rightHand))
 
-  #rightHand <- as.factor(classNames)
-  #rows <- as.integer(rownames(info[info$variables == class,]))
-  #rows <- which(info$variables == class)
-  #rightHand <- vector('character', nrow(ds.mat))
-  #
-  #rightHand[ds.mat@data[rows,]] <- classNames
-  #
-  #for (i in 1:length(classNames)){
-  #  rightHand[ds.mat@data[rows[i],]] <- classNames[i]
-  #}
-  #rightHand <- factor(rightHand)
-
   #Generate and sort association rules
-  rules <- apriori(ds.mat, parameter = list(minlen = 2, supp = support, conf = confidence), appearance = list(rhs=levels(rightHand), default = "lhs"), control=list(verbose=verbose))
+  rules <- apriori(ds.mat, parameter = list(minlen = 2, supp = support, conf = confidence, maxt=maxtime), appearance = list(rhs=levels(rightHand), default = "lhs"), control=list(verbose=verbose))
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
-
-  #Prune association rule set to remove redundant rules
-  # subset.matrix <- is.subset(rules.sorted, rules.sorted)
-  # subset.matrix[lower.tri(subset.matrix, diag = TRUE)] <- NA
-  # redundant <- colSums(subset.matrix, na.rm = TRUE) >= 1
-  # rules.sorted <- rules.sorted[!redundant]
 
   #Vector used to identify rules as being 'strong' rules for the final classifier
   strongRules <- vector('logical', length=length(rules.sorted))

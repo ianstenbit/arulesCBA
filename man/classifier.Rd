@@ -16,6 +16,7 @@ CBA(data, class, support = 0.2, confidence = 0.8, verbose=FALSE)
   \item{class}{A character vector of size 1 indicating the name of the variable which represents the class of the input data entries.}
   \item{support}{The minimum support for association rules mined from apriori}
   \item{confidence}{The minimum confidence for association rules mined from apriori}
+  \item{maxtime}{The maximum time, in seconds, to allow apriori to mine for rules}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
 
 }
