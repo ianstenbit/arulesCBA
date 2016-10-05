@@ -2,7 +2,9 @@ Package: arulesCBA
 Version: 1.0
 Date: 2016-08-28
 Title: Classification Based on Association Rules
-Author: Ian Johnson
+Authors@R: c(person("Ian", "Johnson", role=c("aut", "cre","cph"),
+            email = "ianjjohnson@icloud.com"),
+            person("Michael", "Hahsler", role=c("ctb")))
 Description: Provides a function to build an association rule-based classifier for data frames, and to classify incoming data frames using such a classifier.
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules
