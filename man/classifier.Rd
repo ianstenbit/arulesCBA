@@ -8,7 +8,7 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(data, class, support = 0.2, confidence = 0.8, verbose=FALSE)
+CBA(data, class, support = 0.2, confidence = 0.8, maxtime, verbose=FALSE)
 }
 \arguments{
   \item{data}{A data.frame or an object of class transactions

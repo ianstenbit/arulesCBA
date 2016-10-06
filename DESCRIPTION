@@ -8,7 +8,7 @@ Authors@R: c(person("Ian", "Johnson", role=c("aut", "cre","cph"),
 Description: Provides a function to build an association rule-based classifier for data frames, and to classify incoming data frames using such a classifier.
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules
-Imports: caret, methods, testthat, gmodels
-Suggests: e1071
+Imports: caret, methods, testthat
+Suggests: e1071, gmodels
 License: GPL-3
 BugReports: https://github.com/ianjjohnson/arulesCBA
