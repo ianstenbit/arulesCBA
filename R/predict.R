@@ -1,32 +1,47 @@
-predict.CBA <- function(object, newdata, ...){
+predict.CBA <- function(object, newdata, method = "first", ...){
 
-  #Save dataset as transaction matrix
-  ds.mat <- as(newdata, "transactions")
+  methods <- c("first", "majority")
+  m <- pmatch(method, methods)
+  if(is.na(m)) stop("Unknown method")
+  method <- methods[m]
 
-  #Use recode to make sure the new data corresponds to the model data
-  ds.mat <- recode(ds.mat, match = lhs(object$rules))
+  # If new data is not already transactions:
+  # Convert new data into transactions and use recode to make sure
+  # the new data corresponds to the model data
+  newdata <- as(newdata, "transactions")
+  newdata <- recode(newdata, match = lhs(object$rules))
 
-  #Matrix of which rules match which transactions
-  rulesMatchLHS <- is.subset(lhs(object$rules), ds.mat)
+  # Matrix of which rules match which transactions
+  # FIXME: sparse is slower, check for large rule sets.
+  # rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
+  rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
+  dimnames(rulesMatchLHS) <- NULL
 
-  classifier.mat <- as(rhs(object$rules), "ngCMatrix")
-  classifier.results <- apply(classifier.mat, MARGIN = 2, which)
-  classifier.results <- rownames(classifier.mat)[classifier.results]
+  # FIXME: we might have to check that the RHS has only a single item
+  classifier.results <- unlist(as(rhs(object$rules), "list"))
+  if(!is.null(object$levels))
+    classifier.results <- sapply(strsplit(classifier.results, '='), '[', 2)
 
-  #Build output of classifications for input data, populate it with the default class
-  output <- vector('character', length = length(ds.mat))
-  output[1:length(ds.mat)] <- object[[2]]
+  # Default class
+  default <- object$default
+  if(!is.null(object$levels)) default <- strsplit(default, '=')[[1]][2]
 
-  #For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
-  for(i in 1:length(ds.mat)){
-    if(Reduce("|", rulesMatchLHS[,i])){
-      firstMatch <- which(rulesMatchLHS[,i])[1]
-      result <- classifier.results[firstMatch]
-      output[i] <- result
-    }
+  # For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
+
+  if(method == "majority") {
+    w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+    output <- sapply(w, FUN = function(x) {
+      n <- which.max(table(classifier.results[x]))
+      if(length(n)==1) names(n) else NA
+    })
+    output[sapply(w, length)==0] <- default
+
+  }else{ ### method = first
+    w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
+    output <- classifier.results[w]
+    output[is.na(w)] <- default
   }
 
-  output <- sapply(strsplit(output,"="),'[',2)
 
   # preserve the levels of original data for data.frames
   if(!is.null(object$levels))
