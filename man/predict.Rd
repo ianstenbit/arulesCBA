@@ -6,16 +6,17 @@
   Uses a classifier based on association rules to classify a new set of data entries.
 }
 \usage{
-\method{predict}{CBA}(object, newdata, method = "first", \dots)
+\method{predict}{CBA}(object, newdata, method = "first", weights = NULL, \dots)
 }
 \arguments{
-  \item{object}{An S3 object (a CBA classifier) with a default class and a sorted list of association rules}
+  \item{object}{A CBA classifier object with a default class and a sorted list of association rules}
   \item{newdata}{A data.frame or arules transaction set containing rows of new entries to be classified}
   \item{method}{\code{"first"} uses the highest incidence rule for prediction. \code{"majority"} uses a majority vote of the class label by all matching rules.}
-  \item{\dots}{Additional arguments not used}
+  \item{weights}{Optional weights (a vector of the same length as the size of the rule base) used for weighted majority vote.}
+  \item{\dots}{Additional arguments not used.}
 }
 \details{
-  Runs a linear pass through newdata and uses the CBA classifier to assign it a class
+  Runs a linear pass through newdata and uses the CBA classifier to assign it a class.
 }
 \value{
   Returns a vector of class labels, one for rows in newdata.

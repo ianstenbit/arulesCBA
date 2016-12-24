@@ -1,4 +1,5 @@
-predict.CBA <- function(object, newdata, method = "first", ...){
+predict.CBA <- function(object, newdata, method = "first",
+  weights = NULL, ...){
 
   methods <- c("first", "majority")
   m <- pmatch(method, methods)
@@ -19,22 +20,58 @@ predict.CBA <- function(object, newdata, method = "first", ...){
 
   # FIXME: we might have to check that the RHS has only a single item
   classifier.results <- unlist(as(rhs(object$rules), "list"))
-  if(!is.null(object$levels))
+  if(!is.null(object$levels)) {
     classifier.results <- sapply(strsplit(classifier.results, '='), '[', 2)
+    classifier.results <- factor(classifier.results, levels = object$levels)
+  }
 
   # Default class
   default <- object$default
   if(!is.null(object$levels)) default <- strsplit(default, '=')[[1]][2]
 
-  # For each transaction, if it is matched by any rule, classify it using the highest-precidence rule in the classifier
+  # For each transaction, if it is matched by any rule, classify it using
+  # the majority, weighted majority or the highest-precidence
+  # rule in the classifier
+
 
   if(method == "majority") {
-    w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
-    output <- sapply(w, FUN = function(x) {
-      n <- which.max(table(classifier.results[x]))
-      if(length(n)==1) names(n) else NA
-    })
-    output[sapply(w, length)==0] <- default
+
+    # unweighted
+    if(is.null(weights) && is.null(object$weights)) {
+      w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+      output <- sapply(w, FUN = function(x) {
+        n <- which.max(table(classifier.results[x]))
+        if(length(n)==1) names(n) else NA
+      })
+      output[sapply(w, length)==0] <- default
+
+    }else{
+      # fix weights firsts
+      if(is.null(weights)) {
+        if(!is.null(object$weights)) weights <- object$weights
+        else weights <- rep(1, length(object$rules))
+      }
+
+
+      # use a quality measure
+      if(is.character(weights))
+        weights <- quality(object$rules)[[weights, exact = FALSE]]
+
+      # replicate single value (same as unweighted)
+      if(length(weights) == 1) weights <- rep(weights, length(object$rules))
+
+      # check
+      if(length(weights) != length(object$rules))
+        stop("length of weights does not match number of rules")
+
+      r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+      l <- lapply(r, FUN = function(x) classifier.results[x])
+      w <- lapply(r, FUN = function(x) weights[x])
+      w <- sapply(1:length(l), FUN = function(i)
+        sapply(split(w[[i]], l[[i]]), sum))
+      output <- rownames(w)[apply(w, MARGIN = 2, which.max)]
+      output[sapply(r, length)==0] <- default
+    }
 
   }else{ ### method = first
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
