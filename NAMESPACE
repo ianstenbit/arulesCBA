@@ -10,4 +10,4 @@ importFrom("methods", "as", "is")
 S3method(predict, CBA)
 S3method(print, CBA)
 
-export("CBA", "rules")
+export("CBA", "rules", "CBA_ruleset")
