@@ -1,4 +1,14 @@
-CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbose=FALSE){
+CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE,
+  parameter = NULL, control = NULL){
+
+  if(is.null(parameter)) parameter <- list()
+  parameter$support <- support
+  parameter$confidence <- confidence
+  parameter$minlen <- 2
+
+  if(is.null(control)) control <- list()
+  control$verbose <- verbose
+
 
   ####Preparing data####
   lvls <- NULL
@@ -14,7 +24,9 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbo
   rightHand <- as.factor(unlist(rightHand))
 
   #Generate and sort association rules
-  rules <- apriori(ds.mat, parameter = list(minlen = 2, supp = support, conf = confidence, maxt=maxtime), appearance = list(rhs=levels(rightHand), default = "lhs"), control=list(verbose=verbose))
+  rules <- apriori(ds.mat, parameter = parameter,
+    appearance = list(rhs=levels(rightHand), default = "lhs"),
+    control=control)
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
 
   #Vector used to identify rules as being 'strong' rules for the final classifier

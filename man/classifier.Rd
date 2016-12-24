@@ -8,31 +8,39 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(data, class, support = 0.2, confidence = 0.8, maxtime, verbose=FALSE)
+CBA(data, class, support = 0.2, confidence = 0.8, verbose=FALSE,
+  parameter = NULL, control = NULL)
 }
 \arguments{
   \item{data}{A data.frame or an object of class transactions
     (from \pkg{arules}) containing the training data.}
   \item{class}{A character vector of size 1 indicating the name of the variable which represents the class of the input data entries.}
-  \item{support}{The minimum support for association rules mined from apriori}
-  \item{confidence}{The minimum confidence for association rules mined from apriori}
-  \item{maxtime}{The maximum time, in seconds, to allow apriori to mine for rules}
+  \item{support, confidence}{Minimum support and confidence for mining association rules with the Apriori algorithm.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
-
+  \item{parameter, control}{Optional parameter and control lists for apriori.}
 }
 \details{
   Formats the input data frame and calls a C implementation of the CBA algorithm
   from Liu, et al. 1998 split up into three stages to build a classifier based on a set of association rules.
 
-  Before the CBA algorithm in C is executed, association rules are generated with Apriori from the arules package.
+  Before the CBA algorithm in C is executed, association rules are generated with the Apriori algorithm from the arules package.
 
   A default class is selected for the classifier. Note that for datasets which do not yield any strong association rules
   it's possible that no rules will be included in the classifier, and only a default class.
 }
 \value{
-  Returns an object of class \code{CBA} representing the trained classifier.
+  Returns an object of class \code{CBA} representing the trained classifier
+  with fields:
+  \item{rules}{the classifier rule base.}
+  \item{default}{deault class label.}
+  \item{levels}{levels of the class variable.}
 }
 \author{Ian Johnson}
+\seealso{
+\code{\link[arules]{apriori}},
+\code{\link[arules]{rules}},
+\code{\link[arules]{transactions}}.
+}
 \examples{
 # prepare data
 data(iris)
