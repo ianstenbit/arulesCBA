@@ -1,5 +1,5 @@
-CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE,
-  parameter = NULL, control = NULL){
+CBA <- function(formula, data, support = 0.2, confidence = 0.8,
+  verbose=FALSE, parameter = NULL, control = NULL){
 
   if(is.null(parameter)) parameter <- list()
   parameter$support <- support
@@ -8,6 +8,13 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE,
 
   if(is.null(control)) control <- list()
   control$verbose <- verbose
+
+  # find class
+  formula <- as.formula(formula)
+  class <- as.character(formula[[2]])
+  ### FIXME: we could allow using only a subset of items here!
+  if(as.character(formula[[3]]) != ".")
+    stop("Formula needs to be of the form class ~ .")
 
 
   ####Preparing data####
@@ -68,8 +75,11 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, verbose=FALSE,
 
   classifier <- list(
     rules = classifier,
+    class = class,
+    levels = lvls,
     default = defaultClass,
-    levels = lvls)
+    method = "first"
+    )
 
   class(classifier) <- "CBA"
 

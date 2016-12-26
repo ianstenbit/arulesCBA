@@ -6,6 +6,7 @@ import("caret")
 import("testthat")
 
 importFrom("methods", "as", "is")
+importFrom("stats", "as.formula")
 
 S3method(predict, CBA)
 S3method(print, CBA)

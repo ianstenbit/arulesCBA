@@ -6,11 +6,15 @@
   Use a set of association rules for classification.
 }
 \usage{
-CBA_ruleset(rules, class)
+CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL)
 }
 \arguments{
+  \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
   \item{rules}{A set of association rules (from \pkg{arules}).}
-  \item{class}{A character vector of size 1 indicating the name of the variable which represents the class variable.}
+  \item{method}{Classification method \code{"first"} found rule or \code{"majority"}.}
+  \item{weights}{Rule weights for method majority. If missing, then equal weights are used}
+  \item{default}{Default class of the form \code{variable=level}. If not
+    specified then the most frequent RHS in rules is used.}
 }
 \details{
   This method just takes a user provided set of association rules
@@ -21,8 +25,11 @@ CBA_ruleset(rules, class)
   Returns an object of class \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
-  \item{default}{deault class label.}
+  \item{class}{class variable.}
   \item{levels}{levels of the class variable.}
+  \item{default}{default class label.}
+  \item{method}{classification method.}
+  \item{weights}{rule weights.}
 }
 \author{Michael Hahsler}
 \seealso{
@@ -31,6 +38,8 @@ CBA_ruleset(rules, class)
 \code{\link[arules]{transactions}}.
 }
 \examples{
+library("caret")
+
 data(iris)
 irisDisc <- as.data.frame(lapply(iris[1:4],
   function(x) discretize(x, categories=9)))
@@ -48,10 +57,16 @@ rules <- rules[!is.redundant(rules)]
 rules <- sort(rules, by = "conf")
 
 # create classifier
-cl <- CBA_ruleset(rules, class = "Species")
+cl <- CBA_ruleset(Species ~ ., rules)
 cl
 
 p <- predict(cl, trans)
-library("caret")
+confusionMatrix(p, truth)
+
+# use weighted majority
+cl <- CBA_ruleset(Species ~ ., rules, method = "majority", weights = "lift")
+cl
+
+p <- predict(cl, trans)
 confusionMatrix(p, truth)
 }

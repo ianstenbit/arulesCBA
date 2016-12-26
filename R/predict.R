@@ -1,5 +1,7 @@
-predict.CBA <- function(object, newdata, method = "first",
-  weights = NULL, ...){
+predict.CBA <- function(object, newdata, ...){
+
+  method <- object$method
+  if(is.null(method)) method <- "majority"
 
   methods <- c("first", "majority")
   m <- pmatch(method, methods)
@@ -37,7 +39,7 @@ predict.CBA <- function(object, newdata, method = "first",
   if(method == "majority") {
 
     # unweighted
-    if(is.null(weights) && is.null(object$weights)) {
+    if(is.null(object$weights)) {
       w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
       output <- sapply(w, FUN = function(x) {
         n <- which.max(table(classifier.results[x]))
@@ -46,12 +48,7 @@ predict.CBA <- function(object, newdata, method = "first",
       output[sapply(w, length)==0] <- default
 
     }else{
-      # fix weights firsts
-      if(is.null(weights)) {
-        if(!is.null(object$weights)) weights <- object$weights
-        else weights <- rep(1, length(object$rules))
-      }
-
+      weights <- object$weights
 
       # use a quality measure
       if(is.character(weights))
