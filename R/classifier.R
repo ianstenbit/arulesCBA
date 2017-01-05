@@ -1,4 +1,21 @@
-CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbose=FALSE){
+CBA <- function(formula, data, support = 0.2, confidence = 0.8,
+  verbose=FALSE, parameter = NULL, control = NULL){
+
+  if(is.null(parameter)) parameter <- list()
+  parameter$support <- support
+  parameter$confidence <- confidence
+  parameter$minlen <- 2
+
+  if(is.null(control)) control <- list()
+  control$verbose <- verbose
+
+  # find class
+  formula <- as.formula(formula)
+  class <- as.character(formula[[2]])
+  ### FIXME: we could allow using only a subset of items here!
+  if(as.character(formula[[3]]) != ".")
+    stop("Formula needs to be of the form class ~ .")
+
 
   ####Preparing data####
   lvls <- NULL
@@ -14,7 +31,9 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbo
   rightHand <- as.factor(unlist(rightHand))
 
   #Generate and sort association rules
-  rules <- apriori(ds.mat, parameter = list(minlen = 2, supp = support, conf = confidence, maxt=maxtime), appearance = list(rhs=levels(rightHand), default = "lhs"), control=list(verbose=verbose))
+  rules <- apriori(ds.mat, parameter = parameter,
+    appearance = list(rhs=levels(rightHand), default = "lhs"),
+    control=control)
   rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
 
   #Vector used to identify rules as being 'strong' rules for the final classifier
@@ -56,8 +75,11 @@ CBA <- function(data, class, support = 0.2, confidence = 0.8, maxtime = 2, verbo
 
   classifier <- list(
     rules = classifier,
+    class = class,
+    levels = lvls,
     default = defaultClass,
-    levels = lvls)
+    method = "first"
+    )
 
   class(classifier) <- "CBA"
 

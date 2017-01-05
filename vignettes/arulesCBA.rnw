@@ -7,13 +7,13 @@
 \title{\pkg{arulesCBA}:  Classification for Factor and Transactional Data Sets Using Association Rules }
 
 \Plainauthor{Ian Johnson}
-\Plaintitle{arulesCBA:  Classification for Factor and Transactional Data Sets Using Association Rules} 
+\Plaintitle{arulesCBA:  Classification for Factor and Transactional Data Sets Using Association Rules}
 
 \Abstract{
   This paper presents an \proglang{R} package, \pkg{arulesCBA}, which uses association rules mined with the apriori algorithm from \pkg{arules} to build a classifier for discrete or transactional data sets. The package also provides an interface to use an association-rule classifier to predict classes for new data entries. The classification algorithm implemented in \pkg{arulesCBA} performs competitively when compared to existing discrete classification algorithms.
 }
 \Keywords{data mining, classification, association rules, \proglang{R}}
-\Plainkeywords{data mining, classification, association rules, R} 
+\Plainkeywords{data mining, classification, association rules, R}
 \Address{
   Ian Johnson\\
   Computer Science and Engineering\\
@@ -31,8 +31,8 @@
 
 \section[Introduction]{Introduction}
 
-Association rule mining is a well-established strategy for discovering relationships among attributes of discrete, factor, and transactional data sets. Existing \proglang{R} packages such as \pkg{arules} provide interfaces to \proglang{C} implementations of fast association rule mining algorithms such as apriori. 
-%For an in-depth description of association rule mining, its purpose, and the statistical theory behind it, see \cite{}. 
+Association rule mining is a well-established strategy for discovering relationships among attributes of discrete, factor, and transactional data sets. Existing \proglang{R} packages such as \pkg{arules} provide interfaces to \proglang{C} implementations of fast association rule mining algorithms such as apriori.
+%For an in-depth description of association rule mining, its purpose, and the statistical theory behind it, see \cite{}.
 For the purpose of this paper, association rule mining will be treated as a black box, as association rules for the classification algorithm in \pkg{arulesCBA} will be mined using the apriori interface in \pkg{arules}. The rules mined from the algorithm will have five relevant fields. The first three: lift, support, and confidence, are statistical measures of the strength of an association rule which will be discussed in later sections. The final attributes of an association rule are the predicate, or left-hand-side of the rule, and the class, or the right-hand-side of the rule. The predicate of a rule is the set of elements in a row of data which are associated with the resulting class of the rule. The classification algorithm in \pkg{arulesCBA} uses a special type of association rule where the right-hand-side is a set of size one (called a class). These rules are called CARs (Class Association Rules). The remainder of the paper will be organized as follows: first, the \proglang{R} interface of the \pkg{arulesCBA} will be explored, then the CBA algorithm will be detailed, and then an example of using the \pkg{arulesCBA} interface to classify the \code{Iris} data set from the \proglang{R} package \pkg{datasets} will be provided.
 
 \section[Interface]{The arulesCBA Interface}
@@ -46,21 +46,21 @@ The optional arguments, \code{support}, \code{confidence}, and \code{verbose}, a
 The following are an examples of valid calls to the \textit{CBA} function:
 
 \code{
-> classifier <- CBA(dataset, className) \\
-> classifier <- CBA(dataset, className, confidence = 0.95, verbose = TRUE)
+> classifier <- CBA(formula, data) \\
+> classifier <- CBA(formula data, confidence = 0.95, verbose = TRUE)
 }
 
 These are only valid calls to the \textit{CBA} function if the following conditions are met:
 
 \begin{itemize}
-\item{The object \code{dataset} is a data.frame whose columns are all factors, or an \pkg{arules} transaction object}
-\item{The object \code{className} is a character vector of size 1 whose value is the name of one of the columns of \code{dataset}. In other words, \code{className} should be an item from the list \code{colnames(dataset)}}
-\item{The column in \code{dateset} whose name is \code{className} has no missing values}
+\item{The object \code{formula} contains a symbolic description of the model to be fitted. The only model type currently supported is of the from \code{class ~ .}, where \code{class} is the name of the class variable.}
+\item{The object \code{data} is a data.frame whose columns are all factors, or an \pkg{arules} transaction object.}
+\item{The column in \code{date} representing the class is not allowed to have missing values.}
 \end{itemize}
 
 The object returned by the CBA function is a CBA object, which is a list with three elements: \code{rules}, \code{default}, and \code{levels}. The object \code{rules} is an ordered vector of \pkg{arules} association rules which are used for classification. The object \code{default} is a character vector of size 1 which holds the default class for the classifier, which will be discussed in later sections. Finally, \code{levels} is a vector of all of the possible classes for an object being sent to the classifier.
 
-The \code{rules} object can be extracted from the \code{CBA} object using the function \code{rules(CBA)}. The \code{default} and \code{levels} objects are only used internally in the \code{predict} function. 
+The \code{rules} object can be extracted from the \code{CBA} object using the function \code{rules(CBA)}. The \code{default} and \code{levels} objects are only used internally in the \code{predict} function.
 
 \subsection[predict]{The Predict Function}
 The function \code{predict} is used to apply a CBA classifier to a new set of data to be classified. The function accepts only two arguments, \code{object} and \code{newdata}, which are the CBA object and the new data set to be classified, respectively. The CBA classifier \code{object} can be sent to \code{predict} directly from the \code{CBA} function. The \code{newdata} object must be a data.frame or \pkg{arules} transaction object whose columns match those used to build the original classifier.
@@ -99,7 +99,7 @@ The data input to the classifier must also be formatted as an \pkg{arules} trans
 
 In this version of \pkg{arulesCBA}, dense matrices are used for rulesMatchLHS and rulesMatchRHS. Future versions will use sparse matrices for memory efficiency.
 
-A number of other data structures are instantiated and organized for later use, but their purpose, while critical to functionality, is not critical to understanding the algorithm, and they have therefore been omitted from this description of the algorithm. This description of the CBA algorithm is simplified considerably for the sake of clarity. It provides more than enough information to be able to use the \pkg{arulesCBA} interface confidently. 
+A number of other data structures are instantiated and organized for later use, but their purpose, while critical to functionality, is not critical to understanding the algorithm, and they have therefore been omitted from this description of the algorithm. This description of the CBA algorithm is simplified considerably for the sake of clarity. It provides more than enough information to be able to use the \pkg{arulesCBA} interface confidently.
 
 \subsection[stage1]{Stage 1}
 In stage 1 of the CBA algorithm, a linear pass is made through the entire input data set, and a set \code{A} is built of all falsely classified record. A falsely classified record is one which matches the left-hand-side of a rule in the classifier but whose class doesn't match the right-hand-side of that rule. Each falsely classified record in \code{A} is stored alongside a corresponding \textit{crule} and \textit{wrule} for the record. A \textit{crule} (correct rule) is a rule which matches an entry on both the left and right-hand-sides of the rule, while a \textit{wrule} (wrong rule) is a rule which matches an entry on the left-hand-side, but not the right-hand-side. Stage 1 of the algorithm also builds a list of \textit{strong rules}, rules which correctly identify entries in the input data set and will therefore be used in the final classifier.
@@ -120,7 +120,7 @@ Prior to executing the following example, install \pkg{arulesCBA} using:
 
 To install the most recent development version, use:
  \code{> install_github("ianjjohnson/arulesCBA")}. \\
- 
+
  \code{install_github} is available through the \pkg{devtools} package.
 
 \subsection[libs]{Loading Required Packages}
@@ -130,7 +130,7 @@ To load the \pkg{arulesCBA} package, as well as the \pkg{caret} package, which i
 library(arulesCBA)
 @
 
-Note that the package \pkg{caret} can be installed using \code{install.packages(caret)}. 
+Note that the package \pkg{caret} can be installed using \code{install.packages(caret)}.
 
 \subsection[disc]{Discretizing the Data}
 
@@ -141,7 +141,8 @@ The data needs to be discretized because the CBA algorithm will convert the data
 
 <<echo=TRUE>>=
 data(iris)
-iris.disc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
+iris.disc <- as.data.frame(lapply(iris[1:4],
+  function(x) discretize(x, categories=9)))
 @
 
 Note that the function \code{discretize} comes from \pkg{arules}, and the argument \code{categories = 9} refers to the number of categories which will be made. Once the continuous variables have been discretized, the class can be post-pended to the data.frame as follows:
@@ -160,7 +161,7 @@ head(iris.disc)
 Building the classifier can be done with a simple call to the \code{CBA} function:
 
 <<echo=TRUE>>=
-classifier <- CBA(iris.disc, "Species", supp = 0.05, conf=0.9)
+classifier <- CBA(Species ~ ., iris.disc, supp = 0.05, conf=0.9)
 @
 
 Note that the second parameter to the \code{CBA} function, \code{class}, is the name of the column of \code{iris.disc} which contains the class of each entry. Also recall that the \code{iris.disc} data must be convertible to \pkg{arules} transaction data at this point in execution.
@@ -207,7 +208,7 @@ In order to ascertain the quality of the predicted classes, a confusion matrix w
 
 <<echo=TRUE>>=
 library(gmodels)
-CrossTable(classes, iris.disc$Species,           
+CrossTable(classes, iris.disc$Species,
            prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE)
 @
 
