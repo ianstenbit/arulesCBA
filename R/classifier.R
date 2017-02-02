@@ -65,7 +65,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   defaultClasses <- vector('integer', length=length(rules.sorted))
   totalErrors <- vector('integer', length=length(rules.sorted))
 
-  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(rightHand)),  PACKAGE = "arulesCBA")
+  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
 
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
