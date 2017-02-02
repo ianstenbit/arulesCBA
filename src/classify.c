@@ -71,7 +71,12 @@ void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int n
 	int numFoundMatches = 0;
 	int column = 0;
 
+	printf("Num matches: %i\n", numMatches);
+
 	for(int i = 0; i < numMatches; i++){
+
+		printf("Looking at match %i for rule %i, value is %i\n", i, entry_row, matrix_i[i]);
+
 		if(matrix_i[i] == entry_row){
 			while(column < numRules && matrix_p[column] < i) column++;
 			matches[numFoundMatches++] = column;
@@ -357,6 +362,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			cases_covered_arr[wrule]++;
 		} else {
 
+			printf("Testing!\n");
+
 			/*If the wrule hasn't been identified for the classifier, generate a list of possible replacement rules for the out-prioritized crule*/
 			getMatches(wSet, match_rows, match_p, entry, numRules, numMatches);
 
@@ -367,6 +374,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 
 				/*Skip rules which aren't in the replacement subset, and don't replace a rule with itself*/
 				if(j == crule) continue;
+
+				printf("Marking rule %i as strong \n", j);
 
 				/*Mark this rule as a strong rule*/
 				strong_rules_arr[j] = TRUE;
