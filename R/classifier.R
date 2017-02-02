@@ -51,10 +51,15 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
 
   strongRules <- vector('logical', length=length(rules.sorted))
 
+  print("Entering Stage 1!")
+  
   a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
 
+  print("Passed Stage 1!")
+  
   replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules,  PACKAGE = "arulesCBA")
 
+  print("Passed Stage 2!")
   #initializing variables for stage 3
   ruleErrors <- 0
   classDistr <- as.integer(rightHand)
@@ -67,6 +72,8 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
 
   .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
 
+  print("Passed Stage 3!")
+  
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
 

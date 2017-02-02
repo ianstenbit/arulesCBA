@@ -9,6 +9,28 @@ Author: Ian Johnson
 
 #define _ind(x,y,cols) (x) + (y) * (cols) /*Macro for R matrix access in linear c-array*/
 
+int getColumnNumber(int* matrix_p, int numEntries, int location){
+
+	int low = 0, med, high=numEntries;
+
+	while(high - low > 1){
+
+		med = low + high / 2;
+
+		if(matrix_p[med] > location){
+			low = med;
+		} else if(med + 1 == numEntries || matrix_p[med+1] < location){
+			return med;
+		} else {
+			high = med;
+		}
+
+	}
+
+	return low + high / 2;
+
+}
+
 /*
 Finds the first 1 in the binary matrix 'matrix' in row 'entry_row'
 Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
@@ -34,27 +56,6 @@ int firstMatch(int* matrix_rows, int* matrix_p, int entry_row, int numRules, int
 	return -1;
 }
 
-int getColumnNumber(int* matrix_p, int numEntries, int location){
-
-	int low = 0, med, high=numEntries;
-
-	while(low < high){
-
-		med = low + high / 2;
-		if(matrix_p[med] > location){
-			high = med;
-		} else if(med + 1 == numEntries || matrix_p[med+1] < location){
-			return med;
-		} else {
-			low = med;
-		}
-
-	}
-
-	return med;
-
-}
-
 /*
 Finds the all 1s in the binary matrix 'matrix' in row 'entry_row'
 Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
@@ -67,17 +68,17 @@ Note: this pointer MUST NOT be freed by the calling function. It points to a loc
 */
 void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int numRules, int numMatches){
 
-	int numMatches = 0;
+	int numFoundMatches = 0;
 	int column = 0;
 
 	for(int i = 0; i < numMatches; i++){
 		if(matrix_i[i] == entry_row){
 			while(column < numRules && matrix_p[column] < i) column++;
-			matches[numMatches++] = column;
+			matches[numFoundMatches++] = column;
 		}
 	}
 
-	matches[numMatches] = -1;
+	matches[numFoundMatches] = -1;
 
 	/*return a pointer to the row of the matrix for this entry*/
 	//return &(matrix[_ind(0, entry_row, numRules)]);
@@ -92,11 +93,11 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 @param numRules: the number of rules in the matrix (the 'width' of the matrix)
 @param numRecords: the number of records/entries in the matrix (the 'height' of the matrix)
 */
-int countRecordMatches(int* matrix_i, int* matrix_rows, int numMatches, int* covered, int rule_column, int numRules, int numRecords){
+int countRecordMatches(int* matrix_i, int* matrix_p, int numMatches, int* covered, int rule_column, int numRules, int numRecords){
 
 	int sum = 0;
 
-	for(int i = 0; i < numMatches)
+	for(int i = 0; i < numMatches; i++)
 		if(matrix_i[i] == rule_column)
 			sum++;
 
@@ -125,15 +126,17 @@ Note: this pointer MUST NOT be freed by the calling function. It points to a loc
 Note: this pointer MUST only be accessed at indeces i where i%numRules == 0.
 This is because it points to a column inside a matrix saved as a c-array
 */
-int* getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int rule_column){
+void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int rule_column){
 
-	int numMatches = 0;
+	int numFoundMatches = 0;
 
-	for(int start_loc = matrix_p[rule_column]; (start_loc < numMatches && start_loc < matrix_p[rule_column+1]), start_loc++){
-		matches[numMatches++] = start_loc;
+	int start_loc = matrix_p[rule_column];
+	while(start_loc < numMatches && start_loc < matrix_p[rule_column+1]){
+		matches[numFoundMatches++] = start_loc;
+		start_loc++;
 	}
 
-	matches[numMatches] = -1;
+	matches[numFoundMatches] = -1;
 
 	/*return a pointer to the first element in rule_column in matrix*/
 	//return &(matrix[rule_column]);
@@ -360,7 +363,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			/*For every possible replacement rule*/
 			for(int k = 0; wSet[k] != -1; k++){
 
-				j = wSet[k];
+				int j = wSet[k];
 
 				/*Skip rules which aren't in the replacement subset, and don't replace a rule with itself*/
 				if(j == crule) continue;
@@ -426,7 +429,6 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 	int* classes = INTEGER(classDistr);
 	int* defaultClasses_arr = INTEGER(defaultClasses);
-	int* false_matches_matrix = INTEGER(falseMatches);
 	int* total_errors_arr = INTEGER(totalErrors);
 
 	/*Allocate integers and int pointers for inside the loop*/
@@ -483,7 +485,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		/*Count the rule errors and the default errors*/
 		defaultErrors = getDefaultErrors(classes, covered_arr, nRows, classNum);
-		ruleErrors += countRecordMatches(falseMatch_i, falseMatch_rows, num_falseMatches, covered_arr, i, numRules, nRows);
+		ruleErrors += countRecordMatches(falseMatch_rows, falseMatch_p, numFalseMatches, covered_arr, i, numRules, nRows);
 
 		/*Save the number of total errors. In R, the algorithm will prune the classifier to be the subset of the rules in the classifier
 		up to the point where the minimum number of errors occur. If the minimum occurs in two places, the smaller of the two possible subsets
@@ -492,7 +494,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
 		for(int j = 0; rule_covered[j] != -1; j++){
-			covered_arr[rule_covered[j]] 1;
+			 covered_arr[rule_covered[j]] = 1;
 		}
 
 	}
