@@ -18,15 +18,41 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 @param numEntries: the number of entries in the dataset (the 'height' of the matrix)
 @return: the index of the first rule which matches the entry specified, or -1 if no rule is found
 */
-int firstMatch(int* matrix, int entry_row, int numRules, int numEntries){
+int firstMatch(int* matrix_rows, int* matrix_p, int entry_row, int numRules, int numEntries, int numMatches){
 
-	/*Iterate sideways through one row of the matrix*/
+	for(int i = 0; i < numMatches; i++)
+		if(matrix_p[i] == entry_row)
+			return getColumnNumber(matrix_p, numEntries, i);
+
+	/*Iterate sideways through one row of the matrix
 	for(int i = 0; i < numRules; i++)
 		if(matrix[_ind(i, entry_row, numRules)] == 1)
 			return i;
+	*/
 
 	/*Default return if no match found*/
 	return -1;
+}
+
+int getColumnNumber(int* matrix_p, int numEntries, int location){
+
+	int low = 0, med, high=numEntries;
+
+	while(low < high){
+
+		med = low + high / 2;
+		if(matrix_p[med] > location){
+			high = med;
+		} else if(med + 1 == numEntries || matrix_p[med+1] < location){
+			return med;
+		} else {
+			low = med;
+		}
+
+	}
+
+	return med;
+
 }
 
 /*
@@ -98,7 +124,7 @@ Note:
 @param numRules: the number of rules in the data set
 @param rLen: the length of the replace array
 @return: a list of replacements for rule 'rule'
-Note: 
+Note:
 	- What's returned by this method bust be freed by the calling function
 	- Indeces where i%2 = 0 represent a wrule
 	- Indeces where i%2 = 1 represent an entry index for which this wrule might replace the given crule
@@ -186,10 +212,10 @@ This stage populates and returns a list A of all falsely classified records, alo
 It also constructs a vector of "strong rules" which will be used in the final classifier
 All parameters, and the returned object, are S Expressions from R, whose purpose is explained within the function declaration
 */
-SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches, SEXP falseMatches, SEXP numRules){
+SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_matches, SEXP falseMatches_i, SEXP falseMatches_p, SEXP num_falseMatches, SEXP numRules){
 
 	/*Wrapper class for integers*/
-	R_len_t i, nrows, nrules;
+	R_len_t i, nrows, nrules, nMatches, nFalseMatches;
 
 	/*Integers for use inside the for loop*/
 	int crule, wrule;
@@ -198,9 +224,15 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches, 
 	nrules = INTEGER(numRules)[0];
 	nrows = INTEGER(data_rows)[0];
 
+	nMatches = INTEGER(num_matches)[0];
+	nFalseMatches = INTEGER(num_falseMatches)[0];
+
 	/*Local pointers to the binary matrices input from R which represent rule/entry matches */
-	int* matchMatrix = INTEGER(matches);
-	int* falseMatchMatrix = INTEGER(falseMatches);
+	int* match_rows = INTEGER(matches_i);
+	int* match_p    = INTEGER(matches_p);
+
+	int* falseMatch_rows = INTEGER(falseMatches_i);
+	int* falseMatch_p    = INTEGER(falseMatches_p);
 
 	/*Allocate an integer array for the set A*/
 	int* a_vector = malloc(nrows * 3 * sizeof *a_vector);
@@ -211,8 +243,8 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches, 
 	for(i = 0; i < nrows; i++){
 
 		/*Find the first correct and incorrect rule matches for this entry*/
-		crule = firstMatch(matchMatrix, i, nrules, nrows);
-		wrule = firstMatch(falseMatchMatrix, i, nrules, nrows);
+		crule = firstMatch(match_rows, match_p, i, nrules, nrows, nMatches);
+		wrule = firstMatch(falseMatch_rows, falseMatch_p, i, nrules, nrows, nFalseMatches);
 
 		/*If a crule was found, mark that it correctly covers a case*/
 		if(crule != -1){
@@ -222,14 +254,14 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches, 
     	/*If the crule was higher precedence than the wrule, save it as a strong rule for the classifier*/
     	if(crule > wrule){
     		LOGICAL(strong_rules)[crule] = TRUE;
-    	} 
+    	}
     	/*If the wrule has higher precedence, then save this case in A for further processing in step 2*/
     	else if (wrule > crule){
       		a_vector[a_size++] = i;
       		a_vector[a_size++] = crule;
       		a_vector[a_size++] = wrule;
     	}
-		
+
 	}
 
 	/*Copy integer array a_vector into the set a, an R object*/
@@ -251,7 +283,7 @@ This stage processes the set A of falsely classified records, and builds a set o
 for rules which generated classification errors in stage 1 of the algorithm.
 All parameters, and the returned object, are S Expressions from R, whose purpose is explained within the function declaration
 */
-SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
+SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP strong_rules){
 
 	/*a_length = 3 * the number of falsely classified records*/
 	int a_length = length(a);
@@ -266,13 +298,16 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 	int* a_arr = INTEGER(a);
 	int* strong_rules_arr = LOGICAL(strong_rules);
 	int* cases_covered_arr = INTEGER(casesCovered);
-	int* matches_matrix = INTEGER(matches);
+
+
+	int* match_rows = INTEGER(matches_i);
+	int* match_p    = INTEGER(matches_p);
 
 	/*Allocate a vector for possible rule replacements*/
 	int* replace = malloc(3*a_length*numRules * sizeof *replace);
 	int replaceSize = 0;
 
-	/*Iterate through the set A. In Liu, et al. this proccess, alongside the entire linear iteration through the 
+	/*Iterate through the set A. In Liu, et al. this proccess, alongside the entire linear iteration through the
 	dataaset in stage 1, constitute passing through the dataset slightly more than once*/
 	for(int i = 0; i < a_length; i+=3){
 
@@ -288,7 +323,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 		} else {
 
 			/*If the wrule hasn't been identified for the classifier, generate a list of possible replacement rules for the out-prioritized crule*/
-			int* wSet = getMatches(matches_matrix, entry, numRules);
+			int* wSet = getMatches(match_rows, match_p, entry, numRules);
 
 
 			/*For every possible replacement rule*/
@@ -319,7 +354,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches, SEXP strong_rules){
 	/*Free the memory allocated by this function*/
 	free(replace);
 
-	/* Return the set of all identified rule replacements 
+	/* Return the set of all identified rule replacements
 	Each item has a crule, a possible replacement, and an entry number from the original dataset */
 	return rep;
 
@@ -332,8 +367,8 @@ All parameters are S Expressions from R, whose purpose is explained within the f
 */
 SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClasses, SEXP totalErrors, SEXP classDistr, SEXP replace, SEXP matches, SEXP falseMatches, SEXP classLevels){
 
-	/*Save the number of entries, 
-	the number of rules, 
+	/*Save the number of entries,
+	the number of rules,
 	the number of elements in the replace set, (replace_len = 3* number of elements)
 	and the number of possible classes for the classifier*/
 	int nRows = length(covered);
@@ -375,8 +410,8 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		/*Save the list of replacement rules for the rule at index i*/
 		replace_list = getReplacements(replace_arr, i, numRules, replace_len);
-			
-		/*Iterate through the list of possible replacements*/	
+
+		/*Iterate through the list of possible replacements*/
 		int repl_index = 0;
 		while(replace_list[repl_index] != -1){
 
@@ -424,4 +459,3 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 	return R_NilValue;
 
 }
-
