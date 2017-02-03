@@ -56,7 +56,6 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
 
   print("Passed Stage 1!")
-  print(length(matches@i))
   
   replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules,  PACKAGE = "arulesCBA")
 

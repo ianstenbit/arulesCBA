@@ -1,6 +1,9 @@
 /*
 A C implementation of stages I, II, and III of the CBA algorithm described by Liu, et al 1998
 Author: Ian Johnson
+
+PLEASE NOTE: This is currently in development (as of 2/2/2017) to switch to sparse matrix representation.
+Some documentation and variable nomenclature is deprecated. Sorry for the inconvenience.
 */
 
 #include <R.h>
@@ -8,28 +11,6 @@ Author: Ian Johnson
 #include <Rinternals.h>
 
 #define _ind(x,y,cols) (x) + (y) * (cols) /*Macro for R matrix access in linear c-array*/
-
-int getColumnNumber(int* matrix_p, int numEntries, int location){
-
-	int low = 0, med, high=numEntries;
-
-	while(high - low > 1){
-
-		med = low + high / 2;
-
-		if(matrix_p[med] > location){
-			low = med;
-		} else if(med + 1 == numEntries || matrix_p[med+1] < location){
-			return med;
-		} else {
-			high = med;
-		}
-
-	}
-
-	return low + high / 2;
-
-}
 
 /*
 Finds the first 1 in the binary matrix 'matrix' in row 'entry_row'
@@ -42,15 +23,16 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 */
 int firstMatch(int* matrix_rows, int* matrix_p, int entry_row, int numRules, int numEntries, int numMatches){
 
-	for(int i = 0; i < numMatches; i++)
-		if(matrix_p[i] == entry_row)
-			return getColumnNumber(matrix_p, numEntries, i);
+	int start_loc = matrix_p[entry_row];
 
-	/*Iterate sideways through one row of the matrix
-	for(int i = 0; i < numRules; i++)
-		if(matrix[_ind(i, entry_row, numRules)] == 1)
-			return i;
-	*/
+	int end_loc;
+	if(entry_row == numEntries)
+		end_loc = numMatches;
+	else
+		end_loc = matrix_p[entry_row+1];
+
+	for(int i = start_loc; i < end_loc; i++)
+		return matrix_rows[i];
 
 	/*Default return if no match found*/
 	return -1;
@@ -66,27 +48,17 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 A 1 at index i indicates that rule i matches this entry.
 Note: this pointer MUST NOT be freed by the calling function. It points to a location inside 'matrix'
 */
-void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int numRules, int numMatches){
+void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int numMatches){
 
 	int numFoundMatches = 0;
-	int column = 0;
 
-	printf("Num matches: %i\n", numMatches);
-
-	for(int i = 0; i < numMatches; i++){
-
-		printf("Looking at match %i for rule %i, value is %i\n", i, entry_row, matrix_i[i]);
-
-		if(matrix_i[i] == entry_row){
-			while(column < numRules && matrix_p[column] < i) column++;
-			matches[numFoundMatches++] = column;
-		}
+	int start_loc = matrix_p[entry_row];
+	while(start_loc < numMatches && start_loc < matrix_p[entry_row+1]){
+		matches[numFoundMatches++] = start_loc;
+		start_loc++;
 	}
 
 	matches[numFoundMatches] = -1;
-
-	/*return a pointer to the row of the matrix for this entry*/
-	//return &(matrix[_ind(0, entry_row, numRules)]);
 
 }
 
@@ -108,16 +80,6 @@ int countRecordMatches(int* matrix_i, int* matrix_p, int numMatches, int* covere
 
 	return sum;
 
-	// int count = 0;
-	//
-	// /*Iterate vertically through a column of the matrix, counting the 1s*/
-	// for(int i = 0; i < numRecords; i++){
-	// 	if(covered[i] == 0 && matrix[_ind(rule_column, i, numRules)] == 1)
-	// 		count++;
-	// }
-	//
-	// return count;
-
 }
 
 /*
@@ -131,14 +93,17 @@ Note: this pointer MUST NOT be freed by the calling function. It points to a loc
 Note: this pointer MUST only be accessed at indeces i where i%numRules == 0.
 This is because it points to a column inside a matrix saved as a c-array
 */
-void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int rule_column){
+void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int numRules, int rule_column){
 
 	int numFoundMatches = 0;
+	int column = 0;
 
-	int start_loc = matrix_p[rule_column];
-	while(start_loc < numMatches && start_loc < matrix_p[rule_column+1]){
-		matches[numFoundMatches++] = start_loc;
-		start_loc++;
+	for(int i = 0; i < numMatches; i++){
+
+		if(matrix_rows[i] == rule_column){
+			while(column < numRules && matrix_p[column] < i) column++;
+			matches[numFoundMatches++] = column;
+		}
 	}
 
 	matches[numFoundMatches] = -1;
@@ -362,10 +327,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			cases_covered_arr[wrule]++;
 		} else {
 
-			printf("Testing!\n");
-
 			/*If the wrule hasn't been identified for the classifier, generate a list of possible replacement rules for the out-prioritized crule*/
-			getMatches(wSet, match_rows, match_p, entry, numRules, numMatches);
+			getMatches(wSet, match_rows, match_p, entry, numMatches);
 
 			/*For every possible replacement rule*/
 			for(int k = 0; wSet[k] != -1; k++){
@@ -374,8 +337,6 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 
 				/*Skip rules which aren't in the replacement subset, and don't replace a rule with itself*/
 				if(j == crule) continue;
-
-				printf("Marking rule %i as strong \n", j);
 
 				/*Mark this rule as a strong rule*/
 				strong_rules_arr[j] = TRUE;
@@ -484,7 +445,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		free(replace_list);
 
 		/*Get a list of all of the records which this rule covers*/
-		getRecordMatches(rule_covered, match_rows, match_p, numMatches, i);
+		getRecordMatches(rule_covered, match_rows, match_p, numMatches, numRules, i);
 
 		/*Calculate the best default class for the classifier after this rule has been processed*/
 		int classNum = getMajorityClass(classes, covered_arr, numClasses, nRows);
