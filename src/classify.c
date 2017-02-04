@@ -348,11 +348,9 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 
 				/*Make an entry for this rule in the set replace*/
 				replace[replaceSize++] = crule;
-      			replace[replaceSize++] = j;
-      			replace[replaceSize++] = entry;
+      	replace[replaceSize++] = j;
+      	replace[replaceSize++] = entry;
 
-			}
-quit()
 		}
 	}
 
