@@ -57,7 +57,7 @@ void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int n
 	if(entry_row != numRows - 1) end_loc = matrix_p[entry_row+1];
 
 	while(start_loc < end_loc){
-		matches[numFoundMatches++] = start_loc;
+		matches[numFoundMatches++] = matrix_i[start_loc];
 		start_loc++;
 	}
 
