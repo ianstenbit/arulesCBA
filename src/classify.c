@@ -149,6 +149,7 @@ int* getReplacements(int* replace, int rule, int numRules, int rLen){
 
 	/*Return the new replacement array*/
 	return repl;
+
 }
 
 /*
@@ -359,6 +360,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 
 	/*Free the memory allocated by this function*/
 	free(replace);
+	free(wSet);
 
 	/* Return the set of all identified rule replacements
 	Each item has a crule, a possible replacement, and an entry number from the original dataset */
@@ -466,6 +468,8 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		for(int j = 0; rule_covered[j] != -1; j++){
 			 covered_arr[rule_covered[j]] = 1;
 		}
+
+		free(rule_covered);
 
 	}
 
