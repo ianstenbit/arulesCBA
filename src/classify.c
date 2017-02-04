@@ -130,10 +130,10 @@ Note:
 	- Indeces where i%2 = 0 represent a wrule
 	- Indeces where i%2 = 1 represent an entry index for which this wrule might replace the given crule
 */
-int* getReplacements(int* replace, int rule, int numRules, int rLen){
+void getReplacements(int* repl, int* replace, int rule, int numRules, int rLen){
 
 	/*Allocate an int array of all the possible replacements*/
-	int* repl = malloc((numRules-1) * 2 * sizeof *repl);
+
 	int repl_size = 0;
 
 	/*Fill the array with -1s*/
@@ -312,6 +312,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 	int replaceSize = 0;
 
 	int* wSet = malloc((numRules+1) * sizeof(int));
+	memset(wSet, 0, sizeof(int)*(numRules + 1));
+
 
 	/*Iterate through the set A. In Liu, et al. this proccess, alongside the entire linear iteration through the
 	dataaset in stage 1, constitute passing through the dataset slightly more than once*/
@@ -332,7 +334,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			getMatches(wSet, match_rows, match_p, entry, numMatches);
 
 			/*For every possible replacement rule*/
-			for(int k = 0; wSet[k] != -1; k++){
+			for(int k = 0; k < numRules && wSet[k] != -1; k++){
 
 				int j = wSet[k];
 
@@ -406,6 +408,10 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 	/*Allocate integers and int pointers for inside the loop*/
 	int* replace_list = 0;
 	int* rule_covered = malloc((numMatches + 1) * sizeof(int));
+	memset(rule_covered, 0, sizeof(int)*(numMatches + 1));
+
+
+	int* replace_list = malloc((numRules-1) * 2 * sizeof *repl);
 
 	/*Rule errors are the errors produced by a rule which falsely classifies a record,
 	Default errors are the errors produced by using a default class which falsely classifies a record*/
@@ -425,7 +431,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		}
 
 		/*Save the list of replacement rules for the rule at index i*/
-		replace_list = getReplacements(replace_arr, i, numRules, replace_len);
+		getReplacements(replace_list, replace_arr, i, numRules, replace_len);
 
 		/*Iterate through the list of possible replacements*/
 		int repl_index = 0;
@@ -442,9 +448,6 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 			repl_index+=2;
 
 		}
-
-		/*Free the memory allocated for the temp list of possible rule replacements for rule i*/
-		free(replace_list);
 
 		/*Get a list of all of the records which this rule covers*/
 		getRecordMatches(rule_covered, match_rows, match_p, numMatches, numRules, i);
@@ -465,13 +468,15 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		total_errors_arr[i] = defaultErrors + ruleErrors;
 
 		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
-		for(int j = 0; rule_covered[j] != -1; j++){
+		for(int j = 0; j < numMatches && rule_covered[j] != -1; j++){
 			 covered_arr[rule_covered[j]] = 1;
 		}
 
-		free(rule_covered);
-
 	}
+
+	free(rule_covered);
+	/*Free the memory allocated for the temp list of possible rule replacements for rule i*/
+	free(replace_list);
 
 	/*This step returns nothing, but in order to interface correctly with R, this R NULL object must be returned*/
 	return R_NilValue;
