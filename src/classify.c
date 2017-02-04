@@ -350,6 +350,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 				replace[replaceSize++] = crule;
       	replace[replaceSize++] = j;
       	replace[replaceSize++] = entry;
+			}
 
 		}
 	}
