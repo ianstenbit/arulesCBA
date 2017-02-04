@@ -72,6 +72,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   totalErrors <- vector('integer', length=length(rules.sorted))
 
   print("Entering Phase 3")
+  print(replace)
   
   .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
   
