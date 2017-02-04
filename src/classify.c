@@ -147,9 +147,6 @@ void getReplacements(int* repl, int* replace, int rule, int numRules, int rLen){
 		}
 	}
 
-	/*Return the new replacement array*/
-	return repl;
-
 }
 
 /*
@@ -237,7 +234,7 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches_i
 	int* falseMatch_p    = INTEGER(falseMatches_p);
 
 	/*Allocate an integer array for the set A*/
-	int* a_vector = malloc(nrows * 3 * sizeof *a_vector);
+	int* a_vector = malloc(nrows * 3 * sizeof(int));
 	int a_size = 0;
 
 	/*This is a linear pass through the entire data set. It's the most performance critical part of the algorithm for most datasets.
@@ -406,12 +403,11 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 	int* total_errors_arr = INTEGER(totalErrors);
 
 	/*Allocate integers and int pointers for inside the loop*/
-	int* replace_list = 0;
 	int* rule_covered = malloc((numMatches + 1) * sizeof(int));
 	memset(rule_covered, 0, sizeof(int)*(numMatches + 1));
 
 
-	int* replace_list = malloc((numRules-1) * 2 * sizeof *repl);
+	int* replace_list = malloc((numRules-1) * 2 * sizeof(int));
 
 	/*Rule errors are the errors produced by a rule which falsely classifies a record,
 	Default errors are the errors produced by using a default class which falsely classifies a record*/

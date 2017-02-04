@@ -76,7 +76,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
   
   print("Exiting Phase 3")
-  return(strongRules)
+  #return(strongRules)
   
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
