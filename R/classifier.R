@@ -59,7 +59,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   
   print("Entering Phase 2")
   
-  replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules,  PACKAGE = "arulesCBA")
+  replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
 
   #initializing variables for stage 3
   ruleErrors <- 0

@@ -26,7 +26,7 @@ int firstMatch(int* matrix_rows, int* matrix_p, int entry_row, int numRules, int
 	int start_loc = matrix_p[entry_row];
 
 	int end_loc;
-	if(entry_row == numEntries)
+	if(entry_row == numEntries - 1)
 		end_loc = numMatches;
 	else
 		end_loc = matrix_p[entry_row+1];
@@ -48,12 +48,15 @@ Note that matrix is a linear c-array, accessed like a matrix using the matrix-to
 A 1 at index i indicates that rule i matches this entry.
 Note: this pointer MUST NOT be freed by the calling function. It points to a location inside 'matrix'
 */
-void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int numMatches){
+void getMatches(int* matches, int* matrix_i, int* matrix_p, int entry_row, int numMatches, int numRows){
 
 	int numFoundMatches = 0;
 
 	int start_loc = matrix_p[entry_row];
-	while(start_loc < numMatches && start_loc < matrix_p[entry_row+1]){
+	int end_loc = numMatches;
+	if(entry_row != numRows - 1) end_loc = matrix_p[entry_row+1];
+
+	while(start_loc < end_loc){
 		matches[numFoundMatches++] = start_loc;
 		start_loc++;
 	}
@@ -282,7 +285,7 @@ This stage processes the set A of falsely classified records, and builds a set o
 for rules which generated classification errors in stage 1 of the algorithm.
 All parameters, and the returned object, are S Expressions from R, whose purpose is explained within the function declaration
 */
-SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_matches, SEXP strong_rules){
+SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_matches, SEXP strong_rules, SEXP num_entries){
 
 	/*a_length = 3 * the number of falsely classified records*/
 	int a_length = length(a);
@@ -294,6 +297,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 	/*The number of rules in the rule set. This is not just the strong rules, it is all rules.
 	strong_rules is a binary vector indicating which rules are strong*/
 	int numRules = length(strong_rules);
+
+	int numEntries = INTEGER(num_entries)[0];
 
 	/*Build pointers to data payloads of S Expressions*/
 	int* a_arr = INTEGER(a);
@@ -328,7 +333,7 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 		} else {
 
 			/*If the wrule hasn't been identified for the classifier, generate a list of possible replacement rules for the out-prioritized crule*/
-			getMatches(wSet, match_rows, match_p, entry, numMatches);
+			getMatches(wSet, match_rows, match_p, entry, numMatches, numEntries);
 
 			/*For every possible replacement rule*/
 			for(int k = 0; k < numRules && wSet[k] != -1; k++){
