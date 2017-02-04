@@ -338,8 +338,6 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			/*For every possible replacement rule*/
 			for(int k = 0; k < numRules && wSet[k] != -1; k++){
 
-				printf("Possible replacement rule: %i", wSet[k]);
-
 				int j = wSet[k];
 
 				/*Skip rules which aren't in the replacement subset, and don't replace a rule with itself*/
@@ -438,8 +436,6 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		/*Iterate through the list of possible replacements*/
 		int repl_index = 0;
 		while(replace_list[repl_index] != -1){
-
-			printf("Index: %i, values: %i,%i", repl_index, replace_list[repl_index], replace_list[repl_index+1]);
 
 			/*If the replacement rule covers an entry which is already covered, decrement the count of cases covered for the rule at index i*/
 			if(covered_arr[replace_list[repl_index+1]])
