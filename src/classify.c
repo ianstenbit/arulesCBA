@@ -140,7 +140,7 @@ void getReplacements(int* repl, int* replace, int rule, int numRules, int rLen){
 	int repl_size = 0;
 
 	/*Fill the array with -1s*/
-	for(int i = 0; i < numRules - 1; i++) repl[i] = -1;
+	for(int i = 0; i < numRules*2; i++) repl[i] = -1;
 
 	/*For each replacement, copy over the info if the crule matches the rule for which we're searching*/
 	for(int i = 0; i < rLen; i+=3){
@@ -338,6 +338,8 @@ SEXP stage2(SEXP a, SEXP casesCovered, SEXP matches_i, SEXP matches_p, SEXP num_
 			/*For every possible replacement rule*/
 			for(int k = 0; k < numRules && wSet[k] != -1; k++){
 
+				printf("Possible replacement rule: %i", wSet[k]);
+
 				int j = wSet[k];
 
 				/*Skip rules which aren't in the replacement subset, and don't replace a rule with itself*/
@@ -411,7 +413,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 	memset(rule_covered, 0, sizeof(int)*(numMatches + 1));
 
 
-	int* replace_list = malloc((numRules-1) * 2 * sizeof(int));
+	int* replace_list = malloc((numRules) * 2 * sizeof(int));
 
 	/*Rule errors are the errors produced by a rule which falsely classifies a record,
 	Default errors are the errors produced by using a default class which falsely classifies a record*/
