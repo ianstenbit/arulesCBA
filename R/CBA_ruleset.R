@@ -3,7 +3,7 @@
 ### FIXME: we can specify weights/majority etc.
 
 CBA_ruleset <- function(formula, rules, method = "first",
-  weights = NULL, default = NULL){
+  weights = NULL, default = NULL, description = "Custom rule set"){
 
   # method
   methods <- c("first", "majority")
@@ -43,7 +43,8 @@ CBA_ruleset <- function(formula, rules, method = "first",
     class = class,
     levels = levels,
     method = method,
-    weights = weights)
+    weights = weights,
+    description = description)
 
   class(classifier) <- "CBA"
 

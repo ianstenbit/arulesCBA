@@ -1,6 +1,9 @@
 CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   verbose=FALSE, parameter = NULL, control = NULL){
 
+  description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
+    " and confidence=", confidence)
+
   if(is.null(parameter)) parameter <- list()
   parameter$support <- support
   parameter$confidence <- confidence
@@ -78,7 +81,8 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
     class = class,
     levels = lvls,
     default = defaultClass,
-    method = "first"
+    method = "first",
+    description = description
     )
 
   class(classifier) <- "CBA"

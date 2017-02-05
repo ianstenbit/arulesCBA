@@ -6,7 +6,8 @@
   Use a set of association rules for classification.
 }
 \usage{
-CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL)
+CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
+  description = "Custom rule set")
 }
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
@@ -14,7 +15,8 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL)
   \item{method}{Classification method \code{"first"} found rule or \code{"majority"}.}
   \item{weights}{Rule weights for method majority. If missing, then equal weights are used}
   \item{default}{Default class of the form \code{variable=level}. If not
-    specified then the most frequent RHS in rules is used.}
+    specified then the most frequent RHS in rules is used.},
+  \item{description}{Description field used when the classifier is printed. }
 }
 \details{
   This method just takes a user provided set of association rules
