@@ -39,8 +39,8 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   #Vector used to identify rules as being 'strong' rules for the final classifier
   strongRules <- vector('logical', length=length(rules.sorted))
 
-  rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat)
-  rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat)
+  rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat, sparse = TRUE)
+  rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat, sparse = TRUE)
 
   #matrix of rules and records which constitute correct and false matches
   matches <- rulesMatchLHS & rulesMatchRHS
@@ -51,9 +51,9 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
 
   strongRules <- vector('logical', length=length(rules.sorted))
 
-  a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches, falseMatches, length(rules.sorted), PACKAGE = "arulesCBA")
+  a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
 
-  replace <- .Call("stage2", a, casesCovered, matches, strongRules,  PACKAGE = "arulesCBA")
+  replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
 
   #initializing variables for stage 3
   ruleErrors <- 0
@@ -65,7 +65,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   defaultClasses <- vector('integer', length=length(rules.sorted))
   totalErrors <- vector('integer', length=length(rules.sorted))
 
-  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace, matches, falseMatches, length(levels(rightHand)),  PACKAGE = "arulesCBA")
+  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
 
   #save the classifier as only the rules up to the point where we have the lowest total error count
   classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]

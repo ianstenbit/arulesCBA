@@ -141,8 +141,7 @@ The data needs to be discretized because the CBA algorithm will convert the data
 
 <<echo=TRUE>>=
 data(iris)
-iris.disc <- as.data.frame(lapply(iris[1:4],
-  function(x) discretize(x, categories=9)))
+iris.disc <- as.data.frame(lapply(iris[1:4], function(x) discretize(x, categories=9)))
 @
 
 Note that the function \code{discretize} comes from \pkg{arules}, and the argument \code{categories = 9} refers to the number of categories which will be made. Once the continuous variables have been discretized, the class can be post-pended to the data.frame as follows:
@@ -204,7 +203,7 @@ table(classes)
 This table shows that the \pkg{arulesCBA} classifier predicted that there is a 50-48-52 split of the 3 species in the test data.
 
 \subsection[results]{Checking the Results}
-In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{caret} library:
+In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{gmodels} library:
 
 <<echo=TRUE>>=
 library(gmodels)
