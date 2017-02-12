@@ -15,10 +15,12 @@ predict.CBA <- function(object, newdata, ...){
   newdata <- recode(newdata, match = lhs(object$rules))
 
   # Matrix of which rules match which transactions
-  # FIXME: sparse is slower, check for large rule sets.
-  # rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
-  rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
-  dimnames(rulesMatchLHS) <- NULL
+  if(length(newdata) * length(rules(object)) > 150000){
+    rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
+  } else {
+    rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
+    dimnames(rulesMatchLHS) <- NULL
+  }
 
   # FIXME: we might have to check that the RHS has only a single item
   classifier.results <- unlist(as(rhs(object$rules), "list"))
