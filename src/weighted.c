@@ -51,6 +51,8 @@ SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, S
     //Each rule gets a weight. This is being initialized here.
     double weight = 0; int match_index = 0;
 
+    printf("Number of Rows: %i", num_rows);
+
     //Adjust weight of rule based on weights of rows it matches
     //and adjust the weights of the rows it matches
     while(matches_for_rule[match_index] != -1) {
