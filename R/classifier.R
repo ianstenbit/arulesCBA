@@ -95,8 +95,6 @@ CBA <- function(formula, data, method="default", support = 0.2, confidence = 0.8
 
     defaultClass <- .Call("weighted", row_weights, rule_weights, matches@i, matches@p, matches@Dim, falseMatches@i, falseMatches@p, gamma, cost, rightHand, length(levels(rightHand)))
 
-    print(rule_weights)
-
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],
       weights = rule_weights[rule_weights > 0],
