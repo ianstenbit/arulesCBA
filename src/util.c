@@ -97,7 +97,7 @@ void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatc
 
 		if(matrix_rows[i] == rule_column){
 			while(column < numRules && matrix_p[column] < i) column++;
-			matches[numFoundMatches++] = column;
+			matches[numFoundMatches++] = column-1;
 		}
 	}
 
