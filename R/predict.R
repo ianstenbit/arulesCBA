@@ -3,7 +3,7 @@ predict.CBA <- function(object, newdata, ...){
   method <- object$method
   if(is.null(method)) method <- "majority"
 
-  methods <- c("first", "majority")
+  methods <- c("first", "majority", "weighted")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
@@ -38,7 +38,7 @@ predict.CBA <- function(object, newdata, ...){
   # rule in the classifier
 
 
-  if(method == "majority") {
+  if(method == "majority" | method == "weighted") {
 
     # unweighted
     if(is.null(object$weights)) {
@@ -72,7 +72,7 @@ predict.CBA <- function(object, newdata, ...){
       output[sapply(r, length)==0] <- default
     }
 
-  }else{ ### method = first
+  }else { ### method = first
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- classifier.results[w]
     output[is.na(w)] <- default
