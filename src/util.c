@@ -1,4 +1,10 @@
 /*
+Utility functions for sparse-matrix computations used in CBA algorithm and weighted ARC algorithm.
+Author: Ian Johnson
+*/
+
+
+/*
 Finds the first 1 in the binary matrix 'matrix' in row 'entry_row'
 Note that matrix is a linear c-array, accessed like a matrix using the matrix-to-array indexing macro
 @param matrix: a binary matrix representing which rules match which entries in the dataset
