@@ -55,7 +55,7 @@ SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, S
     //and adjust the weights of the rows it matches
     while(matches_for_rule[match_index] != -1) {
 
-       rprintf("Match Row Index: %i\n", matches_for_rule[match_index]);
+       printf("Match Row Index: %i\n", matches_for_rule[match_index]);
 
        weight += row_weights[matches_for_rule[match_index]];
        row_weights[matches_for_rule[match_index++]] -= gamma;
@@ -66,7 +66,7 @@ SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, S
     match_index = 0;
     while(false_matches_for_rule[match_index] != -1){
 
-       rprintf("False Match Row Index: %i\n", matches_for_rule[match_index]);
+       printf("False Match Row Index: %i\n", matches_for_rule[match_index]);
 
        weight -= cost * row_weights[false_matches_for_rule[match_index]];
        row_weights[matches_for_rule[match_index++]] += gamma;
