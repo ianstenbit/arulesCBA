@@ -90,6 +90,8 @@ CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.
 
     rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
 
+    rules.sorted <- rules.sorted[1:min(length(rules.sorted), 50000)]
+
     rule_weights <- rep(0, length(rules.sorted))
 
     defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)))

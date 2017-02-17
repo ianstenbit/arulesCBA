@@ -69,8 +69,21 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   double* rule_weights = REAL(ruleWeights);
   double* row_weights  = malloc(num_rows * sizeof(double));
+  double* class_weights = malloc(num_classes * sizeof(double));
 
-  for(int i = 0; i < num_rows; i++) row_weights[i] = 1.0;
+
+
+  memset(class_weights, 0, num_classes * sizeof(double));
+  for(int row = 0; row < num_rows; row++)
+    class_weights[(df_i[df_p[row+1]-1]) -  num_columns + num_classes] += 1;
+
+  //Idea: provide cost matrix?! That's do-able here!
+  for(int class = 0; class < num_classes; class++)
+    class_weights[class] = (((1.0) * num_rows) / num_classes) / class_weights[class];
+
+
+  //Do this based on class balance!
+  for(int i = 0; i < num_rows; i++) row_weights[i] = class_weights[df_i[df_p[i+1]-1] -  num_columns + num_classes];
 
   double gamma = REAL(Gamma)[0];
   double cost  = REAL(Cost)[0];
@@ -112,13 +125,12 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   }
 
   //Compute the overall class weights to pick a default class
-  double* class_weights = malloc(num_classes * sizeof(double));
   memset(class_weights, 0, num_classes * sizeof(double));
 
   //Calculate the actual class weights
-  for(int row = 0; row < num_rows; row++){
+  for(int row = 0; row < num_rows; row++)
     class_weights[(df_i[df_p[row+1]-1]) -  num_columns + num_classes] += row_weights[row];
-  }
+
 
   //Find the maximum of the remaining class weights and use that class as the default
   double max = 0; int default_class = -1;
@@ -135,6 +147,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   //Free temporary class weights array
   free(class_weights);
+  free(row_weights);
 
   //Free rule-row matching arrays
   free(matches_for_rule);
