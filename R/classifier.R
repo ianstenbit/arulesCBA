@@ -1,4 +1,4 @@
-CBA <- function(formula, data, method="default", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
+CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL){
 
   if(is.null(parameter)) parameter <- list()
@@ -35,24 +35,22 @@ CBA <- function(formula, data, method="default", support = 0.2, confidence = 0.8
     appearance = list(rhs=levels(rightHand), default = "lhs"),
     control=control)
 
-  if(method == "default"){
+
+  if(method == "CBA"){
+
     rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
-  } else {
-    rules.sorted <- sort(rules, by=c("support", "lift", "confidence"))
-  }
 
-  #Vector used to identify rules as being 'strong' rules for the final classifier
-  strongRules <- vector('logical', length=length(rules.sorted))
+    #Vector used to identify rules as being 'strong' rules for the final classifier
+    strongRules <- vector('logical', length=length(rules.sorted))
 
-  rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat, sparse = TRUE)
-  rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat, sparse = TRUE)
+    rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat, sparse = TRUE)
+    rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat, sparse = TRUE)
 
-  #matrix of rules and records which constitute correct and false matches
-  matches <- rulesMatchLHS & rulesMatchRHS
-  falseMatches <- rulesMatchLHS & !rulesMatchRHS
+    #matrix of rules and records which constitute correct and false matches
+    matches <- rulesMatchLHS & rulesMatchRHS
+    falseMatches <- rulesMatchLHS & !rulesMatchRHS
 
 
-  if(method == "default"){
     #matrix of rules and classification factor to identify how many times the rule correctly identifies the class
     casesCovered <- vector('integer', length=length(rules.sorted))
 
@@ -90,10 +88,11 @@ CBA <- function(formula, data, method="default", support = 0.2, confidence = 0.8
 
   } else if(method == "weighted") {
 
-    row_weights <- rep(1, matches@Dim[2])
-    rule_weights <- rep(0, matches@Dim[1])
+    rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
 
-    defaultClass <- .Call("weighted", row_weights, rule_weights, matches@i, matches@p, matches@Dim, falseMatches@i, falseMatches@p, gamma, cost, rightHand, length(levels(rightHand)))
+    rule_weights <- rep(0, length(rules.sorted))
+
+    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)))
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],
@@ -104,9 +103,11 @@ CBA <- function(formula, data, method="default", support = 0.2, confidence = 0.8
       method = "weighted"
     )
 
+    print(rule_weights)
+
 
   } else {
-    stop("Method must be one of: 'default', 'weighted'.")
+    stop("Method must be one of: 'CBA', 'weighted'.")
   }
 
   class(classifier) <- "CBA"

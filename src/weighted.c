@@ -8,28 +8,69 @@ Author: Ian Johnson
 #include <Rinternals.h>
 
 
+void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lhs_i, int* lhs_p, int* rhs_i, int* df_p, int* df_i, int rule_index, int num_rows){
+
+    int rule_start_index = lhs_p[rule_index], rule_end_index = lhs_p[rule_index+1];
+
+    //for(int col_loc = rule_start_index; col_loc < rule_end_index; col_loc++){
+    int num_matches = 0, num_false_matches = 0;
+
+    for(int row_num = 0; row_num < num_rows; row_num++){
+
+       int prevCol = -1, loc = df_p[row_num], curr_col;
+
+       curr_col = rule_start_index;
+
+       //While we're still in this row -- REQUIRES THAT TRANSACTION MATRICES HAVE AT LEAST ONE ONE IN RHS FOR EACH TRANSACTION
+       while(df_i[loc] > prevCol){
+
+         if (df_i[loc] == lhs_i[curr_col]) curr_col++;
+         if(curr_col == rule_end_index) break;
+
+         prevCol = df_i[loc];
+         loc++;
+
+       }
+
+       if(curr_col == rule_end_index){
+
+          if(df_i[df_p[row_num+1]-1] == rhs_i[rule_index])
+              matches_for_rule[num_matches++] = rule_index;
+          else
+              false_matches_for_rule[num_false_matches++] = rule_index;
+
+       }
+
+    }
+
+    matches_for_rule[num_matches] = -1;
+    false_matches_for_rule[num_false_matches] = -1;
+
+}
+
 /*
 C Interface for R function for model building. Parameters are explained in the R implementation (../R/classifier.R)
 */
-SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, SEXP matchesDim, SEXP falseMatchesI, SEXP falseMatchesP, SEXP Gamma, SEXP Cost, SEXP rightHand, SEXP numClasses){
+//rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@lhs@data@Dim, rules.sorted@rhs@data@i, rules.sorted@rhs@data@p, ds.mat@data@Dim, ds.mat@data@i, ds.mat@data@p, gamma, cost, length(levels(rightHand))
+SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I, SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP Cost, SEXP numClasses){
 
-  int num_classes  = INTEGER(numClasses)[0];
-  int num_matches  = length(matchesI);
-  int num_fmatches = length(falseMatchesI);
+  int num_classes = INTEGER(numClasses)[0];
+  int num_rules   = length(rulesRHS_I);
+  //int num_columns = INTEGER(DF_Dim)[0];
+  int num_rows    = INTEGER(DF_Dim)[1];
 
-  double* row_weights  = REAL(rowWeights);
+  int* lhs_i = INTEGER(rulesLHS_I);
+  int* lhs_p = INTEGER(rulesLHS_P);
+
+  int* rhs_i = INTEGER(rulesLHS_I);
+
+  int* df_p = INTEGER(DF_P);
+  int* df_i = INTEGER(DF_I);
+
   double* rule_weights = REAL(ruleWeights);
+  double* row_weights  = malloc(num_rows * sizeof(double));
 
-  int* match_rules = INTEGER(matchesI);
-  int* match_rows  = INTEGER(matchesP);
-
-  int* false_match_rules = INTEGER(falseMatchesI);
-  int* false_match_rows  = INTEGER(falseMatchesP);
-
-  int num_rules = INTEGER(matchesDim)[0];
-  int num_rows  = INTEGER(matchesDim)[1];
-
-  int* classes = INTEGER(rightHand);
+  for(int i = 0; i < num_rows; i++) row_weights[i] = 1.0;
 
   double gamma = REAL(Gamma)[0];
   double cost  = REAL(Cost)[0];
@@ -45,8 +86,7 @@ SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, S
 
     //Populate the true and false matches list using util.c/getRecordMatches
     //The first parameter of the function is modified by the function.
-    getRecordMatches(matches_for_rule, match_rules, match_rows, num_matches, num_rules, rule_index);
-    getRecordMatches(false_matches_for_rule, false_match_rules, false_match_rows, num_fmatches, num_rules, rule_index);
+    populateMatches(matches_for_rule, false_matches_for_rule, lhs_i, lhs_p, rhs_i, df_p, df_i, rule_index, num_rows);
 
     //Each rule gets a weight. This is being initialized here.
     double weight = 0; int match_index = 0;
@@ -77,7 +117,7 @@ SEXP weighted(SEXP rowWeights, SEXP ruleWeights, SEXP matchesI, SEXP matchesP, S
 
   //Calculate the actual class weights
   for(int row = 0; row < num_rows; row++){
-    class_weights[classes[row] - 1] += row_weights[row];
+    class_weights[rhs_i[row] - 1] += row_weights[row];
   }
 
   //Find the maximum of the remaining class weights and use that class as the default
