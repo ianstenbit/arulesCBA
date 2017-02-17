@@ -60,7 +60,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   int num_classes = INTEGER(numClasses)[0];
   int num_rules   = length(rulesRHS_I);
-  //int num_columns = INTEGER(DF_Dim)[0];
+  int num_columns = INTEGER(DF_Dim)[0];
   int num_rows    = INTEGER(DF_Dim)[1];
 
   int* lhs_i = INTEGER(rulesLHS_I);
@@ -121,7 +121,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   //Calculate the actual class weights
   for(int row = 0; row < num_rows; row++){
-    class_weights[rhs_i[row] - 1] += row_weights[row];
+    class_weights[rhs_i[row] -  num_columns + num_classes] += row_weights[row];
   }
 
   //Find the maximum of the remaining class weights and use that class as the default
