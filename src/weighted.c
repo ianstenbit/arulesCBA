@@ -15,7 +15,11 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
     //for(int col_loc = rule_start_index; col_loc < rule_end_index; col_loc++){
     int num_matches = 0, num_false_matches = 0;
 
+    printf("Rule Number: %i:\n", rule_index);
+
     for(int row_num = 0; row_num < num_rows; row_num++){
+
+        printf("%i", row_num);
 
        int prevCol = -1, loc = df_p[row_num], curr_col;
 
@@ -35,9 +39,9 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
        if(curr_col == rule_end_index){
 
           if(df_i[df_p[row_num+1]-1] == rhs_i[rule_index])
-              matches_for_rule[num_matches++] = rule_index;
+              matches_for_rule[num_matches++] = row_num;
           else
-              false_matches_for_rule[num_false_matches++] = rule_index;
+              false_matches_for_rule[num_false_matches++] = row_num;
 
        }
 
