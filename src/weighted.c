@@ -36,7 +36,7 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
 
        if(curr_col == rule_end_index){
 
-          printf("Curr_Col: %i, Rule_End_Index: %i", curr_col, rule_end_index);
+          printf("Row_RHS: %i, Rule_RHS: %i", df_i[df_p[row_num+1]-1], rhs_i[rule_index]);
 
           if(df_i[df_p[row_num+1]-1] == rhs_i[rule_index])
               matches_for_rule[num_matches++] = row_num;
@@ -121,7 +121,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   //Calculate the actual class weights
   for(int row = 0; row < num_rows; row++){
-    class_weights[rhs_i[row] -  num_columns + num_classes] += row_weights[row];
+    class_weights[(df_i[df_p[row+1]-1]) -  num_columns + num_classes] += row_weights[row];
   }
 
   //Find the maximum of the remaining class weights and use that class as the default
