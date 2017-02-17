@@ -103,8 +103,6 @@ CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.
       method = "weighted"
     )
 
-    print(rule_weights)
-
 
   } else {
     stop("Method must be one of: 'CBA', 'weighted'.")
