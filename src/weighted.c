@@ -19,24 +19,24 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
 
     for(int row_num = 0; row_num < num_rows; row_num++){
 
-        printf("%i", row_num);
-
-       int prevCol = -1, loc = df_p[row_num], curr_col;
+       int loc = df_p[row_num], end_loc = df_p[row_num+1], curr_col;
 
        curr_col = rule_start_index;
 
-       //While we're still in this row -- REQUIRES THAT TRANSACTION MATRICES HAVE AT LEAST ONE ONE IN RHS FOR EACH TRANSACTION
-       while(df_i[loc] > prevCol){
+
+       while(loc < end_loc){
 
          if (df_i[loc] == lhs_i[curr_col]) curr_col++;
          if(curr_col == rule_end_index) break;
 
-         prevCol = df_i[loc];
          loc++;
 
        }
 
+
        if(curr_col == rule_end_index){
+
+          printf("Curr_Col: %i, Rule_End_Index: %i", curr_col, rule_end_index);
 
           if(df_i[df_p[row_num+1]-1] == rhs_i[rule_index])
               matches_for_rule[num_matches++] = row_num;
