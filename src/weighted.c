@@ -66,7 +66,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   int* lhs_i = INTEGER(rulesLHS_I);
   int* lhs_p = INTEGER(rulesLHS_P);
 
-  int* rhs_i = INTEGER(rulesLHS_I);
+  int* rhs_i = INTEGER(rulesRHS_I);
 
   int* df_p = INTEGER(DF_P);
   int* df_i = INTEGER(DF_I);
