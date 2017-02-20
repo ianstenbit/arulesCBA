@@ -1,4 +1,4 @@
-CBA <- function(formula, data, support = 0.2, confidence = 0.8,
+CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL){
 
   description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
@@ -37,53 +37,82 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8,
   rules <- apriori(ds.mat, parameter = parameter,
     appearance = list(rhs=levels(rightHand), default = "lhs"),
     control=control)
-  rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
 
-  #Vector used to identify rules as being 'strong' rules for the final classifier
-  strongRules <- vector('logical', length=length(rules.sorted))
 
-  rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat, sparse = TRUE)
-  rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat, sparse = TRUE)
+  if(method == "CBA"){
 
-  #matrix of rules and records which constitute correct and false matches
-  matches <- rulesMatchLHS & rulesMatchRHS
-  falseMatches <- rulesMatchLHS & !rulesMatchRHS
+    rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
 
-  #matrix of rules and classification factor to identify how many times the rule correctly identifies the class
-  casesCovered <- vector('integer', length=length(rules.sorted))
+    #Vector used to identify rules as being 'strong' rules for the final classifier
+    strongRules <- vector('logical', length=length(rules.sorted))
 
-  strongRules <- vector('logical', length=length(rules.sorted))
+    rulesMatchLHS <- is.subset(lhs(rules.sorted), ds.mat, sparse = TRUE)
+    rulesMatchRHS <- is.subset(rhs(rules.sorted), ds.mat, sparse = TRUE)
 
-  a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
+    #matrix of rules and records which constitute correct and false matches
+    matches <- rulesMatchLHS & rulesMatchRHS
+    falseMatches <- rulesMatchLHS & !rulesMatchRHS
 
-  replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
 
-  #initializing variables for stage 3
-  ruleErrors <- 0
-  classDistr <- as.integer(rightHand)
+    #matrix of rules and classification factor to identify how many times the rule correctly identifies the class
+    casesCovered <- vector('integer', length=length(rules.sorted))
 
-  covered <- vector('logical', length=length(ds.mat))
-  covered[1:length(ds.mat)] <- FALSE
+    strongRules <- vector('logical', length=length(rules.sorted))
 
-  defaultClasses <- vector('integer', length=length(rules.sorted))
-  totalErrors <- vector('integer', length=length(rules.sorted))
+    a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
 
-  .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
+    replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
 
-  #save the classifier as only the rules up to the point where we have the lowest total error count
-  classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
+    #initializing variables for stage 3
+    ruleErrors <- 0
+    classDistr <- as.integer(rightHand)
 
-  #add a default class to the classifier (the default class from the last rule included in the classifier)
-  defaultClass <- levels(rightHand)[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
+    covered <- vector('logical', length=length(ds.mat))
+    covered[1:length(ds.mat)] <- FALSE
 
-  classifier <- list(
-    rules = classifier,
-    class = class,
-    levels = lvls,
-    default = defaultClass,
-    method = "first",
-    description = description
+    defaultClasses <- vector('integer', length=length(rules.sorted))
+    totalErrors <- vector('integer', length=length(rules.sorted))
+
+    .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
+
+    #save the classifier as only the rules up to the point where we have the lowest total error count
+    classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
+
+    #add a default class to the classifier (the default class from the last rule included in the classifier)
+    defaultClass <- levels(rightHand)[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
+
+    classifier <- list(
+      rules = classifier,
+      class = class,
+      levels = lvls,
+      default = defaultClass,
+      description = description,
+      method = "first"
     )
+
+  } else if(method == "weighted") {
+
+    rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+
+    rules.sorted <- rules.sorted[1:min(length(rules.sorted), 50000)]
+
+    rule_weights <- rep(0, length(rules.sorted))
+
+    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)))
+
+    classifier <- list(
+      rules = rules.sorted[rule_weights > 0],
+      weights = rule_weights[rule_weights > 0],
+      class = class,
+      levels = lvls,
+      default = levels(rightHand)[defaultClass],
+      method = "weighted"
+    )
+
+
+  } else {
+    stop("Method must be one of: 'CBA', 'weighted'.")
+  }
 
   class(classifier) <- "CBA"
 

@@ -3,7 +3,7 @@ predict.CBA <- function(object, newdata, ...){
   method <- object$method
   if(is.null(method)) method <- "majority"
 
-  methods <- c("first", "majority")
+  methods <- c("first", "majority", "weighted")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
@@ -15,10 +15,12 @@ predict.CBA <- function(object, newdata, ...){
   newdata <- recode(newdata, match = lhs(object$rules))
 
   # Matrix of which rules match which transactions
-  # FIXME: sparse is slower, check for large rule sets.
-  # rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
-  rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
-  dimnames(rulesMatchLHS) <- NULL
+  if(length(newdata) * length(rules(object)) > 150000){
+    rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
+  } else {
+    rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
+    dimnames(rulesMatchLHS) <- NULL
+  }
 
   # FIXME: we might have to check that the RHS has only a single item
   classifier.results <- unlist(as(rhs(object$rules), "list"))
@@ -36,7 +38,7 @@ predict.CBA <- function(object, newdata, ...){
   # rule in the classifier
 
 
-  if(method == "majority") {
+  if(method == "majority" | method == "weighted") {
 
     # unweighted
     if(is.null(object$weights)) {
@@ -70,7 +72,7 @@ predict.CBA <- function(object, newdata, ...){
       output[sapply(r, length)==0] <- default
     }
 
-  }else{ ### method = first
+  }else { ### method = first
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- classifier.results[w]
     output[is.na(w)] <- default

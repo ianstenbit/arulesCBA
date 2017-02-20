@@ -8,9 +8,13 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(formula, data, support = 0.2, confidence = 0.8, verbose=FALSE,
-  parameter = NULL, control = NULL)
+CBA(formula, data, method="default", support = 0.2,
+    confidence = 0.8, gamma = 0.05, cost = 10.0,
+    verbose=FALSE, parameter = NULL, control = NULL)
 }
+
+
+
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
   \item{data}{A data.frame or an object of class transactions
