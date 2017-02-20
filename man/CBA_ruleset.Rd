@@ -35,6 +35,7 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
 }
 \author{Michael Hahsler}
 \seealso{
+\code{\link{predict.CBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
