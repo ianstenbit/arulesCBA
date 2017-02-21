@@ -1,11 +1,11 @@
-print.CBA <- function(x, ...){
+print.CBA <- function(x, ...)
+  writeLines(c(
+    "CBA Classifier Object",
+    paste("Class:", x$class, "(labels:", paste(x$levels, collapse = ", "), ")"),
+    paste("Default Class:", x$default),
+    paste("Number of rules:", length(x$rules)),
+    paste("Classification method:", x$method, if(!is.null(x$weights)) "(weighted)" else ""),
+    strwrap(paste("Description:", x$description), exdent = 5),
+    ""
+  ))
 
-  cat("CBA Classifier Object\n")
-  cat("Classes:", x$class, "(levels:", x$levels, ")\n")
-  cat("Default Class:", x$default, "\n")
-  cat("Number of rules:", length(x$rules), "\n")
-  cat("Classification method:", x$method)
-  if(!is.null(x$weights)) cat(" (weighted)")
-  cat("\n")
-
-}

@@ -19,7 +19,7 @@ predict.CBA <- function(object, newdata, ...){
     rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
   } else {
     rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
-    dimnames(rulesMatchLHS) <- NULL
+    dimnames(rulesMatchLHS) <- list(NULL, NULL)
   }
 
   # FIXME: we might have to check that the RHS has only a single item

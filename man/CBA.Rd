@@ -13,8 +13,6 @@ CBA(formula, data, method="default", support = 0.2,
     verbose=FALSE, parameter = NULL, control = NULL)
 }
 
-
-
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
   \item{data}{A data.frame or an object of class transactions
@@ -39,8 +37,13 @@ CBA(formula, data, method="default", support = 0.2,
   \item{default}{deault class label.}
   \item{levels}{levels of the class variable.}
 }
+\references{
+Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
+}
+
 \author{Ian Johnson}
 \seealso{
+\code{\link{predict.CBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
@@ -51,12 +54,15 @@ irisDisc <- as.data.frame(lapply(iris[1:4],
   function(x) discretize(x, categories=9)))
 irisDisc$Species <- iris$Species
 
-classifier <- CBA(Species ~ ., irisDisc, supp = 0.05, conf=0.9)
+classifier <- CBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9)
 classifier
 
-# training a classifier directly with transaction data (arules)
+# do some in-sample prediction
+predict(classifier, irisDisc[c(1:5, 101:105),])
+
+# train a classifier directly with transaction data (arules)
 trans <- as(irisDisc, "transactions")
 trans
-classifier <- CBA(Species ~ ., trans, supp = 0.05, conf=0.9)
+classifier <- CBA(Species ~ ., data = trans, supp = 0.05, conf=0.9)
 classifier
 }

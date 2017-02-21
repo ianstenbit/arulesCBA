@@ -1,6 +1,9 @@
 CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL){
 
+  description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
+    " and confidence=", confidence)
+
   if(is.null(parameter)) parameter <- list()
   parameter$support <- support
   parameter$confidence <- confidence
@@ -83,6 +86,7 @@ CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.
       class = class,
       levels = lvls,
       default = defaultClass,
+      description = description,
       method = "first"
     )
 
@@ -102,6 +106,7 @@ CBA <- function(formula, data, method="weighted", support = 0.2, confidence = 0.
       class = class,
       levels = lvls,
       default = levels(rightHand)[defaultClass],
+      description = description,
       method = "weighted"
     )
 
