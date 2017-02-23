@@ -8,7 +8,7 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(formula, data, method="default", support = 0.2,
+CBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
     verbose=FALSE, parameter = NULL, control = NULL)
 }
@@ -44,6 +44,7 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Ru
 \author{Ian Johnson}
 \seealso{
 \code{\link{predict.CBA}},
+\code{\link{bCBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
