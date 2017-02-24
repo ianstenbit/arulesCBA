@@ -7,7 +7,7 @@
   The algorithm is currently in development, and is not yet formally documented.
 }
 \usage{
-CBA(formula, data, support = 0.2,
+bCBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
     verbose=FALSE, parameter = NULL, control = NULL)
 }
@@ -17,6 +17,7 @@ CBA(formula, data, support = 0.2,
   \item{data}{A data.frame or an object of class transactions
     (from \pkg{arules}) containing the training data.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
+  \item{gamma, cost}{Hyperparameters for the bCBA algorithm.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
 }

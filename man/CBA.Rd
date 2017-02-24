@@ -8,8 +8,7 @@
   Liu, et al. 1998.
 }
 \usage{
-CBA(formula, data, support = 0.2,
-    confidence = 0.8, gamma = 0.05, cost = 10.0,
+CBA(formula, data, support = 0.2, confidence = 0.8,
     verbose=FALSE, parameter = NULL, control = NULL)
 }
 
