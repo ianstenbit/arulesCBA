@@ -20,6 +20,7 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
+  \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
 }
 \details{
   Formats the input data frame and calls a C implementation of the CBA algorithm
@@ -34,7 +35,7 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   Returns an object of class \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
-  \item{default}{deault class label.}
+  \item{default}{default class label.}
   \item{levels}{levels of the class variable.}
 }
 \references{

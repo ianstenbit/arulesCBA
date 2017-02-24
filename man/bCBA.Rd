@@ -21,6 +21,7 @@ bCBA(formula, data, support = 0.2,
   \item{gamma, cost}{Hyperparameters for the bCBA algorithm.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
+  \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
 }
 \details{
   Formats the input data frame and calls a C implementation of a transaction-boosted classification algorithm
