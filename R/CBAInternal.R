@@ -1,5 +1,5 @@
 CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL){
+  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL){
 
   description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
     " and confidence=", confidence)
@@ -41,7 +41,11 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   if(method == "CBA"){
 
-    rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
+    if(is.null(sort.parameter)){
+      rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
+    } else {
+      rules.sorted <- sort(rules, by=sort.parameter)
+    }
 
     #Vector used to identify rules as being 'strong' rules for the final classifier
     strongRules <- vector('logical', length=length(rules.sorted))
@@ -92,7 +96,11 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   } else if(method == "weighted") {
 
-    rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+    if(is.null(sort.parameter)){
+      rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+    } else {
+      rules.sorted <- sort(rules, by=sort.parameter)
+    }
 
     rules.sorted <- rules.sorted[1:min(length(rules.sorted), 50000)]
 

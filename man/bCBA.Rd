@@ -9,7 +9,8 @@
 \usage{
 bCBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
-    verbose=FALSE, parameter = NULL, control = NULL)
+    verbose=FALSE, parameter = NULL, control = NULL,
+    sort.parameter=NULL)
 }
 
 \arguments{

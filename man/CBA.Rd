@@ -9,7 +9,8 @@
 }
 \usage{
 CBA(formula, data, support = 0.2, confidence = 0.8,
-    verbose=FALSE, parameter = NULL, control = NULL)
+    verbose=FALSE, parameter = NULL, control = NULL,
+    sort.parameter = NULL)
 }
 
 \arguments{
