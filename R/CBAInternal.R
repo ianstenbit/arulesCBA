@@ -1,8 +1,13 @@
 CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE){
 
-  description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
-    " and confidence=", confidence)
+  if(method == "weighted"){
+    description <- paste0("Transaction boosted associative classifier with support=", support,
+      " and confidence=", confidence)
+  } else {
+    description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
+      " and confidence=", confidence)
+  }
 
   if(is.null(parameter)) parameter <- list()
   parameter$support <- support
