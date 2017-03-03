@@ -1,5 +1,5 @@
 CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE){
+  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL){
 
   if(method == "weighted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
@@ -37,6 +37,8 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
   rightHand <- as(ds.mat[, classNames], "list")
   if(!all(sapply(rightHand, length) == 1L)) stop("Problem with items used for class. Examples with multiple/no class label!")
   rightHand <- as.factor(unlist(rightHand))
+
+  if(is.null(class.weights)) class.weights <- as.numeric(rep(1, length(levels(rightHand))))
 
   if(lhs.support){
 
@@ -137,7 +139,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
     rule_weights <- rep(0, length(rules.sorted))
 
-    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)))
+    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],

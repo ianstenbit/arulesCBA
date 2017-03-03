@@ -10,7 +10,7 @@
 bCBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
     verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter=NULL, lhs.support=TRUE)
+    sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL)
 }
 
 \arguments{
@@ -23,6 +23,7 @@ bCBA(formula, data, support = 0.2,
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
+  \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
 }
 \details{
   Formats the input data frame and calls a C implementation of a transaction-boosted classification algorithm
