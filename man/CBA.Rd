@@ -10,7 +10,7 @@
 \usage{
 CBA(formula, data, support = 0.2, confidence = 0.8,
     verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter = NULL)
+    sort.parameter = NULL, lhs.support = TRUE)
 }
 
 \arguments{
@@ -21,6 +21,7 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
+  \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
 }
 \details{
   Formats the input data frame and calls a C implementation of the CBA algorithm

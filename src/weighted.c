@@ -52,7 +52,7 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
 C Interface for R function for model building. Parameters are explained in the R implementation (../R/classifier.R)
 */
 //rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@lhs@data@Dim, rules.sorted@rhs@data@i, rules.sorted@rhs@data@p, ds.mat@data@Dim, ds.mat@data@i, ds.mat@data@p, gamma, cost, length(levels(rightHand))
-SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I, SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP Cost, SEXP numClasses){
+SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I, SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP Cost, SEXP numClasses, SEXP ClassWeights){
 
   int num_classes = INTEGER(numClasses)[0];
   int num_rules   = length(rulesRHS_I);
@@ -69,7 +69,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
   double* rule_weights = REAL(ruleWeights);
   double* row_weights  = malloc(num_rows * sizeof(double));
-  double* class_weights = malloc(num_classes * sizeof(double));
+  double* class_weights = REAL(ClassWeights);
 
 
 
@@ -77,12 +77,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   for(int row = 0; row < num_rows; row++)
     class_weights[(df_i[df_p[row+1]-1]) -  num_columns + num_classes] += 1;
 
-  //Idea: provide cost matrix?! That's do-able here!
-  for(int class = 0; class < num_classes; class++)
-    class_weights[class] = (((1.0) * num_rows) / num_classes) / class_weights[class];
-
-
-  //Do this based on class balance!
+  //Future idea... cost matrix?
   for(int i = 0; i < num_rows; i++) row_weights[i] = class_weights[df_i[df_p[i+1]-1] -  num_columns + num_classes];
 
   double gamma = REAL(Gamma)[0];
@@ -116,7 +111,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
     match_index = 0;
     while(false_matches_for_rule[match_index] != -1){
        weight -= cost * row_weights[false_matches_for_rule[match_index]];
-       row_weights[matches_for_rule[match_index++]] += gamma;
+       row_weights[false_matches_for_rule[match_index++]] += gamma;
     }
 
     //Assign the rule weight and move on to the next rule
@@ -146,7 +141,6 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   INTEGER(def)[0] = default_class;
 
   //Free temporary class weights array
-  free(class_weights);
   free(row_weights);
 
   //Free rule-row matching arrays
