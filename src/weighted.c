@@ -111,7 +111,7 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
     match_index = 0;
     while(false_matches_for_rule[match_index] != -1){
        weight -= cost * row_weights[false_matches_for_rule[match_index]];
-       row_weights[matches_for_rule[match_index++]] += gamma;
+       row_weights[false_matches_for_rule[match_index++]] += gamma;
     }
 
     //Assign the rule weight and move on to the next rule
