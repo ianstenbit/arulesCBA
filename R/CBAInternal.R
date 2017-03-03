@@ -1,5 +1,5 @@
 CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL){
+  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE){
 
   description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
     " and confidence=", confidence)
@@ -33,10 +33,36 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
   if(!all(sapply(rightHand, length) == 1L)) stop("Problem with items used for class. Examples with multiple/no class label!")
   rightHand <- as.factor(unlist(rightHand))
 
-  #Generate and sort association rules
-  rules <- apriori(ds.mat, parameter = parameter,
-    appearance = list(rhs=levels(rightHand), default = "lhs"),
-    control=control)
+  if(lhs.support){
+
+    print(levels(rightHand))
+
+    pot_lhs <- apriori(ds.mat, parameter = list(support=support, confidence=confidence, target = "frequent"),
+    appearance = list(none = levels(rightHand)))
+    n <- length(pot_lhs)
+    lhs_sup <- quality(pot_lhs)$support
+
+    pot_lhs <- items(pot_lhs)
+    pot_lhs <- do.call("c", replicate(length(levels(rightHand)), pot_lhs))
+
+    lhs_sup <- rep(lhs_sup, each = length(levels(rightHand)))
+
+    ### RHS
+    pot_rhs <- encode(as.list(rep(levels(rightHand), each = n)),
+      itemLabels = itemLabels(ds.mat))
+
+
+    ### Assemble rules and add quality
+    rules <- new("rules", lhs = pot_lhs, rhs = pot_rhs)
+
+    quality(rules) <- cbind(lhs_support = lhs_sup, interestMeasure(rules, measure = c("support", "confidence", "lift"), trans = ds.mat))
+
+  } else {
+    #Generate and sort association rules
+    rules <- apriori(ds.mat, parameter = parameter,
+      appearance = list(rhs=levels(rightHand), default = "lhs"),
+      control=control)
+  }
 
 
   if(method == "CBA"){
