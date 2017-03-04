@@ -10,6 +10,6 @@ Description: Provides a function to build an association rule-based classifier f
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules (>= 1.5-0)
 Imports: caret, methods, testthat
-Suggests: e1071, gmodels
+Suggests: e1071, gmodels, discretization
 License: GPL-3
 BugReports: https://github.com/ianjjohnson/arulesCBA
