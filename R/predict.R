@@ -3,10 +3,15 @@ predict.CBA <- function(object, newdata, ...){
   method <- object$method
   if(is.null(method)) method <- "majority"
 
-  methods <- c("first", "majority", "weighted")
+  methods <- c("first", "majority", "weighted", "weightedmean")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
+
+  if(method == "weightedmean"){
+    newdata <- as.data.frame(newdata)
+    newdata[[object$class]] <- NULL
+  }
 
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
@@ -79,7 +84,7 @@ predict.CBA <- function(object, newdata, ...){
         l <- lapply(r, FUN = function(x) classifier.results[x])
         w <- lapply(r, FUN = function(x) object$weights[x])
 
-        output <- lapply(as(1:length(l), 'list'), function(x) sum((means[l[[x]]] * w[[x]])) / sum(w[[x]]) )
+        output <- lapply(as(1:length(l), 'list'), function(x) sum((object$means[l[[x]]] * w[[x]])) / sum(w[[x]]) )
         output <- unlist(output)
 
         output[is.nan(output)] <- object$mean
