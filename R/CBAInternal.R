@@ -27,7 +27,14 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   ####Preparing data####
   lvls <- NULL
-  if(is(data, "data.frame")) lvls <- levels(data[[class]])
+  if(is(data, "data.frame")){
+     lvls <- levels(data[[class]])
+     cls <- data[[class]]
+     data[[class]] <- NULL
+
+     data <- cbind(data, cls)
+     colnames(data)[length(data)] <- class
+  }
 
   ds.mat <- as(data, "transactions")
   info <- itemInfo(ds.mat)
