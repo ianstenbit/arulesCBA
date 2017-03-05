@@ -27,7 +27,14 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   ####Preparing data####
   lvls <- NULL
-  if(is(data, "data.frame")) lvls <- levels(data[[class]])
+  if(is(data, "data.frame")){
+     lvls <- levels(data[[class]])
+     cls <- data[[class]]
+     data[[class]] <- NULL
+
+     data <- cbind(data, cls)
+     colnames(data)[length(data)] <- class
+  }
 
   ds.mat <- as(data, "transactions")
   info <- itemInfo(ds.mat)
@@ -42,9 +49,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   if(lhs.support){
 
-    print(levels(rightHand))
-
-    pot_lhs <- apriori(ds.mat, parameter = list(support=support, confidence=confidence, target = "frequent"),
+    pot_lhs <- apriori(ds.mat, control=control, parameter = list(support=support, confidence=confidence, target = "frequent"),
     appearance = list(none = levels(rightHand)))
     n <- length(pot_lhs)
     lhs_sup <- quality(pot_lhs)$support

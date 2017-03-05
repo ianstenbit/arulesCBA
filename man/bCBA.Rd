@@ -51,20 +51,14 @@ bCBA(formula, data, support = 0.2,
 \code{\link[arules]{transactions}}.
 }
 \examples{
-data(iris)
-irisDisc <- as.data.frame(lapply(iris[1:4],
-  function(x) discretize(x, categories=9)))
-irisDisc$Species <- iris$Species
+  library(arulesCBA)
+  library(discretization)
 
-classifier <- bCBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9)
-classifier
+  data(iris)
+  irisDisc <- mdlp(iris)$Disc.data
+  irisDisc <- as.data.frame(lapply(irisDisc, as.factor))
 
-# do some in-sample prediction
-predict(classifier, irisDisc[c(1:5, 101:105),])
+  classifier <- bCBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9, lhs.support=TRUE)
 
-# train a classifier directly with transaction data (arules)
-trans <- as(irisDisc, "transactions")
-trans
-classifier <- bCBA(Species ~ ., data = trans, supp = 0.05, conf=0.9)
-classifier
+  result <- predict(classifier, irisDisc)
 }
