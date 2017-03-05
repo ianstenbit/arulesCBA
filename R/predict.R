@@ -38,7 +38,7 @@ predict.CBA <- function(object, newdata, ...){
   # rule in the classifier
 
 
-  if(method == "majority" | method == "weighted") {
+  if(method == "majority" | method == "weighted" | method == "weightedmean") {
 
     # unweighted
     if(is.null(object$weights)) {
@@ -50,26 +50,43 @@ predict.CBA <- function(object, newdata, ...){
       output[sapply(w, length)==0] <- default
 
     }else{
-      weights <- object$weights
 
-      # use a quality measure
-      if(is.character(weights))
-        weights <- quality(object$rules)[[weights, exact = FALSE]]
+      if(is.null(object$means)){
 
-      # replicate single value (same as unweighted)
-      if(length(weights) == 1) weights <- rep(weights, length(object$rules))
+        weights <- object$weights
 
-      # check
-      if(length(weights) != length(object$rules))
-        stop("length of weights does not match number of rules")
+        # use a quality measure
+        if(is.character(weights))
+          weights <- quality(object$rules)[[weights, exact = FALSE]]
 
-      r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
-      l <- lapply(r, FUN = function(x) classifier.results[x])
-      w <- lapply(r, FUN = function(x) weights[x])
-      w <- sapply(1:length(l), FUN = function(i)
-        sapply(split(w[[i]], l[[i]]), sum))
-      output <- rownames(w)[apply(w, MARGIN = 2, which.max)]
-      output[sapply(r, length)==0] <- default
+        # replicate single value (same as unweighted)
+        if(length(weights) == 1) weights <- rep(weights, length(object$rules))
+
+        # check
+        if(length(weights) != length(object$rules))
+          stop("length of weights does not match number of rules")
+
+        r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+        l <- lapply(r, FUN = function(x) classifier.results[x])
+        w <- lapply(r, FUN = function(x) weights[x])
+        w <- sapply(1:length(l), FUN = function(i) sapply(split(w[[i]], l[[i]]), sum))
+        output <- rownames(w)[apply(w, MARGIN = 2, which.max)]
+        output[sapply(r, length)==0] <- default
+
+      } else {
+
+        r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+        l <- lapply(r, FUN = function(x) classifier.results[x])
+        w <- lapply(r, FUN = function(x) object$weights[x])
+
+        output <- lapply(as(1:length(l), 'list'), function(x) sum((means[l[[x]]] * w[[x]])) / sum(w[[x]]) )
+        output <- unlist(output)
+
+        output[is.nan(output)] <- object$mean
+
+        return(output)
+
+      }
     }
 
   }else { ### method = first
