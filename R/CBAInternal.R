@@ -49,9 +49,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   if(lhs.support){
 
-    print(levels(rightHand))
-
-    pot_lhs <- apriori(ds.mat, parameter = list(support=support, confidence=confidence, target = "frequent"),
+    pot_lhs <- apriori(ds.mat, control=control, parameter = list(support=support, confidence=confidence, target = "frequent"),
     appearance = list(none = levels(rightHand)))
     n <- length(pot_lhs)
     lhs_sup <- quality(pot_lhs)$support
