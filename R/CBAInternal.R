@@ -1,5 +1,6 @@
 CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL){
+  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
+  disc.categories = 10, disc.method="cluster"){
 
   if(method == "weighted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
@@ -28,12 +29,10 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
   ####Preparing data####
   lvls <- NULL
   if(is(data, "data.frame")){
-     lvls <- levels(data[[class]])
-     cls <- data[[class]]
-     data[[class]] <- NULL
 
-     data <- cbind(data, cls)
-     colnames(data)[length(data)] <- class
+     lvls <- levels(data[[class]])
+     data <- factorize(formula, data, categories=disc.categories, method=disc.method)
+
   }
 
   ds.mat <- as(data, "transactions")
@@ -162,6 +161,9 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
   }
 
   class(classifier) <- "CBA"
+  classifier[['columns']] <- colnames(data)
+  classifier[['columnlevels']] <- lapply(data, levels)
+  classifier[['formula']] <- formula
 
   return(classifier)
 
