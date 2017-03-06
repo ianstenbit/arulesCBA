@@ -66,7 +66,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
     ### Assemble rules and add quality
     rules <- new("rules", lhs = pot_lhs, rhs = pot_rhs)
 
-    quality(rules) <- cbind(lhs_support = lhs_sup, interestMeasure(rules, measure = c("support", "confidence", "lift"), trans = ds.mat))
+    quality(rules) <- cbind(lhs_support = lhs_sup, interestMeasure(rules, measure = c("support", "confidence", "lift"), transactions = ds.mat))
 
   } else {
     #Generate and sort association rules

@@ -8,21 +8,25 @@ predict.CBA <- function(object, newdata, ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  class <- object$formula[[2]]
-  cols.to.discretize <- (colnames(newdata) != class & unlist(lapply(newdata, is.numeric)))
+  if(!is.null(object$columnlevels)){
+    
+    class <- object$formula[[2]]
+    cols.to.discretize <- (colnames(newdata) != class & unlist(lapply(newdata, is.numeric)))
 
-  discretize.to.match <- function(newinput, colname){
+    discretize.to.match <- function(newinput, colname){
 
-      lvls <- object$columnlevels[[colname]]
+        lvls <- object$columnlevels[[colname]]
 
-      cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
-      cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
+        cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
+        cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
 
-      return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
+        return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
+
+    }
+
+    newdata[cols.to.discretize] <- as.data.frame(mapply(discretize.to.match, newdata[cols.to.discretize], colnames(newdata)[cols.to.discretize]))
 
   }
-
-  newdata[cols.to.discretize] <- as.data.frame(mapply(discretize.to.match, newdata[cols.to.discretize], colnames(newdata)[cols.to.discretize]))
 
   if(method == "weightedmean"){
     newdata <- as.data.frame(newdata)
