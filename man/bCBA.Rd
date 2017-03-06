@@ -15,8 +15,7 @@ bCBA(formula, data, support = 0.2,
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
-  \item{data}{A data.frame or an object of class transactions
-    (from \pkg{arules}) containing the training data.}
+  \item{data}{A data.frame containing the training data.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
   \item{gamma, cost}{Hyperparameters for the bCBA algorithm.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
