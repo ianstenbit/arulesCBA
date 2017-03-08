@@ -10,13 +10,13 @@
 bCBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
     verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL)
+    sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
+		disc.method="cluster", disc.categories=10)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
-  \item{data}{A data.frame or an object of class transactions
-    (from \pkg{arules}) containing the training data.}
+  \item{data}{A data.frame containing the training data.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
   \item{gamma, cost}{Hyperparameters for the bCBA algorithm.}
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
@@ -24,7 +24,10 @@ bCBA(formula, data, support = 0.2,
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
   \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
+	\item{disc.method}{Discretization method for arules discretize function for factorizing numeric input (default: "cluster")}
+	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
 }
+
 \details{
   Formats the input data frame and calls a C implementation of a transaction-boosted classification algorithm
   which is currently being developed. This R package provides an interface to the current most stable release

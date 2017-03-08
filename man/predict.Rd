@@ -10,7 +10,7 @@
 }
 \arguments{
   \item{object}{A CBA classifier object with a default class and a sorted list of association rules}
-  \item{newdata}{A data.frame or arules transaction set containing rows of new entries to be classified}
+  \item{newdata}{A data.frame containing rows of new entries to be classified}
   \item{\dots}{Additional arguments not used.}
 }
 \details{
