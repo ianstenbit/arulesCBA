@@ -10,7 +10,8 @@
 bCBA(formula, data, support = 0.2,
     confidence = 0.8, gamma = 0.05, cost = 10.0,
     verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL)
+    sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
+		disc.method="cluster", disc.categories=10)
 }
 
 \arguments{
@@ -23,7 +24,10 @@ bCBA(formula, data, support = 0.2,
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
   \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
+	\item{disc.method}{Discretization method for arules discretize function for factorizing numeric input (default: "cluster")}
+	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
 }
+
 \details{
   Formats the input data frame and calls a C implementation of a transaction-boosted classification algorithm
   which is currently being developed. This R package provides an interface to the current most stable release
