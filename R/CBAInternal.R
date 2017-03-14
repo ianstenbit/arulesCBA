@@ -151,7 +151,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
     rule_weights <- rep(0, length(rules.sorted))
 
-    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
+    defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],
