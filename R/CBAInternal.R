@@ -4,7 +4,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
   if(method == "weighted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
-      " and confidence=", confidence)
+      " confidence=", confidence, " gamma=", gamma, " cost=", cost)
   } else {
     description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
       " and confidence=", confidence)
@@ -31,21 +31,29 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
   if(is(data, "data.frame")){
 
      lvls <- levels(data[[class]])
+
+     #Re-order data to put the class column on the right side, and discretize
      data <- factorize(formula, data, categories=disc.categories, method=disc.method)
 
   }
 
+  #Convert to transactions for rule mining
   ds.mat <- as(data, "transactions")
   info <- itemInfo(ds.mat)
   classNames <- info[info$variables == class,'labels']
+
+  #Compute the levels of the target variable
   if(is.null(lvls)) lvls <- sapply(strsplit(classNames,"="),'[',2)
 
+  #Build vector of rhe right hahd (target for classification)
   rightHand <- as(ds.mat[, classNames], "list")
   if(!all(sapply(rightHand, length) == 1L)) stop("Problem with items used for class. Examples with multiple/no class label!")
   rightHand <- as.factor(unlist(rightHand))
 
+  #Assign is.null to default value of 1s if no class weights specified
   if(is.null(class.weights)) class.weights <- as.numeric(rep(1, length(levels(rightHand))))
 
+  #LHS rule mining (currently in need of optimization)
   if(lhs.support){
 
     pot_lhs <- apriori(ds.mat, control=control, parameter = list(support=support, confidence=confidence, target = "frequent"),
@@ -69,13 +77,13 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
     quality(rules) <- cbind(lhs_support = lhs_sup, interestMeasure(rules, measure = c("support", "confidence", "lift"), transactions = ds.mat))
 
   } else {
-    #Generate and sort association rules
+    #Generate association rules with apriori
     rules <- apriori(ds.mat, parameter = parameter,
       appearance = list(rhs=levels(rightHand), default = "lhs"),
       control=control)
   }
 
-
+  #Original CBA algorithm, sans pessisimistic error-rate pruning
   if(method == "CBA"){
 
     if(is.null(sort.parameter)){
@@ -100,9 +108,9 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
     strongRules <- vector('logical', length=length(rules.sorted))
 
-    a <- .Call("stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
+    a <- .Call("R_stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
 
-    replace <- .Call("stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
+    replace <- .Call("R_stage2", a, casesCovered, matches@i, matches@p, length(matches@i), strongRules, length(matches@p), PACKAGE = "arulesCBA")
 
     #initializing variables for stage 3
     ruleErrors <- 0
@@ -114,7 +122,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
     defaultClasses <- vector('integer', length=length(rules.sorted))
     totalErrors <- vector('integer', length=length(rules.sorted))
 
-    .Call("stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
+    .Call("R_stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr, replace,matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(levels(rightHand)),  PACKAGE = "arulesCBA")
 
     #save the classifier as only the rules up to the point where we have the lowest total error count
     classifier <- rules.sorted[strongRules][1:which.min(totalErrors[strongRules])]
@@ -143,7 +151,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
 
     rule_weights <- rep(0, length(rules.sorted))
 
-    defaultClass <- .Call("weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
+    defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],

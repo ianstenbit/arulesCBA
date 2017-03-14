@@ -44,7 +44,6 @@ bCBA(formula, data, support = 0.2,
   \item{default}{deault class label.}
   \item{levels}{levels of the class variable.}
 }
-
 \author{Ian Johnson}
 \seealso{
 \code{\link{predict.CBA}},
@@ -56,12 +55,9 @@ bCBA(formula, data, support = 0.2,
 \examples{
   library(arulesCBA)
   library(discretization)
-
   data(iris)
   irisDisc <- mdlp(iris)$Disc.data
   irisDisc <- as.data.frame(lapply(irisDisc, as.factor))
-
   classifier <- bCBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9, lhs.support=TRUE)
-
   result <- predict(classifier, irisDisc)
 }
