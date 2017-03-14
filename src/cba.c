@@ -4,7 +4,7 @@ Author: Ian Johnson
 */
 
 #include <stdlib.h>
-
+#include <string.h>
 
 /*
 Finds the first 1 in the binary matrix 'matrix' in row 'entry_row'
