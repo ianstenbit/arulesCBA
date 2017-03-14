@@ -48,7 +48,6 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Ru
 \author{Ian Johnson}
 \seealso{
 \code{\link{predict.CBA}},
-\code{\link{bCBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
