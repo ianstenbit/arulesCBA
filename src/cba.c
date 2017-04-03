@@ -110,6 +110,22 @@ void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatc
 
 }
 
+void resize(int** arr, int* len){
+
+	int initialSize = *len;
+
+	int* newArr = malloc(*len*2*sizeof(int));
+	memcpy(newArr, *arr, *len*sizeof(int));
+
+	*len = (*len) * 2;
+
+	free(*arr);
+	*arr = newArr;
+
+	for(int i = initialSize; i < initialSize * 2; i++) (*arr)[i] = -1;
+
+}
+
 /*
 Builds a c-array of replacement rule data. This data was originally stored in a data.frame in R,
 but it has been linearized for ease of use in C.
@@ -127,9 +143,11 @@ Note:
 	- Indeces where i%2 = 0 represent a wrule
 	- Indeces where i%2 = 1 represent an entry index for which this wrule might replace the given crule
 */
-void getReplacements(int* repl, int* replace, int rule, int numRules, int rLen){
+void getReplacements(int** repl_to_populate, int* replace, int rule, int numRules, int rLen, int* max_repl_size){
 
 	/*Allocate an int array of all the possible replacements*/
+
+	int* repl = *(repl_to_populate);
 
 	int repl_size = 0;
 
@@ -139,8 +157,15 @@ void getReplacements(int* repl, int* replace, int rule, int numRules, int rLen){
 	/*For each replacement, copy over the info if the crule matches the rule for which we're searching*/
 	for(int i = 0; i < rLen; i+=3){
 		if(replace[i] == rule){
+
+			if(repl_size >= *max_repl_size - 1){
+				resize(repl_to_populate, max_repl_size);
+				repl = *(repl_to_populate);
+			}
+
 			repl[repl_size++] = replace[i+1];
 			repl[repl_size++] = replace[i+2];
+
 		}
 	}
 
@@ -421,8 +446,8 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 	int* rule_covered = malloc((numMatches + 1) * sizeof(int));
 	memset(rule_covered, 0, sizeof(int)*(numMatches + 1));
 
-
-	int* replace_list = malloc((numRules) * 2 * sizeof(int));
+	int len_replace_list = numRules * 2 + 1;
+	int* replace_list = malloc(len_replace_list * sizeof(int));
 
 	/*Rule errors are the errors produced by a rule which falsely classifies a record,
 	Default errors are the errors produced by using a default class which falsely classifies a record*/
@@ -442,7 +467,7 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 		}
 
 		/*Save the list of replacement rules for the rule at index i*/
-		getReplacements(replace_list, replace_arr, i, numRules, replace_len);
+		getReplacements(&replace_list, replace_arr, i, numRules, replace_len, &len_replace_list);
 
 		/*Iterate through the list of possible replacements*/
 		int repl_index = 0;
