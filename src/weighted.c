@@ -104,7 +104,8 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
     while(matches_for_rule[match_index] != -1) {
        weight += row_weights[matches_for_rule[match_index]];
        row_weights[matches_for_rule[match_index++]] -= gamma;
-    }
+			 if(row_weights[matches_for_rule[match_index-1]] < 0) row_weights[matches_for_rule[match_index-1]] = 0;
+		}
 
     //Adjust weight of rule based on weights of rows it falsely matches
     //and adjust the weights of the rows it falsely matches

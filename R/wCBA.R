@@ -3,7 +3,7 @@ wCBA <- function(formula, data, support = 0.2, confidence = 0.8,
 	disc.method = "cluster", disc.categories = 10){
 
     return(CBA.internal(formula, data, method="weighted", support = support,
-      confidence = confidence, gamma = gamma, cost = cost, verbose = verbose,
+      confidence = confidence, verbose = verbose,
       parameter = parameter, control = control, sort.parameter = sort.parameter,
       lhs.support = lhs.support, disc.method=disc.method, disc.categories=disc.categories))
 
