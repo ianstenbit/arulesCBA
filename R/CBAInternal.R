@@ -1,11 +1,13 @@
-CBA.internal <- function(formula, data, method="weighted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
+CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
   disc.categories = 10, disc.method="cluster"){
 
-  if(method == "weighted"){
+  if(method == "boosted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
       " confidence=", confidence, " gamma=", gamma, " cost=", cost)
-  } else {
+  } else if(method == "weighted"){
+		description <- "Weighted CBA algorithm"
+	} else {
     description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
       " and confidence=", confidence)
   }
@@ -139,7 +141,7 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
       method = "first"
     )
 
-  } else if(method == "weighted") {
+  } else if(method == "boosted") {
 
     if(is.null(sort.parameter)){
       rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
@@ -164,8 +166,21 @@ CBA.internal <- function(formula, data, method="weighted", support = 0.2, confid
     )
 
 
-  } else {
-    stop("Method must be one of: 'CBA', 'weighted'.")
+  } else if(method == "weighted"){
+
+		rule_weights <- rules@quality$support * rules@quality$confidence
+		classifier <- list(
+				rules = rules,
+				weights = rule_weights,
+				class = class,
+				levels = lvls,
+				default = names(sort(-table(rightHand)))[1],
+				description = description,
+				method = "weighted"
+		)
+
+	} else {
+    stop("Method must be one of: 'CBA', 'boosted', 'weighted'.")
   }
 
   class(classifier) <- "CBA"

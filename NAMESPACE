@@ -11,4 +11,4 @@ importFrom("stats", "as.formula")
 S3method(predict, CBA)
 S3method(print, CBA)
 
-export("CBA", "rules", "CBA_ruleset", "bCBA")
+export("CBA", "rules", "CBA_ruleset", "bCBA", "wCBA")
