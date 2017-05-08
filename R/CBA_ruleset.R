@@ -18,7 +18,7 @@ CBA_ruleset <- function(formula, rules, method = "first",
     stop("Formula needs to be of the form class ~ .")
 
   # only use class rules
-  take <- rhs(rules) %pin% "Species"
+  take <- rhs(rules) %pin% class
   rules <- rules[take]
   if(!is.null(weights)) {
     if(is.character(weights))

@@ -1,17 +1,17 @@
-\name{CBA}
-\alias{CBA}
-\alias{cba}
+\name{wCBA}
+\alias{wCBA}
+\alias{wcba}
 \title{Classification Based on Association Rules}
 \description{
-  Build a classifier based on association rules mined for an input dataset.
-  The CBA algorithm used is a modified version of the algorithm described by
-  Liu, et al. 1998.
+  Build a classifier using a naive rule-weighting algorithm.
+  The algorithm is currently in development, and is not yet formally documented.
 }
 \usage{
-CBA(formula, data, support = 0.2, confidence = 0.8,
+wCBA(formula, data, support = 0.2,
+    confidence = 0.8,
     verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter = NULL, lhs.support = FALSE,
-		disc.method = "cluster", disc.categories = 10)
+    sort.parameter=NULL, lhs.support=FALSE, class.weights=NULL,
+		disc.method="cluster", disc.categories=10)
 }
 
 \arguments{
@@ -22,32 +22,26 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
+  \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
 	\item{disc.method}{Discretization method for arules discretize function for factorizing numeric input (default: "cluster")}
 	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
 }
+
 \details{
-  Formats the input data frame and calls a C implementation of the CBA algorithm
-  from Liu, et al. 1998 split up into three stages to build a classifier based on a set of association rules.
-
-  Before the CBA algorithm in C is executed, association rules are generated with the Apriori algorithm from the arules package.
-
-  A default class is selected for the classifier. Note that for datasets which do not yield any strong association rules
-  it's possible that no rules will be included in the classifier, and only a default class.
+  Mines association rules on input data and creates a weighted-vote classifier where a rules weight is the product of its support and confidence.
+	Default class is set to the most common class in the training data.
 }
 \value{
   Returns an object of class \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
-  \item{default}{default class label.}
+  \item{default}{deault class label.}
   \item{levels}{levels of the class variable.}
 }
-\references{
-Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
-}
-
 \author{Ian Johnson}
 \seealso{
 \code{\link{predict.CBA}},
+\code{\link{CBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
@@ -55,12 +49,9 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Ru
 \examples{
   library(arulesCBA)
   library(discretization)
-
   data(iris)
   irisDisc <- mdlp(iris)$Disc.data
   irisDisc <- as.data.frame(lapply(irisDisc, as.factor))
-
-  classifier <- CBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9, lhs.support=TRUE)
-
+  classifier <- wCBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9)
   result <- predict(classifier, irisDisc)
 }
