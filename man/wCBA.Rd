@@ -7,7 +7,7 @@
   The algorithm is currently in development, and is not yet formally documented.
 }
 \usage{
-bCBA(formula, data, support = 0.2,
+wCBA(formula, data, support = 0.2,
     confidence = 0.8,
     verbose=FALSE, parameter = NULL, control = NULL,
     sort.parameter=NULL, lhs.support=FALSE, class.weights=NULL,
