@@ -52,7 +52,9 @@ void populateMatches(int* matches_for_rule, int* false_matches_for_rule, int* lh
 C Interface for R function for model building. Parameters are explained in the R implementation (../R/classifier.R)
 */
 //rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@lhs@data@Dim, rules.sorted@rhs@data@i, rules.sorted@rhs@data@p, ds.mat@data@Dim, ds.mat@data@i, ds.mat@data@p, gamma, cost, length(levels(rightHand))
-SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I, SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP Cost, SEXP numClasses, SEXP ClassWeights){
+SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
+              SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP numClasses,
+              SEXP ClassWeights, SEXP RowWeights, SEXP RuleGain, SEXP RuleLoss) {
 
   int num_classes = INTEGER(numClasses)[0];
   int num_rules   = length(rulesRHS_I);
@@ -67,8 +69,9 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   int* df_p = INTEGER(DF_P);
   int* df_i = INTEGER(DF_I);
 
-  double* rule_weights = REAL(ruleWeights);
-  double* row_weights  = malloc(num_rows * sizeof(double));
+  double* rule_gain = REAL(RuleGain);
+  double* rule_loss  = REAL(RuleLoss);
+  double* row_weights  = REAL(RowWeights);
   double* class_weights = REAL(ClassWeights);
 
 
@@ -78,10 +81,10 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
     class_weights[(df_i[df_p[row+1]-1]) -  num_columns + num_classes] += 1;
 
   //Future idea... cost matrix?
-  for(int i = 0; i < num_rows; i++) row_weights[i] = class_weights[df_i[df_p[i+1]-1] -  num_columns + num_classes];
+  for(int i = 0; i < num_rows; i++)
+    row_weights[i] = class_weights[df_i[df_p[i+1]-1] -  num_columns + num_classes];
 
   double gamma = REAL(Gamma)[0];
-  double cost  = REAL(Cost)[0];
 
   //This array will hold the indeces of the rows which match a given rule
   int* matches_for_rule = malloc((num_rows+1)  * sizeof(int));
@@ -94,29 +97,32 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
 
     //Populate the true and false matches list using util.c/getRecordMatches
     //The first parameter of the function is modified by the function.
-    populateMatches(matches_for_rule, false_matches_for_rule, lhs_i, lhs_p, rhs_i, df_p, df_i, rule_index, num_rows);
+    populateMatches(matches_for_rule, false_matches_for_rule, lhs_i, lhs_p,
+                    rhs_i, df_p, df_i, rule_index, num_rows);
 
     //Each rule gets a weight. This is being initialized here.
-    double weight = 0; int match_index = 0;
+    double gain = 0, loss = 0; int match_index = 0;
 
     //Adjust weight of rule based on weights of rows it matches
     //and adjust the weights of the rows it matches
     while(matches_for_rule[match_index] != -1) {
-       weight += row_weights[matches_for_rule[match_index]];
-       row_weights[matches_for_rule[match_index++]] -= gamma;
-			 if(row_weights[matches_for_rule[match_index-1]] < 0) row_weights[matches_for_rule[match_index-1]] = 0;
+      gain += row_weights[matches_for_rule[match_index]];
+      row_weights[matches_for_rule[match_index++]] -= gamma;
+			if(row_weights[matches_for_rule[match_index-1]] < 0)
+        row_weights[matches_for_rule[match_index-1]] = 0;
 		}
 
     //Adjust weight of rule based on weights of rows it falsely matches
     //and adjust the weights of the rows it falsely matches
     match_index = 0;
     while(false_matches_for_rule[match_index] != -1){
-       weight -= cost * row_weights[false_matches_for_rule[match_index]];
+       loss -= row_weights[false_matches_for_rule[match_index]];
        row_weights[false_matches_for_rule[match_index++]] += gamma;
     }
 
     //Assign the rule weight and move on to the next rule
-    rule_weights[rule_index] = weight;
+    rule_gain[rule_index] = gain;
+    rule_loss[rule_index] = loss;
 
   }
 
@@ -140,9 +146,6 @@ SEXP weighted(SEXP ruleWeights, SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_
   //Create S-expression of default class for R
   SEXP def = allocVector(INTSXP, 1);
   INTEGER(def)[0] = default_class;
-
-  //Free temporary class weights array
-  free(row_weights);
 
   //Free rule-row matching arrays
   free(matches_for_rule);

@@ -1,10 +1,10 @@
-CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
-  disc.categories = 10, disc.method="cluster"){
+CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05,
+  verbose=FALSE, parameter = NULL, control = NULL, sort.rules = TRUE, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
+  disc.categories = 10, disc.method="cluster", cost_function = function(a,b) a-10.0*b){
 
   if(method == "boosted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
-      " confidence=", confidence, " gamma=", gamma, " cost=", cost)
+      " confidence=", confidence, " gamma=", gamma)
   } else if(method == "weighted"){
 		description <- "Weighted CBA algorithm"
 	} else {
@@ -143,21 +143,34 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
 
   } else if(method == "boosted") {
 
-    if(is.null(sort.parameter)){
-      rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+    if(sort.rules) {
+      if(is.null(sort.parameter)){
+        rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+      } else {
+        rules.sorted <- sort(rules, by=sort.parameter)
+      }
     } else {
-      rules.sorted <- sort(rules, by=sort.parameter)
+      rules.sorted <- rules
     }
 
     rules.sorted <- rules.sorted[1:min(length(rules.sorted), 50000)]
 
-    rule_weights <- rep(0, length(rules.sorted))
+    rule_gain <- rep(0.0, length(rules.sorted))
+    rule_loss <- rep(0.0, length(rules.sorted))
+    row_weights <- rep(0.0, length(ds.mat))
 
-    defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(levels(rightHand)), class.weights)
+    defaultClass <- .Call("R_weighted", rules.sorted@lhs@data@i,
+                          rules.sorted@lhs@data@p, rules.sorted@rhs@data@i,
+                          ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim,
+                          gamma, length(levels(rightHand)), class.weights,
+                          row_weights, rule_gain, rule_loss)
+
+    rule_weights <- cost_function(rule_gain, rule_loss)
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],
       weights = rule_weights[rule_weights > 0],
+      row_weights = row_weights,
       class = class,
       levels = lvls,
       default = levels(rightHand)[defaultClass],
