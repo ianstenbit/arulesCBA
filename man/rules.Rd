@@ -1,6 +1,6 @@
 \name{rules}
 \alias{rules}
-\title{Get the Association Rules from a CBA classifier}
+\title{Get Rule Base from a CBA classifier}
 \description{
   Returns the association rules used in the model from a CBA classifier object.
 }
