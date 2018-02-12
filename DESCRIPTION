@@ -1,6 +1,6 @@
 Package: arulesCBA
-Version: 1.1.0
-Date: 2017-02-15
+Version: 1.1.0-1
+Date: 2018-xx-xx
 Title: Classification Based on Association Rules
 Author: Ian Johnson [aut, cre, cph], Michael Hahsler [ctb]
 Authors@R: c(person("Ian", "Johnson", role=c("aut", "cre","cph"),
