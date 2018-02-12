@@ -23,8 +23,10 @@ CBA_ruleset <- function(formula, rules, method = "first",
   if(!is.null(weights)) {
     if(is.character(weights))
       weights <- quality(rules)[[weights, exact = FALSE]]
-    else
-    weights <- weights[take]
+    else {
+      weights <- weights[take]
+      quality(rules)$ weights <- weights
+    }
 
     if(length(rules) != length(weights))
       stop("length of weights does not match number of rules")
