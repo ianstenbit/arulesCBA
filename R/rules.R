@@ -1,5 +1,5 @@
-rules <- function(classifier){
-  
-  return(classifier[[1]])
-  
+rules <- function(x) UseMethod("rules")
+
+rules.CBA <- function(x){
+  return(x$rules)
 }

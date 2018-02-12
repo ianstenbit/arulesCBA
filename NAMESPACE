@@ -8,7 +8,9 @@ import("testthat")
 importFrom("methods", "as", "is", "new")
 importFrom("stats", "as.formula")
 
+export("CBA", "rules", "CBA_ruleset", "bCBA", "wCBA")
+
 S3method(predict, CBA)
 S3method(print, CBA)
+S3method(rules, CBA)
 
-export("CBA", "rules", "CBA_ruleset", "bCBA", "wCBA")
