@@ -1,6 +1,6 @@
-CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
+CBA.internal <- function(rules, data, class, disc.data, method="CBA", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
-  disc.categories = 10, disc.method="cluster"){
+  disc.categories = 10, disc.method="cluster", sort.rules=FALSE){
 
   if(method == "boosted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
@@ -12,40 +12,13 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
       " and confidence=", confidence)
   }
 
-  if(is.null(parameter)) parameter <- list()
-  parameter$support <- support
-  parameter$confidence <- confidence
-  parameter$minlen <- 2
-
-  if(is.null(control)) control <- list()
-  control$verbose <- verbose
-
-  # find class
-  formula <- as.formula(formula)
-  class <- as.character(formula[[2]])
-  ### FIXME: we could allow using only a subset of items here!
-  if(as.character(formula[[3]]) != ".")
-    stop("Formula needs to be of the form class ~ .")
-
-
-  ####Preparing data####
-  lvls <- NULL
-  if(is(data, "data.frame")){
-
-     lvls <- levels(data[[class]])
-
-     #Re-order data to put the class column on the right side, and discretize
-     data <- factorize(formula, data, categories=disc.categories, method=disc.method)
-
-  }
-
   #Convert to transactions for rule mining
-  ds.mat <- as(data, "transactions")
+  ds.mat <- data
   info <- itemInfo(ds.mat)
   classNames <- info[info$variables == class,'labels']
 
   #Compute the levels of the target variable
-  if(is.null(lvls)) lvls <- sapply(strsplit(classNames,"="),'[',2)
+  lvls <- sapply(strsplit(classNames,"="),'[',2)
 
   #Build vector of rhe right hahd (target for classification)
   rightHand <- as(ds.mat[, classNames], "list")
@@ -55,43 +28,17 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
   #Assign is.null to default value of 1s if no class weights specified
   if(is.null(class.weights)) class.weights <- as.numeric(rep(1, length(levels(rightHand))))
 
-  #LHS rule mining (currently in need of optimization)
-  if(lhs.support){
-
-    pot_lhs <- apriori(ds.mat, control=control, parameter = list(support=support, confidence=confidence, target = "frequent"),
-    appearance = list(none = levels(rightHand)))
-    n <- length(pot_lhs)
-    lhs_sup <- quality(pot_lhs)$support
-
-    pot_lhs <- items(pot_lhs)
-    pot_lhs <- do.call("c", replicate(length(levels(rightHand)), pot_lhs))
-
-    lhs_sup <- rep(lhs_sup, each = length(levels(rightHand)))
-
-    ### RHS
-    pot_rhs <- encode(as.list(rep(levels(rightHand), each = n)),
-      itemLabels = itemLabels(ds.mat))
-
-
-    ### Assemble rules and add quality
-    rules <- new("rules", lhs = pot_lhs, rhs = pot_rhs)
-
-    quality(rules) <- cbind(lhs_support = lhs_sup, interestMeasure(rules, measure = c("support", "confidence", "lift"), transactions = ds.mat))
-
-  } else {
-    #Generate association rules with apriori
-    rules <- apriori(ds.mat, parameter = parameter,
-      appearance = list(rhs=levels(rightHand), default = "lhs"),
-      control=control)
-  }
-
   #Original CBA algorithm, sans pessisimistic error-rate pruning
   if(method == "CBA"){
 
-    if(is.null(sort.parameter)){
-      rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
+    if(sort.rules) {
+      if(is.null(sort.parameter)){
+        rules.sorted <- sort(rules, by=c("confidence", "support", "lift"))
+      } else {
+        rules.sorted <- sort(rules, by=sort.parameter)
+      }
     } else {
-      rules.sorted <- sort(rules, by=sort.parameter)
+      rules.sorted <- rules
     }
 
     #Vector used to identify rules as being 'strong' rules for the final classifier
@@ -143,10 +90,14 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
 
   } else if(method == "boosted") {
 
-    if(is.null(sort.parameter)){
-      rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+    if(sort.rules) {
+      if(is.null(sort.parameter)){
+        rules.sorted <- sort(rules, by=c("lift", "confidence", "support"))
+        } else {
+          rules.sorted <- sort(rules, by=sort.parameter)
+      }
     } else {
-      rules.sorted <- sort(rules, by=sort.parameter)
+      rules.sorted <- rules
     }
 
     rules.sorted <- rules.sorted[1:min(length(rules.sorted), 50000)]
@@ -184,9 +135,9 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
   }
 
   class(classifier) <- "CBA"
-  classifier[['columns']] <- colnames(data)
-  classifier[['columnlevels']] <- lapply(data, levels)
-  classifier[['formula']] <- formula
+  classifier[['columns']] <- as.character(unique(itemInfo(data)$variables))
+  classifier[['columnlevels']] <- disc.data
+  classifier[['formula']] <- paste(class, " ~ .")
 
   return(classifier)
 

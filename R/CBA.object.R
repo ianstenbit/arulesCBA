@@ -75,32 +75,12 @@ rules.CBA <- function(x){
 predict.CBA <- function(object, newdata, ...){
 
   method <- object$method
-  if(is.null(method)) method <- "majority"
+  if(is.null(method)) method <- "first"
 
   methods <- c("first", "majority", "weighted", "weightedmean")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
-
-  if(!is.null(object$columnlevels)){
-
-    class <- object$formula[[2]]
-    cols.to.discretize <- (colnames(newdata) != class & unlist(lapply(newdata, is.numeric)))
-
-    discretize.to.match <- function(newinput, colname){
-
-      lvls <- object$columnlevels[[colname]]
-
-      cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
-      cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
-
-      return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
-
-    }
-
-    newdata[cols.to.discretize] <- as.data.frame(mapply(discretize.to.match, newdata[cols.to.discretize], colnames(newdata)[cols.to.discretize]))
-
-  }
 
   if(method == "weightedmean"){
     newdata <- as.data.frame(newdata)
@@ -110,7 +90,6 @@ predict.CBA <- function(object, newdata, ...){
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
   # the new data corresponds to the model data
-  newdata <- as(newdata, "transactions")
   newdata <- recode(newdata, match = lhs(object$rules))
 
   # Matrix of which rules match which transactions
@@ -204,4 +183,3 @@ predict.CBA <- function(object, newdata, ...){
   return(output)
 
 }
-
