@@ -54,7 +54,8 @@ C Interface for R function for model building. Parameters are explained in the R
 //rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@lhs@data@Dim, rules.sorted@rhs@data@i, rules.sorted@rhs@data@p, ds.mat@data@Dim, ds.mat@data@i, ds.mat@data@p, gamma, cost, length(levels(rightHand))
 SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
               SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP numClasses,
-              SEXP ClassWeights, SEXP RowWeights, SEXP RuleGain, SEXP RuleLoss) {
+              SEXP ClassWeights, SEXP RowWeights, SEXP RuleGain, SEXP RuleLoss,
+              SEXP RuleMatchCounts) {
 
   int num_classes = INTEGER(numClasses)[0];
   int num_rules   = length(rulesRHS_I);
@@ -73,6 +74,7 @@ SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
   double* rule_loss  = REAL(RuleLoss);
   double* row_weights  = REAL(RowWeights);
   double* class_weights = REAL(ClassWeights);
+  int* rule_match_counts = INTEGER(RuleMatchCounts);
 
 
 
@@ -110,6 +112,8 @@ SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
       row_weights[matches_for_rule[match_index++]] -= gamma;
 			if(row_weights[matches_for_rule[match_index-1]] < 0)
         row_weights[matches_for_rule[match_index-1]] = 0;
+
+      rule_match_counts[rule_index]++;
 		}
 
     //Adjust weight of rule based on weights of rows it falsely matches
@@ -118,6 +122,7 @@ SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
     while(false_matches_for_rule[match_index] != -1){
        loss -= row_weights[false_matches_for_rule[match_index]];
        row_weights[false_matches_for_rule[match_index++]] += gamma;
+       rule_match_counts[rule_index]++;
     }
 
     //Assign the rule weight and move on to the next rule

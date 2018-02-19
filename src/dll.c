@@ -8,7 +8,8 @@ extern SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defa
 
 SEXP weighted(SEXP rulesLHS_I, SEXP rulesLHS_P, SEXP rulesRHS_I, SEXP DF_I,
               SEXP DF_P, SEXP DF_Dim, SEXP Gamma, SEXP numClasses,
-              SEXP ClassWeights, SEXP RowWeights, SEXP RuleGain, SEXP RuleLoss);
+              SEXP ClassWeights, SEXP RowWeights, SEXP RuleGain, SEXP RuleLoss,
+              SEXP RuleMatchCounts);
 
 void R_init_arulesCBA(DllInfo *dll) {
 
@@ -16,7 +17,7 @@ void R_init_arulesCBA(DllInfo *dll) {
 	     {"R_stage1", (DL_FUNC) stage1, 10},
 	     {"R_stage2", (DL_FUNC) stage2, 7},
 	     {"R_stage3", (DL_FUNC) stage3, 14},
-       {"R_weighted", (DL_FUNC) weighted, 12},
+       {"R_weighted", (DL_FUNC) weighted, 13},
 	     {NULL, NULL, 0}
     };
 

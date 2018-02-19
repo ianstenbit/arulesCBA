@@ -1,3 +1,77 @@
+# create a CBA object from a set of rules
+
+### FIXME: we can specify weights/majority etc.
+
+# Constructor
+CBA_ruleset <- function(formula, rules, method = "first",
+  weights = NULL, default = NULL, description = "Custom rule set"){
+
+  # method
+  methods <- c("first", "majority")
+  m <- pmatch(method, methods)
+  if(is.na(m)) stop("Unknown method")
+  method <- methods[m]
+
+  # find class
+  formula <- as.formula(formula)
+  class <- as.character(formula[[2]])
+  if(as.character(formula[[3]]) != ".")
+    stop("Formula needs to be of the form class ~ .")
+
+  # only use class rules
+  take <- rhs(rules) %pin% class
+  rules <- rules[take]
+  if(!is.null(weights)) {
+    if(is.character(weights))
+      weights <- quality(rules)[[weights, exact = FALSE]]
+    else {
+      weights <- weights[take]
+      quality(rules)$ weights <- weights
+    }
+
+    if(length(rules) != length(weights))
+      stop("length of weights does not match number of rules")
+  }
+
+  levels <- grep(class, itemLabels(rules), value = TRUE)
+  levels <- sapply(strsplit(levels, '='), '[', 2)
+
+  # FIXME: find default rules if it exists to set default class
+  if(is.null(default))
+    default <- names(which.max(table(unlist(as(rhs(rules), "list")))))
+
+  classifier <- list(
+    rules = rules,
+    default = default,
+    class = class,
+    levels = levels,
+    method = method,
+    weights = weights,
+    description = description)
+
+  class(classifier) <- "CBA"
+
+  return(classifier)
+}
+
+
+# Methods
+print.CBA <- function(x, ...)
+  writeLines(c(
+    "CBA Classifier Object",
+    paste("Class:", x$class, "(labels:", paste(x$levels, collapse = ", "), ")"),
+    paste("Default Class:", x$default),
+    paste("Number of rules:", length(x$rules)),
+    paste("Classification method:", x$method, if(!is.null(x$weights)) "(weighted)" else ""),
+    strwrap(paste("Description:", x$description), exdent = 5),
+    ""
+  ))
+
+rules <- function(x) UseMethod("rules")
+rules.CBA <- function(x){
+  return(x$rules)
+}
+
 predict.CBA <- function(object, newdata, ...){
 
   method <- object$method
@@ -9,18 +83,18 @@ predict.CBA <- function(object, newdata, ...){
   method <- methods[m]
 
   if(!is.null(object$columnlevels)){
-    
+
     class <- object$formula[[2]]
     cols.to.discretize <- (colnames(newdata) != class & unlist(lapply(newdata, is.numeric)))
 
     discretize.to.match <- function(newinput, colname){
 
-        lvls <- object$columnlevels[[colname]]
+      lvls <- object$columnlevels[[colname]]
 
-        cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
-        cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
+      cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
+      cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
 
-        return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
+      return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
 
     }
 
@@ -130,3 +204,4 @@ predict.CBA <- function(object, newdata, ...){
   return(output)
 
 }
+

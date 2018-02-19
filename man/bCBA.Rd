@@ -11,7 +11,7 @@
     verbose=FALSE, parameter = NULL, control = NULL, sort.rules = TRUE,
     sort.parameter = NULL, lhs.support=FALSE, class.weights=NULL,
   	disc.method = "cluster", disc.categories = 10,
-    cost_function = function(a,b) a-10.0*b)
+    rule.weight.function = function(a,b,c) a-10.0*b)
 }
 
 \arguments{
@@ -27,7 +27,7 @@
   \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
 	\item{disc.method}{Discretization method for arules discretize function for factorizing numeric input (default: "cluster")}
 	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
-  \item{cost_function}{Two-input function to compute rule weight for gain and loss}
+  \item{rule.weight.function}{Three-input function to compute rule weight for gain, loss, and number of rule matches}
 }
 
 \details{

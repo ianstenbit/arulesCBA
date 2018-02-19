@@ -1,6 +1,6 @@
 CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05,
   verbose=FALSE, parameter = NULL, control = NULL, sort.rules = TRUE, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
-  disc.categories = 10, disc.method="cluster", cost_function = function(a,b) a-10.0*b){
+  disc.categories = 10, disc.method="cluster", rule.weight.function = function(a,b,c) a-10.0*b){
 
   if(method == "boosted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
@@ -157,15 +157,16 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
 
     rule_gain <- rep(0.0, length(rules.sorted))
     rule_loss <- rep(0.0, length(rules.sorted))
+    rule_match_counts <- as.integer(rep(0, length(rules.sorted)))
     row_weights <- rep(0.0, length(ds.mat))
 
     defaultClass <- .Call("R_weighted", rules.sorted@lhs@data@i,
                           rules.sorted@lhs@data@p, rules.sorted@rhs@data@i,
                           ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim,
                           gamma, length(levels(rightHand)), class.weights,
-                          row_weights, rule_gain, rule_loss)
+                          row_weights, rule_gain, rule_loss, rule_match_counts)
 
-    rule_weights <- cost_function(rule_gain, rule_loss)
+    rule_weights <- rule.weight.function(rule_gain, rule_loss, rule_match_counts)
 
     classifier <- list(
       rules = rules.sorted[rule_weights > 0],
