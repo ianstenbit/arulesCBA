@@ -290,11 +290,11 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches_i
 		}
 
     	/*If the crule was higher precedence than the wrule, save it as a strong rule for the classifier*/
-    	if(crule > wrule){
+    	if(crule < wrule){
     		LOGICAL(strong_rules)[crule] = TRUE;
     	}
     	/*If the wrule has higher precedence, then save this case in A for further processing in step 2*/
-    	else if (wrule > crule){
+    	else if (wrule < crule){
       		a_vector[a_size++] = i;
       		a_vector[a_size++] = crule;
       		a_vector[a_size++] = wrule;
