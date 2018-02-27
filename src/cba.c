@@ -90,7 +90,7 @@ Note: this pointer MUST NOT be freed by the calling function. It points to a loc
 Note: this pointer MUST only be accessed at indeces i where i%numRules == 0.
 This is because it points to a column inside a matrix saved as a c-array
 */
-void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int numRules, int rule_column){
+void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatches, int numRows, int rule_column){
 
 	int numFoundMatches = 0;
 	int column = 0;
@@ -98,7 +98,7 @@ void getRecordMatches(int* matches, int* matrix_rows, int* matrix_p, int numMatc
 	for(int i = 0; i < numMatches; i++){
 
 		if(matrix_rows[i] == rule_column){
-			while(column < numRules && matrix_p[column] < i) column++;
+			while(column < numRows && matrix_p[column] < i) column++;
 			matches[numFoundMatches++] = column-1;
 		}
 	}
@@ -485,28 +485,38 @@ SEXP stage3(SEXP strong_rules, SEXP casesCovered, SEXP covered, SEXP defaultClas
 
 		}
 
+		ruleErrors += countRecordMatches(falseMatch_rows, falseMatch_p, numFalseMatches, covered_arr, i, numRules, nRows);
+
 		/*Get a list of all of the records which this rule covers*/
-		getRecordMatches(rule_covered, match_rows, match_p, numMatches, numRules, i);
+		getRecordMatches(rule_covered, match_rows, match_p, numMatches, nRows, i);
+		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
+		for(int j = 0; j < numMatches && rule_covered[j] != -1; j++){
+			 covered_arr[rule_covered[j]] = 1;
+		}
 
 		/*Calculate the best default class for the classifier after this rule has been processed*/
 		int classNum = getMajorityClass(classes, covered_arr, numClasses, nRows);
+
 
 		/*Save the default class for the classifier at this stage*/
 		defaultClasses_arr[i] = classNum;
 
 		/*Count the rule errors and the default errors*/
 		defaultErrors = getDefaultErrors(classes, covered_arr, nRows, classNum);
-		ruleErrors += countRecordMatches(falseMatch_rows, falseMatch_p, numFalseMatches, covered_arr, i, numRules, nRows);
+
+		/*Get a list of all of the records which this rule covers*/
+		getRecordMatches(rule_covered, falseMatch_rows, falseMatch_p, numFalseMatches, nRows, i);
+		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
+		for(int j = 0; j < numMatches && rule_covered[j] != -1; j++){
+			 if(covered_arr[rule_covered[j]] == 1) ruleErrors--;
+			 if(classes[rule_covered[j]] == classNum) defaultErrors--;
+		}
+
 
 		/*Save the number of total errors. In R, the algorithm will prune the classifier to be the subset of the rules in the classifier
 		up to the point where the minimum number of errors occur. If the minimum occurs in two places, the smaller of the two possible subsets
 		will be chosen*/
 		total_errors_arr[i] = defaultErrors + ruleErrors;
-
-		/*Mark all of the records covered by this rule as being covered, if they're not already covered*/
-		for(int j = 0; j < numMatches && rule_covered[j] != -1; j++){
-			 covered_arr[rule_covered[j]] = 1;
-		}
 
 	}
 
