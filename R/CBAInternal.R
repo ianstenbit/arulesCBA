@@ -35,7 +35,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
      lvls <- levels(data[[class]])
 
      #Re-order data to put the class column on the right side, and discretize
-     data <- factorize(formula, data, categories=disc.categories, method=disc.method)
+     data <- discretizeDF.supervized(formula, df) 
 
   }
 
