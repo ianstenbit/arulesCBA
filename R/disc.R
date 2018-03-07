@@ -14,6 +14,9 @@ discretizeDF.supervized <- function(formula, data, method = "mldp",
   if(as.character(formula[[3]]) != ".")
     stop("Formula needs to be of the form class ~ .")
   cl_id <- pmatch(class, colnames(data))
+
+  print(class)
+  print(colnames(data))
   if(is.na(cl_id)) stop("Cannot identify column specified as class in the formula.")
 
   if(!is.factor(data[[cl_id]])) stop("class variable needs to be a factor!")

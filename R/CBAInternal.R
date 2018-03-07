@@ -33,7 +33,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
   if(is(data, "data.frame")){
 
      #Re-order data to put the class column on the right side, and discretize
-     data <- discretizeDF.supervized(formula, df, method=disc.method) 
+     data <- discretizeDF.supervized(formula, data, method=disc.method) 
 
   }
 

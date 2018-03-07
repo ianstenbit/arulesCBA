@@ -1,5 +1,6 @@
 useDynLib(arulesCBA)
 
+import("discretization")
 import("arules")
 import("Matrix")
 import("caret")
