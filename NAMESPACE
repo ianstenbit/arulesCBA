@@ -6,7 +6,7 @@ import("caret")
 import("testthat")
 
 importFrom("methods", "as", "is", "new")
-importFrom("stats", "as.formula")
+importFrom("stats", "as.formula", "df")
 
 export("CBA", "rules", "CBA_ruleset", "bCBA", "wCBA")
 

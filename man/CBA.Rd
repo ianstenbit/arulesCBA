@@ -21,7 +21,7 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
-  \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
+  \item{lhs.support}{Logical variable, which, when set to True, indicates that LHS support should be used for rule mining. lhs.support rule mining is considerably slower than normal mining.}
 	\item{disc.method}{Discretization method for arules discretize function for factorizing numeric input (default: "cluster")}
 	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
 }
@@ -53,10 +53,7 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Ru
   library(discretization)
 
   data(iris)
-  irisDisc <- mdlp(iris)$Disc.data
-  irisDisc <- as.data.frame(lapply(irisDisc, as.factor))
-
-  classifier <- CBA(Species ~ ., data = irisDisc, supp = 0.05, conf=0.9, lhs.support=TRUE)
+  classifier <- CBA(Species ~ ., data = iris, supp = 0.05, conf=0.9, lhs.support=FALSE)
 
   result <- predict(classifier, irisDisc)
 }
