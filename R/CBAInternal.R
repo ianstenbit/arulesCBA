@@ -1,6 +1,6 @@
 CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
-  disc.categories = 10, disc.method="cluster"){
+  disc.categories = 10, disc.method="mldp"){
 
   if(method == "boosted"){
     description <- paste0("Transaction boosted associative classifier with support=", support,
@@ -32,10 +32,8 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
   lvls <- NULL
   if(is(data, "data.frame")){
 
-     lvls <- levels(data[[class]])
-
      #Re-order data to put the class column on the right side, and discretize
-     data <- factorize(formula, data, categories=disc.categories, method=disc.method)
+     data <- discretizeDF.supervized(formula, data, method=disc.method) 
 
   }
 

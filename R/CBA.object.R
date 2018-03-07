@@ -33,7 +33,7 @@ CBA_ruleset <- function(formula, rules, method = "first",
       stop("length of weights does not match number of rules")
   }
 
-  levels <- grep(class, itemLabels(rules), value = TRUE)
+  levels <- grep(class, itemLabels(rules), value = TRUE, fixed=TRUE)
   levels <- sapply(strsplit(levels, '='), '[', 2)
 
   # FIXME: find default rules if it exists to set default class
