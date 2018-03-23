@@ -94,7 +94,7 @@ predict.CBA <- function(object, newdata, ...){
       cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
       cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
 
-      return(discretize(newinput, method = "fixed", categories = cuts, labels = lvls))
+      return(discretize(newinput, method = "fixed", breaks = cuts, labels = lvls))
 
     }
 
