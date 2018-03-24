@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+proj$
+^\.travis\.yml$
+^cran-comments\.md$
+^appveyor\.yml$
+^revdep$
+^.*\.o$
+^LICENSE
+Work
+docs
+_pkgdown.yml
+_config.yml

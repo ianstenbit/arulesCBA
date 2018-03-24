@@ -82,6 +82,7 @@ predict.CBA <- function(object, newdata, ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
+  ### MFH: We should do the discretization better!!!
   if(!is.null(object$columnlevels)){
 
     class <- object$formula[[2]]
@@ -113,13 +114,11 @@ predict.CBA <- function(object, newdata, ...){
   newdata <- as(newdata, "transactions")
   newdata <- recode(newdata, match = lhs(object$rules))
 
-  # Matrix of which rules match which transactions
-  if(length(newdata) * length(rules(object)) > 150000){
-    rulesMatchLHS <- is.subset(lhs(object$rules), newdata, sparse=TRUE)
-  } else {
-    rulesMatchLHS <- is.subset(lhs(object$rules), newdata)
-    dimnames(rulesMatchLHS) <- list(NULL, NULL)
-  }
+  # Matrix of which rules match which transactions (sparse is only better for more
+  # than 150000 entries)
+  rulesMatchLHS <- is.subset(lhs(object$rules), newdata,
+        sparse = (length(newdata) * length(rules(object)) > 150000))
+  dimnames(rulesMatchLHS) <- list(NULL, NULL)
 
   # FIXME: we might have to check that the RHS has only a single item
   classifier.results <- unlist(as(rhs(object$rules), "list"))
@@ -141,7 +140,7 @@ predict.CBA <- function(object, newdata, ...){
 
     # unweighted
     if(is.null(object$weights)) {
-      w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+      w <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
       output <- sapply(w, FUN = function(x) {
         n <- which.max(table(classifier.results[x]))
         if(length(n)==1) names(n) else NA
@@ -165,7 +164,7 @@ predict.CBA <- function(object, newdata, ...){
         if(length(weights) != length(object$rules))
           stop("length of weights does not match number of rules")
 
-        r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+        r <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
         l <- lapply(r, FUN = function(x) classifier.results[x])
         w <- lapply(r, FUN = function(x) weights[x])
         w <- sapply(1:length(l), FUN = function(i) sapply(split(w[[i]], l[[i]]), sum))
@@ -174,7 +173,7 @@ predict.CBA <- function(object, newdata, ...){
 
       } else {
 
-        r <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x))
+        r <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
         l <- lapply(r, FUN = function(x) classifier.results[x])
         w <- lapply(r, FUN = function(x) object$weights[x])
 

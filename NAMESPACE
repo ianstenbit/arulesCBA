@@ -9,7 +9,13 @@ import("testthat")
 importFrom("methods", "as", "is", "new")
 importFrom("stats", "as.formula", "df")
 
-export("CBA", "rules", "CBA_ruleset", "bCBA", "wCBA")
+export("CBA",
+       "rules",
+       "CBA_ruleset",
+       "bCBA",
+       "wCBA",
+       "discretizeDF.supervised"
+       )
 
 S3method(predict, CBA)
 S3method(print, CBA)

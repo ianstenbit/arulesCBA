@@ -1,8 +1,8 @@
 ### discretize using a formula interface
-discretizeDF.supervized <- function(formula, data, method = "mldp",
+discretizeDF.supervised <- function(formula, data, method = "mdlp",
   dig.lab = 3, ...) {
 
-  methods = c("mldp", "caim", "ccac", "ameva", "chi2", "chimerge",
+  methods = c("mdlp", "caim", "cacc", "ameva", "chi2", "chimerge",
     "extendedchi2", "modchi2")
 
   method <- methods[pmatch(tolower(method), methods)]
@@ -21,7 +21,7 @@ discretizeDF.supervized <- function(formula, data, method = "mldp",
 
   if(!is.factor(data[[cl_id]])) stop("class variable needs to be a factor!")
 
-  if(method == "mldp") {
+  if(method == "mdlp") {
     for(i in 1:ncol(data)) {
       if(!is.numeric(data[[i]])) next
 
@@ -41,7 +41,7 @@ discretizeDF.supervized <- function(formula, data, method = "mldp",
 
     res <- switch(method,
       caim         = disc.Topdown(data_num, method = 1),
-      ccac         = disc.Topdown(data_num, method = 2),
+      cacc         = disc.Topdown(data_num, method = 2),
       ameva        = disc.Topdown(data_num, method = 3),
       chi2         = chi2(data_num, ...),
       chimerge     = chiM(data_num, ...),

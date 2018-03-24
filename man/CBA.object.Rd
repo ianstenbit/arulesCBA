@@ -5,9 +5,10 @@
 \alias{print.CBA}
 \alias{rules}
 \alias{rules.CBA}
-\title{Rules-based Classifier from Association Rules}
+\title{Objects for Classifiers Based on Association Rules}
 \description{
-  Use a set of association rules for classification.
+  Objects for classifiers based on association rules have class \code{"CBA"}.
+  A creator function \code{CBA_ruleset()} and several methods are provided.
 }
 \usage{
 CBA_ruleset(formula, rules, method = "first",
@@ -38,7 +39,7 @@ CBA_ruleset(formula, rules, method = "first",
   rules are predictive and sorted from most to least predictive.
 }
 \value{
-  \code{CBA_ruleset} returns an object of class
+  \code{CBA_ruleset()} returns an object of class
   \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
@@ -54,25 +55,25 @@ CBA_ruleset(formula, rules, method = "first",
 }
 \author{Michael Hahsler}
 \seealso{
+\code{\link{CBA}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
 }
 \examples{
 library("caret")
+data("iris")
 
-data(iris)
-irisDisc <- as.data.frame(lapply(iris[1:4],
-  function(x) discretize(x, categories=9)))
-irisDisc$Species <- iris$Species
+iris.disc <- discretizeDF.supervised(Species ~., iris)
 
 # create transactions
-trans <- as(irisDisc, "transactions")
-truth <- irisDisc$Species
+trans <- as(iris.disc, "transactions")
+truth <- iris.disc$Species
 
 # create rule base
-rules <- apriori(trans, parameter=list(support=.01, confidence = .8),
-  appearance = list(rhs=grep("Species=", itemLabels(trans), value = TRUE), default = "lhs"))
+rules <- apriori(trans, parameter = list(support = .01, confidence = .8),
+  appearance = list(rhs=grep("Species=", itemLabels(trans), value = TRUE),
+                    default = "lhs"))
 
 rules <- rules[!is.redundant(rules)]
 rules <- sort(rules, by = "conf")
@@ -89,8 +90,7 @@ p <- predict(cl, trans)
 confusionMatrix(p, truth)
 
 # use weighted majority
-cl <- CBA_ruleset(Species ~ ., rules, method = "majority",
-  weights = "lift")
+cl <- CBA_ruleset(Species ~ ., rules, method = "majority", weights = "lift")
 cl
 
 p <- predict(cl, trans)
