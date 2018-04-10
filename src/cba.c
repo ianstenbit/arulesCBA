@@ -290,7 +290,8 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches_i
 		}
 
 
-		if(wrule == -1){
+		if(wrule == -1 && crule != -1){
+			LOGICAL(strong_rules)[crule] = TRUE;
 			continue;
 		}
 
