@@ -289,6 +289,12 @@ SEXP stage1(SEXP data_rows, SEXP strong_rules, SEXP casesCovered, SEXP matches_i
 			INTEGER(casesCovered)[crule]++;
 		}
 
+
+		if(wrule == -1 && crule != -1){
+			LOGICAL(strong_rules)[crule] = TRUE;
+			continue;
+		}
+
     	/*If the crule was higher precedence than the wrule, save it as a strong rule for the classifier*/
     	if(crule < wrule){
     		LOGICAL(strong_rules)[crule] = TRUE;
