@@ -126,6 +126,10 @@ To install the most recent development version, use:
 \subsection[libs]{Loading Required Packages}
 To load the \pkg{arulesCBA} package, as well as the \pkg{caret} package, which is used for assessing the results of the classifier, use:
 
+<<echo=FALSE>>=
+options(digits=2)
+@
+
 <<>>=
 library(arulesCBA)
 @
@@ -152,7 +156,7 @@ Note that the second parameter to the \code{CBA} function, \code{class}, is the 
 Basic information about the classifier can be found using the \code{print} function:
 
 <<echo=TRUE>>=
-print(classifier)
+classifier
 @
 
 
@@ -174,25 +178,25 @@ inspect(rules(classifier))
 Once the classifier has been built, it can be used to classify the training data set as a cursory test of its accuracy using a simple call to \code{predict}:
 
 <<echo=TRUE>>=
-classes <- predict(classifier, iris)
+pred <- predict(classifier, iris)
 @
 
-The classes of the data are now stored in the character vector \code{classes}:
-
 <<echo=TRUE>>=
-head(classes)
-table(classes)
+head(pred)
+table(pred)
 @
 
 This table shows that the \pkg{arulesCBA} classifier predicted that there is a 50-48-52 split of the 3 species in the test data.
 
 \subsection[results]{Checking the Results}
-In order to ascertain the quality of the predicted classes, a confusion matrix will be built using the \pkg{gmodels} library:
+In order to ascertain the quality of the predicted classes,
+we can create a simple confusion matrix:
 
 <<echo=TRUE>>=
-library(gmodels)
-CrossTable(classes, iris$Species,
-           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE)
+table(pred, truth = iris$Species)
 @
+
+More sophisticated confusion matrices can be created using packages like
+\pkg{caret} or  \pkg{gmodels}.
 
 \end{document}

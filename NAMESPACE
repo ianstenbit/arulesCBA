@@ -3,7 +3,6 @@ useDynLib(arulesCBA)
 import("discretization")
 import("arules")
 import("Matrix")
-import("caret")
 import("testthat")
 
 importFrom("methods", "as", "is", "new")
@@ -14,7 +13,8 @@ export("CBA",
        "CBA_ruleset",
        "bCBA",
        "wCBA",
-       "discretizeDF.supervised"
+       "discretizeDF.supervised",
+       "mineCARs"
        )
 
 S3method(predict, CBA)
