@@ -16,7 +16,8 @@ discretizeDF.supervised(formula, data, method = "mdlp", dig.lab = 3, ...)
 }
 
 \arguments{
-  \item{formula}{a formula object to specify the class variable for supervised discretization. Currently only formulas of the form \code{class ~ .}, where class is the name of the class variable in the data.frame, are supported.}
+  \item{formula}{a formula object to specify the class variable for supervised discretization and the
+  predictors to be discretized in the form \code{class ~ .} or \code{class ~ predictor1 + predictor2}.}
   \item{data}{a data.frame containing continuous variables to be discretized}
   \item{method}{ discretization method. Available are:
       \code{"mdlp"}, \code{"caim"}, \code{"cacc"},
@@ -65,6 +66,10 @@ attributes(iris.disc$Sepal.Length)
 
 # discretize the first few instances of iris using the same breaks as iris.disc
 discretizeDF(head(iris), methods = iris.disc)
+
+# only discretize predictors Sepal.Length and Petal.Length
+iris.disc2 <- discretizeDF.supervised(Species ~ Sepal.Length + Petal.Length, iris)
+head(iris.disc2)
 }
 \author{Michael Hahsler}
 \keyword{manip}

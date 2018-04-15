@@ -1,42 +1,31 @@
-### discretize using a formula interface
 discretizeDF.supervised <- function(formula, data, method = "mdlp",
   dig.lab = 3, ...) {
 
-  methods = c("mdlp", "caim", "cacc", "ameva", "chi2", "chimerge",
-    "extendedchi2", "modchi2")
+  if(!is(data, "data.frame")) stop("data needs to be a data.frame")
 
+  methods = c("mdlp", "caim", "cacc", "ameva", "chi2", "chimerge", "extendedchi2", "modchi2")
   method <- methods[pmatch(tolower(method), methods)]
   if(is.na(method)) stop("Unknown method!")
 
-  ### FIXME: parse RHS of formula and only discretize the mentioned columns
-  formula <- as.formula(formula)
-  class <- as.character(formula[[2]])
-  if(as.character(formula[[3]]) != ".")
-    stop("Formula needs to be of the form class ~ .")
-  cl_id <- pmatch(class, colnames(data))
+  vars <- .parseformula(formula, data)
+  cl_id <- vars$class_ids
+  var_ids <- vars$var_ids
 
-  #print(class)
-  #print(colnames(data))
-  if(is.na(cl_id)) stop("Cannot identify column specified as class in the formula.")
-
-  if(!is.factor(data[[cl_id]])) stop("class variable needs to be a factor!")
+  if(any(!sapply(data[var_ids], is.numeric))) stop("Cannot discretize non-numeric column: ",
+    colnames(data)[var_ids[!sapply(data[var_ids], is.numeric)]])
 
   if(method == "mdlp") {
-    for(i in 1:ncol(data)) {
-      if(!is.numeric(data[[i]])) next
-
-      cp <- c(-Inf, cutPoints(data[[i]], data[[cl_id]]), Inf)
-      data[[i]] <- structure(
-        cut(data[[i]], breaks = cp,
-          include.lowest = TRUE, dig.lab = dig.lab),
-        "discretized:breaks" = cp
-      )
+    cps <- structure(vector("list", ncol(data)), names = colnames(data))
+    for(i in var_ids) {
+      cps[[i]] <- list(
+        breaks = c(-Inf, cutPoints(data[[i]], data[[cl_id]]), Inf),
+        method = "fixed")
     }
 
   } else {
     ### other methods require only numeric columns and
     ### the class to be the last column.
-    data_num_id <- which(sapply(data, is.numeric))
+    data_num_id <- var_ids
     data_num <- data[,c(data_num_id, cl_id)]
 
     res <- switch(method,
@@ -57,8 +46,10 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
         method = "fixed")
     }
 
-    data <- discretizeDF(data, methods = cps)
   }
 
-  data
+  ### TODO: Fix method attribute
+  ### TODO: discretizeDF uses default for NULL! How can we prevent discretization?
+  discretizeDF(data, methods = cps, default = NULL)
+
 }

@@ -10,7 +10,7 @@
 bCBA(formula, data, support = 0.2, confidence = 0.8,
      gamma = 0.05, cost = 10.0, verbose = FALSE, parameter = NULL,
      control = NULL, sort.parameter = NULL, lhs.support = FALSE,
-     class.weights = NULL, disc.method = "mdlp", disc.categories = 10)
+     class.weights = NULL, disc.method = "mdlp")
 }
 
 \arguments{
@@ -24,7 +24,6 @@ bCBA(formula, data, support = 0.2, confidence = 0.8,
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
   \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
-	\item{disc.categories}{Number of discretization categories for arules discretize function for factorizing numeric input (default: 10)}
 }
 
 \details{

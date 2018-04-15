@@ -14,13 +14,19 @@ CBA_ruleset <- function(formula, rules, method = "first",
 
   # find class
   formula <- as.formula(formula)
-  class <- as.character(formula[[2]])
-  if(as.character(formula[[3]]) != ".")
+  vars <- .parseformula(formula, as(lhs(rules[1]), "transactions"))
+  class <- vars$class_names
+
+  # TODO: filter rules to only use predictors?
+  if(all.vars(formula)[2] != ".")
     stop("Formula needs to be of the form class ~ .")
 
   # only use class rules
-  take <- rhs(rules) %pin% class
+  take <- rhs(rules) %in% class
   rules <- rules[take]
+  if(any(!take)) warning("Some provided rules are not CARs with the class in the RHS and are ignored. Only ",
+    length(rules), " rules used.")
+
   if(!is.null(weights)) {
     if(is.character(weights))
       weights <- quality(rules)[[weights, exact = FALSE]]
@@ -33,18 +39,19 @@ CBA_ruleset <- function(formula, rules, method = "first",
       stop("length of weights does not match number of rules")
   }
 
-  levels <- grep(class, itemLabels(rules), value = TRUE, fixed=TRUE)
-  levels <- sapply(strsplit(levels, '='), '[', 2)
-
   # FIXME: find default rules if it exists to set default class
-  if(is.null(default))
-    default <- names(which.max(table(unlist(as(rhs(rules), "list")))))
+  # If not given, use the RHS for the rules with the largest support
+  if(!is.null(default)) {
+    default <- class[grepl(default, class)]
+    if(length(default) != 1) stop("unable to identify default class")
+    } else
+      default <- names(which.max(sapply(split(quality(rules)$support,
+      unlist(as(rhs(rules), "list"))), sum)))
 
   classifier <- list(
     rules = rules,
     default = default,
     class = class,
-    levels = levels,
     method = method,
     weights = weights,
     description = description)
@@ -59,7 +66,7 @@ CBA_ruleset <- function(formula, rules, method = "first",
 print.CBA <- function(x, ...)
   writeLines(c(
     "CBA Classifier Object",
-    paste("Class:", x$class, "(labels:", paste(x$levels, collapse = ", "), ")"),
+    paste("Class:", paste(x$class, collapse = ", ")),
     paste("Default Class:", x$default),
     paste("Number of rules:", length(x$rules)),
     paste("Classification method:", x$method, if(!is.null(x$weights)) "(weighted)" else ""),
@@ -82,31 +89,15 @@ predict.CBA <- function(object, newdata, ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  ### MFH: We should do the discretization better!!!
-  if(!is.null(object$columnlevels)){
+  if(!is.null(object$discretization))
+    newdata <- discretizeDF(newdata, lapply(object$discretization,
+      FUN = function(x) list(method="fixed", breaks=x)))
 
-    class <- object$formula[[2]]
-    cols.to.discretize <- (colnames(newdata) != class & unlist(lapply(newdata, is.numeric)))
-
-    discretize.to.match <- function(newinput, colname){
-
-      lvls <- object$columnlevels[[colname]]
-
-      cuts <- unlist(lapply(strsplit(lvls, ','), function(x) (as.numeric(substr(x[1], 2, nchar(x[1]))))))[2:length(lvls)]
-      cuts <- c(-Inf, cuts + .Machine$double.eps, Inf)
-
-      return(discretize(newinput, method = "fixed", breaks = cuts, labels = lvls))
-
-    }
-
-    newdata[cols.to.discretize] <- as.data.frame(mapply(discretize.to.match, newdata[cols.to.discretize], colnames(newdata)[cols.to.discretize]))
-
-  }
-
-  if(method == "weightedmean"){
-    newdata <- as.data.frame(newdata)
-    newdata[[object$class]] <- NULL
-  }
+### MFH: ???
+#  if(method == "weightedmean"){
+#    newdata <- as.data.frame(newdata)
+#    newdata[[object$class]] <- NULL
+#  }
 
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
@@ -120,16 +111,13 @@ predict.CBA <- function(object, newdata, ...){
         sparse = (length(newdata) * length(rules(object)) > 150000))
   dimnames(rulesMatchLHS) <- list(NULL, NULL)
 
-  # FIXME: we might have to check that the RHS has only a single item
+  class_levels <- sapply(strsplit(object$class, '='), '[',2)
   classifier.results <- unlist(as(rhs(object$rules), "list"))
-  if(!is.null(object$levels)) {
-    classifier.results <- sapply(strsplit(classifier.results, '='), '[', 2)
-    classifier.results <- factor(classifier.results, levels = object$levels)
-  }
+  classifier.results <- sapply(strsplit(classifier.results, '='), '[', 2)
+  classifier.results <- factor(classifier.results, levels = class_levels)
 
   # Default class
-  default <- object$default
-  if(!is.null(object$levels)) default <- strsplit(default, '=')[[1]][2]
+  default <- strsplit(object$default, '=')[[1]][2]
 
   # For each transaction, if it is matched by any rule, classify it using
   # the majority, weighted majority or the highest-precidence
@@ -181,6 +169,7 @@ predict.CBA <- function(object, newdata, ...){
         output <- unlist(output)
 
         output[is.nan(output)] <- object$mean
+        output <- factor(output, levels = class_levels)
 
         return(output)
 
@@ -195,10 +184,7 @@ predict.CBA <- function(object, newdata, ...){
 
 
   # preserve the levels of original data for data.frames
-  if(!is.null(object$levels))
-    output <- factor(output, levels = object$levels, labels = object$levels)
-  else
-    output <- factor(output)
+  output <- factor(output, levels = class_levels)
 
   return(output)
 
