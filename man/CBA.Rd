@@ -38,7 +38,7 @@ CBA(formula, data, support = 0.2, confidence = 0.8,
   Returns an object of class \code{\link{CBA.object}} representing the trained classifier.
 }
 \references{
-Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
+Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
 }
 
 \author{Ian Johnson}
