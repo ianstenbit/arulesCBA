@@ -21,7 +21,7 @@ install.packages("arulesCBA")
 __Current development version:__ 
 ```R 
 library("devtools")
-install_github("ianjjohnson/arules")
+install_github("ianjjohnson/arulesCBA")
 ```
 
 ## Usage
