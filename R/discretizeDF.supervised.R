@@ -10,7 +10,7 @@ discretizeDF <- function(df, methods = NULL, default = NULL) {
     if(!is.numeric(df[[i]])) next
     args <- if(is.null(methods[[i]])) default else methods[[i]]
 
-    ### skip columns with method na
+    ### skip columns with missing method or method = "none"
     if(!is.null(args) && (is.null(args$method) || args$method == "none")) next
 
     df[[i]] <- do.call("discretize", c(list(x = df[[i]]), args))
@@ -21,7 +21,8 @@ discretizeDF <- function(df, methods = NULL, default = NULL) {
 
 .rediscretizeDF <- function(data, newdata) {
 
-  if(!all(colnames(data) == colnames(newdata))) stop("columns in data and newdata do not conform!")
+  if(!all(colnames(data) == colnames(newdata)))
+    stop("columns in data and newdata do not conform!")
 
   cps <- lapply(data, FUN = function(x) {
     breaks <- attr(x, "discretized:breaks")
@@ -42,7 +43,7 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
 
   methods = c("mdlp", "caim", "cacc", "ameva", "chi2", "chimerge", "extendedchi2", "modchi2")
   method <- methods[pmatch(tolower(method), methods)]
-  if(is.na(method)) stop("Unknown method!")
+  if(is.na(method)) stop(paste("Unknown method! Available methods are", paste(methods, collapse = ", ")))
 
   vars <- .parseformula(formula, data)
   cl_id <- vars$class_ids
@@ -85,8 +86,10 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
 
   }
 
-  ### TODO: Fix method attribute
-  ### TODO: discretizeDF uses default for NULL! How can we prevent discretization?
-  discretizeDF(data, methods = cps, default = list(method = "none"))
+  data <- discretizeDF(data, methods = cps, default = list(method = "none"))
 
+  ### fix method attribute
+  for(i in var_ids) attr(data[[i]], "discretized:method") <- method
+
+  data
 }
