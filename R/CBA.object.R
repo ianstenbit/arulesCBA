@@ -145,10 +145,11 @@ predict.CBA <- function(object, newdata, ...){
     })
 
     # make sure default wins for ties
-    scores[,defaultLevel] <- scores[,defaultLevel] + .5
+    scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
 
     output <- factor(apply(scores, MARGIN = 1, which.max),
-      levels = 1:length(levels(classifier.results)), labels = levels(classifier.results))
+      levels = 1:length(levels(classifier.results)),
+      labels = levels(classifier.results))
 
     return(output)
 
