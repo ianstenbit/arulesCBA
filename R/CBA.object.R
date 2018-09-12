@@ -44,8 +44,8 @@ CBA_ruleset <- function(formula, rules, method = "first",
   if(!is.null(default)) {
     default <- class[grepl(default, class)]
     if(length(default) != 1) stop("unable to identify default class")
-    } else
-      default <- names(which.max(sapply(split(quality(rules)$support,
+  } else
+    default <- names(which.max(sapply(split(quality(rules)$support,
       unlist(as(rhs(rules), "list"))), sum)))
 
   classifier <- list(
@@ -84,7 +84,8 @@ predict.CBA <- function(object, newdata, ...){
   method <- object$method
   if(is.null(method)) method <- "majority"
 
-  methods <- c("first", "majority", "weighted", "weightedmean")
+  # weightedmean is just an alias for majority with weights.
+  methods <- c("first", "majority", "weighted") # , "weightedmean")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
@@ -92,12 +93,6 @@ predict.CBA <- function(object, newdata, ...){
   if(!is.null(object$discretization))
     newdata <- discretizeDF(newdata, lapply(object$discretization,
       FUN = function(x) list(method="fixed", breaks=x)))
-
-### MFH: ???
-#  if(method == "weightedmean"){
-#    newdata <- as.data.frame(newdata)
-#    newdata[[object$class]] <- NULL
-#  }
 
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
@@ -108,7 +103,7 @@ predict.CBA <- function(object, newdata, ...){
   # Matrix of which rules match which transactions (sparse is only better for more
   # than 150000 entries)
   rulesMatchLHS <- is.subset(lhs(object$rules), newdata,
-        sparse = (length(newdata) * length(rules(object)) > 150000))
+    sparse = (length(newdata) * length(rules(object)) > 150000))
   dimnames(rulesMatchLHS) <- list(NULL, NULL)
 
   class_levels <- sapply(strsplit(object$class, '='), '[',2)
@@ -118,63 +113,45 @@ predict.CBA <- function(object, newdata, ...){
 
   # Default class
   default <- strsplit(object$default, '=')[[1]][2]
+  defaultLevel <- which(class_levels == default)
 
   # For each transaction, if it is matched by any rule, classify it using
   # the majority, weighted majority or the highest-precidence
   # rule in the classifier
 
 
-  if(method == "majority" | method == "weighted" | method == "weightedmean") {
+  if(method == "majority" | method == "weighted") { # | method == "weightedmean") {
 
-    # unweighted
-    if(is.null(object$weights)) {
-      w <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
-      output <- sapply(w, FUN = function(x) {
-        n <- which.max(table(classifier.results[x]))
-        if(length(n)==1) names(n) else NA
-      })
-      output[sapply(w, length)==0] <- default
+    weights <- object$weights
 
-    }else{
+    # use a quality measure
+    if(is.character(weights))
+      weights <- quality(object$rules)[[weights, exact = FALSE]]
 
-      if(is.null(object$means)){
+    # replicate single value (same as unweighted)
+    if(length(weights) == 1) weights <- rep(weights, length(object$rules))
 
-        weights <- object$weights
+    # unweighted (use weights of 1)
+    if(is.null(weights)) weights <- rep(1, length(object$rules))
 
-        # use a quality measure
-        if(is.character(weights))
-          weights <- quality(object$rules)[[weights, exact = FALSE]]
+    # check
+    if(length(weights) != length(object$rules))
+      stop("length of weights does not match number of rules")
 
-        # replicate single value (same as unweighted)
-        if(length(weights) == 1) weights <- rep(weights, length(object$rules))
+    scores <- sapply(1:length(levels(classifier.results)), function(i) {
+      classRuleWeights <- weights
+      classRuleWeights[as.integer(classifier.results) != i] <- 0
+      classRuleWeights %*% rulesMatchLHS
+    })
 
-        # check
-        if(length(weights) != length(object$rules))
-          stop("length of weights does not match number of rules")
+    # make sure default wins for ties
+    scores[,defaultLevel] <- scores[,defaultLevel] + .5
 
-        r <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
-        l <- lapply(r, FUN = function(x) classifier.results[x])
-        w <- lapply(r, FUN = function(x) weights[x])
-        w <- sapply(1:length(l), FUN = function(i) sapply(split(w[[i]], l[[i]]), sum))
-        output <- rownames(w)[apply(w, MARGIN = 2, which.max)]
-        output[sapply(r, length)==0] <- default
+    output <- factor(apply(scores, MARGIN = 1, which.max),
+      levels = 1:length(levels(classifier.results)), labels = levels(classifier.results))
 
-      } else {
+    return(output)
 
-        r <- lapply(1:ncol(rulesMatchLHS), FUN = function(i) which(rulesMatchLHS[,i]))
-        l <- lapply(r, FUN = function(x) classifier.results[x])
-        w <- lapply(r, FUN = function(x) object$weights[x])
-
-        output <- lapply(as(1:length(l), 'list'), function(x) sum((object$means[l[[x]]] * w[[x]])) / sum(w[[x]]) )
-        output <- unlist(output)
-
-        output[is.nan(output)] <- object$mean
-        output <- factor(output, levels = class_levels)
-
-        return(output)
-
-      }
-    }
 
   }else { ### method = first
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
