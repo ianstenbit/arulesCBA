@@ -55,8 +55,12 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
   if(method == "mdlp") {
     cps <- structure(vector("list", ncol(data)), names = colnames(data))
     for(i in var_ids) {
+      cPts <- try(cutPoints(data[[i]], data[[cl_id]]), silent = TRUE)
+      if(is(cPts, "try-error")) stop("Problem with discretizing column ", i,
+        " (maybe not enough non-missing values?)")
+
       cps[[i]] <- list(
-        breaks = c(-Inf, cutPoints(data[[i]], data[[cl_id]]), Inf),
+        breaks = c(-Inf, cPts, Inf),
         method = "fixed")
     }
 
