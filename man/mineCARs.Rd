@@ -6,12 +6,16 @@
   in the RHS (Liu, et al., 1998).
 }
 \usage{
-mineCARs(formula, data, parameter = NULL, control = NULL, ...)
+mineCARs(formula, data, balanceSupport = FALSE, parameter = NULL, control = NULL, ...)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted.}
   \item{data}{An object of class \code{\link[arules]{transactions}} containing the training data.}
+  \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by
+  using the minimum support specified in \code{parameter} only for the majority class.
+  The minimum support for the minority classes is reduced proportional to the
+  class imbalance (i.e., the support of the item representing the class label).}
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
   \item{...}{Additional parameters are currently ignored.}
 }
@@ -21,7 +25,7 @@ mineCARs(formula, data, parameter = NULL, control = NULL, ...)
   Returns an object of class \code{\link[arules]{rules}}.
 }
 \references{
-Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Assocoiation Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
+Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. \emph{KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,} New York, 27-31 August. AAAI. pp. 80-86.
 }
 
 \author{Michael Hahsler}
