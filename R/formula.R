@@ -8,7 +8,7 @@
   # for transactions, class can match multiple items!
   class <- vars[1]
 
-  if(is(data, "transactions")) {
+  if(is(data, "itemMatrix")) {
     class_ids <- which(grepl(paste0("^", class), colnames(data)))
   } else {
     class_ids <- pmatch(class, colnames(data))
@@ -17,12 +17,12 @@
     stop("Cannot identify column specified as class in the formula.")
   class_names <- colnames(data)[class_ids]
 
-  if(!is(data, "transactions") && !is.factor(data[[class_ids]]))
+  if(!is(data, "itemMatrix") && !is.factor(data[[class_ids]]))
     stop("class variable needs to be a factor!")
 
   ### predictors
   vars <- vars[-1]
-  if(is(data, "transactions")) {
+  if(is(data, "itemMatrix")) {
     if(length(vars) == 1 && vars == ".") var_ids <- setdiff(seq(ncol(data)), class_ids)
     else var_ids <- which(grepl(paste0("^", vars, collapse = "|"), colnames(data)))
   } else {

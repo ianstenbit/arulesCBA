@@ -14,7 +14,8 @@ export("CBA",
        "bCBA",
        "wCBA",
        "discretizeDF.supervised",
-       "mineCARs"
+       "mineCARs",
+       "classFrequency"
        )
 
 S3method(predict, CBA)

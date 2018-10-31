@@ -2,6 +2,7 @@
 * discretizeDF.supervised method mdlp now produces a better error message if it fails.
 * cleaned up the predict code to improve speed.
 * mineCARs has now a balanced support option.
+* convenience function classFrequency added.
 
 # arulesCBA 1.1.3-1
 
