@@ -13,7 +13,7 @@
   } else {
     class_ids <- pmatch(class, colnames(data))
   }
-  if(is.na(class_ids) || length(class_ids) == 0)
+  if(any(is.na(class_ids)) || length(class_ids) == 0)
     stop("Cannot identify column specified as class in the formula.")
   class_names <- colnames(data)[class_ids]
 
