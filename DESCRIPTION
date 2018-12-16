@@ -13,3 +13,5 @@ Imports: methods, testthat
 License: GPL-3
 URL: https://github.com/ianjjohnson/arulesCBA
 BugReports: https://github.com/ianjjohnson/arulesCBA
+Author: Ian Johnson [aut, cre, cph],
+  Michael Hahsler [aut, cph]
