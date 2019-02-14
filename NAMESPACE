@@ -26,4 +26,3 @@ S3method(rules, CBA)
 
 
 S3method(predict, RCAR)
-S3method(print, RCAR)
