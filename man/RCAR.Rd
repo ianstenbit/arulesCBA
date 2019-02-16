@@ -23,6 +23,8 @@ RCAR(formula, data, support = 0.3, confidence = 0.7,
   \item{maxlen}{The maximum length of mined association rules. Parameter given to class association rule mining algorithm.}
   \item{lambda}{The amount of weight given to regularization during the logistic regression learning process.}
 	\item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
+	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+}
 }
 \details{
   Uses logistic regression to assign rule weights to class assocation rules. The logistic regression is regularized with LASSO regularization, encouraging sparsity in rule weights.

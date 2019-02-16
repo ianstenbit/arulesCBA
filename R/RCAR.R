@@ -1,5 +1,11 @@
 RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE,
-                 maxlen = 6, lambda = 0.001, balanceSupport = FALSE) {
+                 maxlen = 6, lambda = 0.001, balanceSupport = FALSE, disc.method='mdlp') {
+  disc_info <- NULL
+  if(is(data, "data.frame")){
+    data <- discretizeDF.supervised(formula, data, method=disc.method)
+    disc_info <- lapply(data, attr, "discretized:breaks")
+  }
+  
   trans <- as(data,'transactions')
   rules <- mineCARs(formula, trans, balanceSupport, parameter=list(supp=support,conf=confidence,maxlen=maxlen), 
                     control=list(verbose=verbose))
@@ -7,7 +13,12 @@ RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE
   y_class <- .parseformula(formula, data)$class_names
   model <- glmnet(X,data[[y_class]],family='multinomial',alpha=1,lambda=lambda)
   num_nonzero_rules <- sum(unlist(lapply(model$beta, function(x) sum(x>0))))
-  classifier <- list(rules=rules,model=model,method='RCAR classifier',class=model$classnames,default=model$classnames[[1]],
+  classifier <- list(rules=rules,
+                     model=model,
+                     method='RCAR classifier',
+                     class=model$classnames,
+                     default=model$classnames[[1]],
+                     discretization=disc_info,
                      description='RCAR algorithm by Azmi et al. 2019')
   class(classifier) <- c('RCAR','CBA')
   
@@ -16,6 +27,9 @@ RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE
 
 
 predict.RCAR <- function(object, newdata, ...){
+  if(!is.null(object$discretization))
+    newdata <- discretizeDF(newdata, lapply(object$discretization,
+      FUN = function(x) list(method="fixed", breaks=x)))
   rules.space<-as(object[[1]]@lhs,"itemMatrix")
   D<-as(newdata,"transactions")
   X<-arules::is.superset(D,rules.space)
