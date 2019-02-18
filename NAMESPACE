@@ -4,11 +4,13 @@ import("discretization")
 import("arules")
 import("Matrix")
 import("testthat")
+import("glmnet")
 
 importFrom("methods", "as", "is", "new")
 importFrom("stats", "as.formula", "df")
 
 export("CBA",
+       "RCAR",
        "rules",
        "CBA_ruleset",
        "bCBA",
@@ -22,3 +24,5 @@ S3method(predict, CBA)
 S3method(print, CBA)
 S3method(rules, CBA)
 
+
+S3method(predict, RCAR)
