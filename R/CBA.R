@@ -147,6 +147,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
       default = defaultClass,
       description = description,
       discretization = disc_info,
+      formula = formula,
       method = "first"
     )
 
@@ -171,6 +172,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
       default = class[defaultClass],
       description = description,
       discretization = disc_info,
+      formula = formula,
       method = "weighted"
     )
 
@@ -185,6 +187,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
       default = names(which.max(rightHand)),
       description = description,
       discretization = disc_info,
+      formula = formula,
       method = "weighted"
     )
 
@@ -193,10 +196,6 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
   }
 
   class(classifier) <- "CBA"
-#  classifier[['columns']] <- colnames(data)
-#  classifier[['columnlevels']] <- lapply(data, levels)
-  classifier[['formula']] <- formula
-
   return(classifier)
 
 }

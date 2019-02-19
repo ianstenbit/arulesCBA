@@ -1,7 +1,5 @@
 # create a CBA object from a set of rules
 
-### FIXME: we can specify weights/majority etc.
-
 # Constructor
 CBA_ruleset <- function(formula, rules, method = "first",
   weights = NULL, default = NULL, description = "Custom rule set"){
@@ -48,17 +46,14 @@ CBA_ruleset <- function(formula, rules, method = "first",
     default <- names(which.max(sapply(split(quality(rules)$support,
       unlist(as(rhs(rules), "list"))), sum)))
 
-  classifier <- list(
+  structure(list(
     rules = rules,
     default = default,
     class = class,
     method = method,
     weights = weights,
-    description = description)
-
-  class(classifier) <- "CBA"
-
-  return(classifier)
+    description = description),
+    class = "CBA")
 }
 
 
@@ -75,9 +70,7 @@ print.CBA <- function(x, ...)
   ))
 
 rules <- function(x) UseMethod("rules")
-rules.CBA <- function(x){
-  return(x$rules)
-}
+rules.CBA <- function(x) x$rules
 
 predict.CBA <- function(object, newdata, ...){
 
@@ -150,9 +143,7 @@ predict.CBA <- function(object, newdata, ...){
     output <- factor(apply(scores, MARGIN = 1, which.max),
       levels = 1:length(levels(classifier.results)),
       labels = levels(classifier.results))
-
     return(output)
-
 
   }else { ### method = first
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
@@ -160,11 +151,7 @@ predict.CBA <- function(object, newdata, ...){
     output[is.na(w)] <- default
   }
 
-
   # preserve the levels of original data for data.frames
-  output <- factor(output, levels = class_levels)
-
-  return(output)
-
+  factor(output, levels = class_levels)
 }
 
