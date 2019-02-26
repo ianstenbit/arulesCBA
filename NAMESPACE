@@ -23,6 +23,3 @@ export("CBA",
 S3method(predict, CBA)
 S3method(print, CBA)
 S3method(rules, CBA)
-
-
-S3method(predict, RCAR)

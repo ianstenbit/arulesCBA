@@ -116,6 +116,7 @@ predict.CBA <- function(object, newdata, ...){
   if(method == "majority" | method == "weighted") { # | method == "weightedmean") {
 
     weights <- object$weights
+    biases <- object$biases
 
     # use a quality measure
     if(is.character(weights))
@@ -126,6 +127,9 @@ predict.CBA <- function(object, newdata, ...){
 
     # unweighted (use weights of 1)
     if(is.null(weights)) weights <- rep(1, length(object$rules))
+    
+    # no biases
+    if(is.null(biases)) biases <- rep(0, length(class_levels))
 
     # check
     if(length(weights) != length(object$rules))
@@ -137,6 +141,9 @@ predict.CBA <- function(object, newdata, ...){
       classRuleWeights %*% rulesMatchLHS
     })
 
+    # add bias terms to the scores
+    scores <- sweep(scores, 2, biases, '+')
+    
     # make sure default wins for ties
     scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
 
