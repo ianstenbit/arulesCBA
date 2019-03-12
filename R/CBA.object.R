@@ -72,10 +72,21 @@ print.CBA <- function(x, ...)
 rules <- function(x) UseMethod("rules")
 rules.CBA <- function(x) x$rules
 
+lazy_predict <- function(object, newdata) {
+  # TODO: replace object$data with pruned data
+  model <- CBA(object$formula, object$data, object$support, object$confidence, object$verbose,
+    object$parameter, object$control, object$sort.parameter, object$lhs.support, object$disc.method)
+  return(predict(model, newdata))
+}
+
 predict.CBA <- function(object, newdata, ...){
 
   method <- object$method
   if(is.null(method)) method <- "majority"
+
+  if(method == "lazy") {
+    return(lazy_predict(object, newdata))
+  }
 
   # weightedmean is just an alias for majority with weights.
   methods <- c("first", "majority", "weighted") # , "weightedmean")
@@ -154,4 +165,3 @@ predict.CBA <- function(object, newdata, ...){
   # preserve the levels of original data for data.frames
   factor(output, levels = class_levels)
 }
-
