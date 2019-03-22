@@ -73,6 +73,13 @@ rules <- function(x) UseMethod("rules")
 rules.CBA <- function(x) x$rules
 
 lazy_predict <- function(object, newdata) {
+
+  if(!is.null(object$discretization))
+    newdata <- discretizeDF(newdata, lapply(object$discretization,
+      FUN = function(x) list(method="fixed", breaks=x)))
+
+  newdata <- as(newdata, 'itemMatrix')
+
   predictions <- character()
   for(i in 1:length(newdata)) {
     train_data <- object$data[is.subset(newdata[i], train_data, sparse=FALSE)]
@@ -81,6 +88,7 @@ lazy_predict <- function(object, newdata) {
     predictions <- c(predictions, predict(model, newdata[i]))
   }
   return(predict(model, newdata))
+
 }
 
 predict.CBA <- function(object, newdata, ...){
