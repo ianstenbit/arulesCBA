@@ -78,7 +78,7 @@ lazy_predict <- function(object, newdata) {
     newdata <- discretizeDF(newdata, lapply(object$discretization,
       FUN = function(x) list(method="fixed", breaks=x)))
 
-  newdata <- as(newdata, 'itemMatrix')
+  as(as(data, 'transactions'), 'itemMatrix')
 
   predictions <- character()
   for(i in 1:length(newdata)) {

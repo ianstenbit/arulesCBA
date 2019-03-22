@@ -6,7 +6,7 @@ lazyCBA <- function(formula, data, support = 0.2, confidence = 0.8, verbose = FA
 
   classifier <- list(
     formula = formula,
-    data = as(data, 'itemMatrix'),
+    data = as(as(data, 'transactions'), 'itemMatrix')
     support = support,
     confidence = confidence,
     verbose = verbose,
