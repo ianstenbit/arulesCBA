@@ -73,9 +73,13 @@ rules <- function(x) UseMethod("rules")
 rules.CBA <- function(x) x$rules
 
 lazy_predict <- function(object, newdata) {
-  # TODO: replace object$data with pruned data
-  model <- CBA(object$formula, object$data, object$support, object$confidence, object$verbose,
-    object$parameter, object$control, object$sort.parameter, object$lhs.support, object$disc.method)
+  predictions <- character()
+  for(i in 1:len(newdata)) {
+    train_data <- object$data[is.subset(newdata[i], train_data, sparse=FALSE)]
+    model <- CBA(object$formula, train_data, object$support, object$confidence, object$verbose,
+      object$parameter, object$control, object$sort.parameter, object$lhs.support, object$disc.method)
+    predictions <- c(predictions, predict(model, newdata[i]))
+  }
   return(predict(model, newdata))
 }
 
