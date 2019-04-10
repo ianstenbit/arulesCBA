@@ -12,11 +12,11 @@ RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE
     parameter=list(supp=support,conf=confidence,maxlen=maxlen),
     control=list(verbose=verbose))
 
-  X <- is.superset(trans,as(model_rules@lhs,'itemMatrix'))
+  X <- is.superset(trans,as(lhs(model_rules),'itemMatrix'))
   y_class <- .parseformula(formula, data)$class_names
   model <- glmnet(X,data[[y_class]],family='multinomial',alpha=1,lambda=lambda)
   #num_nonzero_rules <- sum(unlist(lapply(model$beta, function(x) sum(x>0))))
-  
+
   biases <- model$a0
   weights <- as.vector(Reduce('+',model$beta))
   whole_rules <- model_rules

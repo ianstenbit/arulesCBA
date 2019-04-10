@@ -1,7 +1,6 @@
 # arulesCBA 1.1.4-1 devel (2019-xx-xx)
 * added RCAR (by Tyler Giallanza)
 
-
 # arulesCBA 1.1.4 (2018-12-04)
 * discretizeDF.supervised method mdlp now produces a better error message if it fails.
 * cleaned up the predict code to improve speed.

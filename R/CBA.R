@@ -179,7 +179,7 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.2, confide
 
   } else if(method == "weighted"){
 
-    rule_weights <- rules@quality$support * rules@quality$confidence
+    rule_weights <- quality(rules)[["support"]] * quality(rules)[["confidence"]]
     classifier <- list(
       rules = rules,
       weights = rule_weights,
