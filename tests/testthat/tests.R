@@ -10,8 +10,7 @@ iris.disc <- discretizeDF.supervised(Species~.,iris)
 rcar_classifier <- RCAR(Species ~ ., iris.disc)
 
 expect_equal(length(classifier$rules), 8L)
-expect_equal(length(rcar_classifier$rules), 11L)
-expect_equal(rcar_classifier$model$lambda,0.001)
+expect_equal(length(rcar_classifier$rules), 5L)
 expect_equal(classifier$default, "Species=setosa")
 expect_equal(results[1], factor("setosa",
   levels = c("setosa", "versicolor", "virginica")))
