@@ -1,4 +1,4 @@
-CBA <- function(formula, data, support = 0.2, confidence = 0.8, verbose = FALSE,
+CBA <- function(formula, data, support = 0.1, confidence = 0.8, verbose = FALSE,
   parameter = NULL, control = NULL, sort.parameter = NULL, lhs.support = FALSE,
   disc.method = "mdlp"){
 
@@ -9,7 +9,7 @@ CBA <- function(formula, data, support = 0.2, confidence = 0.8, verbose = FALSE,
 }
 
 
-CBA.internal <- function(formula, data, method="boosted", support = 0.2, confidence = 0.8, gamma = 0.05, cost = 10.0,
+CBA.internal <- function(formula, data, method="boosted", support = 0.1, confidence = 0.8, gamma = 0.05, cost = 10.0,
   verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
   disc.method="mdlp"){
 

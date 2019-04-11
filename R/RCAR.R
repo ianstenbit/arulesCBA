@@ -1,5 +1,5 @@
-RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE,
-  maxlen = 6, lambda = 0.001, balanceSupport = FALSE, disc.method = 'mdlp') {
+RCAR <- function(formula, data, support = 0.1, confidence = 0.8, verbose = FALSE,
+  maxlen = 6, lambda = NULL, alpha = 1, balanceSupport = FALSE, disc.method = 'mdlp') {
 
   disc_info <- NULL
   if(is(data, "data.frame")){
@@ -7,30 +7,44 @@ RCAR <- function(formula, data, support = 0.3, confidence = 0.7, verbose = FALSE
     disc_info <- lapply(data, attr, "discretized:breaks")
   }
 
-  trans <- as(data, 'transactions')
-  model_rules <- mineCARs(formula, trans, balanceSupport,
+  if(!is(data, "transactions")) data <- as(data, 'transactions')
+  form <- .parseformula(formula, data)
+
+  if(verbose) cat("Mining CARs\n")
+  model_rules <- mineCARs(formula, data, balanceSupport,
     parameter=list(supp=support,conf=confidence,maxlen=maxlen),
     control=list(verbose=verbose))
 
-  X <- is.superset(trans,as(lhs(model_rules),'itemMatrix'))
-  y_class <- .parseformula(formula, data)$class_names
-  model <- glmnet(X,data[[y_class]],family='multinomial',alpha=1,lambda=lambda)
-  #num_nonzero_rules <- sum(unlist(lapply(model$beta, function(x) sum(x>0))))
+  if(verbose) cat("Creating model matrix\n")
+  X <- is.superset(data,lhs(model_rules))
+  y <- factor(as(data[, form$class_ids], "matrix") %*% seq(length(form$class_ids)),
+    labels = form$class_names)
 
-  biases <- model$a0
-  weights <- as.vector(Reduce('+',model$beta))
-  whole_rules <- model_rules
-  model_rules <- model_rules[weights>0]
-  weights <- weights[weights>0]
+  # find lambda using cross-validation
+  if(is.null(lambda)) {
+    if(verbose) cat("Find lambda using cross-validation: ")
+    lambda <- cv.glmnet(X, y, family='multinomial', alpha=alpha)$lambda.1se
+    if(verbose) cat(lambda, "\n")
+  }
 
-  class_name <- .parseformula(formula, data)$class_names
-  structure(list(whole_rules=whole_rules,rules=model_rules,
-    weights=weights,biases=biases,
-    class=unlist(lapply(model$classnames,function(x) paste0(class_name,'=',x))),
-    default=model$classnames[[1]],
+  if(verbose) cat("Fitting glmnet\n")
+  model <- glmnet(X, y, family='multinomial', alpha=alpha, lambda=lambda)
+
+  weights <- sapply(model$beta, as.vector)
+  remove <- apply(weights, MARGIN = 1, FUN = function(x) all(x==0))
+
+  structure(list(
+    rules=model_rules[!remove],
+    weights=weights[!remove,],
+    biases=model$a0,
+    class=form$class_names,
+    default=form$class_names[which.max(model$a0)],
     discretization=disc_info,
     description='RCAR algorithm by Azmi et al. 2019',
-    method='weighted',
-    formula = formula),
+    method='logit',
+    formula = formula,
+    all_rules=model_rules,
+    reg_model=model
+    ),
     class = 'CBA')
 }

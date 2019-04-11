@@ -8,7 +8,7 @@
   Liu, et al. (1998).
 }
 \usage{
-CBA(formula, data, support = 0.2, confidence = 0.8,
+CBA(formula, data, support = 0.1, confidence = 0.8,
     verbose=FALSE, parameter = NULL, control = NULL,
     sort.parameter = NULL, lhs.support = FALSE,
 		disc.method = "mdlp")

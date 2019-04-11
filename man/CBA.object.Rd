@@ -16,7 +16,7 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
 
 \method{print}{CBA}(x, ...)
 \method{rules}{CBA}(x)
-\method{predict}{CBA}(object, newdata, \dots)
+\method{predict}{CBA}(object, newdata, type = c("class", "score"), \dots)
 }
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
@@ -29,6 +29,7 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
   \item{x, object}{An object of class \code{CBA}.}
   \item{newdata}{A data.frame or transactions containing
   rows of new entries to be classified.}
+  \item{type}{Predict \code{"class"} labels. Some classifiers can also return \code{"scores"}. }
   \item{\dots}{Additional arguments currently not used.}
 }
 \details{
@@ -42,11 +43,14 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
   \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
-  \item{class}{class variable.}
-  \item{levels}{levels of the class variable.}
-  \item{default}{default class label.}
-  \item{method}{classification method.}
   \item{weights}{rule weights.}
+  \item{biases}{class biases.}
+  \item{class}{class variable.}
+  \item{default}{default class label.}
+  \item{discretization}{discretization information.}
+  \item{description}{description in human readable form.}
+  \item{method}{classification method.}
+  \item{formula}{used formula.}
 
 \code{predict} retuns predicted labels for \code{newdata}.
 
