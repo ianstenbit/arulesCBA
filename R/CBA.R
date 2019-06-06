@@ -92,6 +92,9 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.1, confide
       control=control)
   }
 
+  ### MFH: Maybe this should be a warning and the classifier just always returns the majority class?
+  if(length(rules) < 1) stop("No rules found! Reduce support or confidence.")
+
   #Original CBA algorithm, sans pessisimistic error-rate pruning
   if(method == "CBA"){
 
@@ -111,12 +114,10 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.1, confide
 
     #matrix of rules and records which constitute correct and false matches
     matches <- rulesMatchLHS & rulesMatchRHS
-    falseMatches <- rulesMatchLHS & !rulesMatchRHS
-
+    falseMatches <- rulesMatchLHS & as(!rulesMatchRHS, "lgCMatrix") ### ! makes the matrix dense
 
     #matrix of rules and classification factor to identify how many times the rule correctly identifies the class
     casesCovered <- vector('integer', length=length(rules.sorted))
-
     strongRules <- vector('logical', length=length(rules.sorted))
 
     a <- .Call("R_stage1", length(ds.mat), strongRules, casesCovered, matches@i, matches@p, length(matches@i), falseMatches@i, falseMatches@p, length(falseMatches@i), length(rules.sorted), PACKAGE = "arulesCBA")
