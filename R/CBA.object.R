@@ -84,9 +84,13 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  if(!is.null(object$discretization))
+  if(!is.null(object$discretization)) {
     newdata <- discretizeDF(newdata, lapply(object$discretization,
       FUN = function(x) list(method="fixed", breaks=x)))
+  } else {
+    if(!is(newdata, "transactions"))
+    stop("Classifier does not contain discretization information. New data needs to be in the form of transactions. Check ? discretizeDF.")
+  }
 
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
