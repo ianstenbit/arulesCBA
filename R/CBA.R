@@ -3,7 +3,8 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, verbose = FALSE,
   disc.method = "mdlp"){
 
   return(CBA.internal(formula, data, method="CBA", support = support, confidence = confidence,
-    verbose=FALSE, parameter = NULL, control = NULL, sort.parameter = sort.parameter, lhs.support=lhs.support,
+    verbose=verbose, parameter = parameter, control = control,
+    sort.parameter = sort.parameter, lhs.support=lhs.support,
     disc.method = disc.method))
 
 }
