@@ -18,4 +18,3 @@ inspect(arc_classifier@rules)
 
 expect_equal(length(rules(cba_classifier)), length(arc_classifier@rules))
 expect_equal(lhs(rules(cba_classifier)), lhs(arc_classifier@rules))
-
