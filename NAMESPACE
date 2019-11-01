@@ -10,7 +10,7 @@ importFrom("methods", "as", "is", "new")
 importFrom("stats", "as.formula", "df")
 
 export("CBA",
-       "pruneCBA",
+       "pruneCBA_M2",
        "RCAR",
        "rules",
        "CBA_ruleset",

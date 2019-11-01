@@ -1,5 +1,6 @@
 \name{CBA}
 \alias{CBA}
+\alias{pruneCBA_M2}
 \alias{cba}
 \title{Classification Based on Association Rules Algorithm (CBA)}
 \description{
@@ -9,30 +10,29 @@
 }
 \usage{
 CBA(formula, data, support = 0.1, confidence = 0.8,
-    verbose=FALSE, parameter = NULL, control = NULL,
-    sort.parameter = NULL, lhs.support = FALSE,
-		disc.method = "mdlp")
+    parameter = NULL, control = NULL,
+		disc.method = "mdlp", ...)
+
+pruneCBA_M2(formula, rules, trans)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}
   or \code{class ~ predictor1 + predictor2}.}
-  \item{data}{A data.frame containing the training data.}
+  \item{data}{A data.frame or a transaction set containing the training data. Data frames are automatically discretized and converted to transactions.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
-  \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
-  \item{lhs.support}{Logical variable, which, when set to TRUE, indicates that LHS support should be used for rule mining. lhs.support rule mining is considerably slower than normal mining.}
-	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
+  \item{rules, trans}{prune a set of rules using a transaction set.}
 }
 \details{
-  Formats the input data frame and calls a C implementation of the CBA algorithm
-  from Liu, et al. (1998) split up into three stages to build a classifier based on a set of association rules.
+  Implementation the CBA algorithm with the M2 pruning strategy
+  introduced by Liu, et al. (1998).
 
-  Before the CBA algorithm in C is executed, association rules are generated with the Apriori algorithm from the arules package.
-
-  A default class is selected for the classifier. Note that for datasets which do not yield any strong association rules
-  it is possible that no rules will be included in the classifier, and only a default class.
+  The data is converted into a transaction set from package arules.
+  Then candidate CARs are created using \code{mineCARs()} and
+  \code{pruneCBA_M2()} selects the rules included into the classifier's rule base.
 }
 \value{
   Returns an object of class \code{\link{CBA.object}} representing the trained classifier.
@@ -45,6 +45,7 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rul
 \seealso{
 \code{\link{CBA.object}},
 \code{\link{discretizeDF.supervised}},
+\code{\link{mineCARs}},
 \code{\link[arules]{apriori}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
