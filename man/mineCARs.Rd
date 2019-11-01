@@ -17,7 +17,7 @@ mineCARs(formula, data, balanceSupport = FALSE, parameter = NULL, control = NULL
   The minimum support for the minority classes is reduced proportional to the
   class imbalance (i.e., the support of the item representing the class label).}
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
-  \item{...}{Additional parameters are currently ignored.}
+  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
 %\details{
 %}
@@ -41,10 +41,13 @@ iris.disc <- discretizeDF.supervised(Species ~ ., iris)
 iris.trans <- as(iris.disc, "transactions")
 
 # mine CARs with items for "Species" in the RHS
-cars <- mineCARs(Species ~ ., iris.trans, parameter = list(support = 0.3))
+cars <- mineCARs(Species ~ ., iris.trans, parameter = list(support = 0.3, confidence = 0.9))
 inspect(cars)
 
+# for conveiniance this can also be written without parameter and the list
+cars <- mineCARs(Species ~ ., iris.trans, support = 0.3, confidence = 0.9)
+
 # restrict the predictors to items starting with "Sepal"
-cars <- mineCARs(Species ~ Sepal, iris.trans, parameter = list(support = 0.1))
+cars <- mineCARs(Species ~ Sepal, iris.trans, support = 0.1, confidence = 0.9)
 inspect(cars)
 }
