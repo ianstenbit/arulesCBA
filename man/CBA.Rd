@@ -1,5 +1,6 @@
 \name{CBA}
 \alias{CBA}
+\alias{pruneCBA_M1}
 \alias{pruneCBA_M2}
 \alias{cba}
 \title{Classification Based on Association Rules Algorithm (CBA)}
@@ -9,10 +10,11 @@
   Liu, et al. (1998).
 }
 \usage{
-CBA(formula, data, support = 0.1, confidence = 0.8,
+CBA(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
     parameter = NULL, control = NULL,
 		disc.method = "mdlp", ...)
 
+pruneCBA_M1(formula, rules, trans)
 pruneCBA_M2(formula, rules, trans)
 }
 
@@ -21,13 +23,14 @@ pruneCBA_M2(formula, rules, trans)
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame or a transaction set containing the training data. Data frames are automatically discretized and converted to transactions.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
+  \item{pruning}{Pruning strategy used: "M1" or "M2".}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
   \item{rules, trans}{prune a set of rules using a transaction set.}
 }
 \details{
-  Implementation the CBA algorithm with the M2 pruning strategy
+  Implementation the CBA algorithm with the M1 or M2 pruning strategy
   introduced by Liu, et al. (1998).
 
   The data is converted into a transaction set from package arules.
