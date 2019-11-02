@@ -12,7 +12,6 @@ Description: Provides a function to build an association rule-based classifier f
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules (>= 1.6-2), discretization (>= 1.0-1), glmnet (>= 2.0-16)
 Imports: methods, testthat
-Suggests: arc
 License: GPL-3
 URL: https://github.com/ianjjohnson/arulesCBA
 BugReports: https://github.com/ianjjohnson/arulesCBA
