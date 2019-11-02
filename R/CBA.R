@@ -18,11 +18,11 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
   vars <- vars$var_names
 
   # mine and prune CARs
-  rulebase <- mineCARs(Species ~ ., trans, parameter = parameter,
+  rulebase <- mineCARs(formula, trans, parameter = parameter,
     support = support, confidence = confidence, ...)
 
-  if(pruning == "M1") rulebase <- pruneCBA_M1(Species ~ ., rulebase, trans)
-  else rulebase <- pruneCBA_M2(Species ~ ., rulebase, trans)
+  if(pruning == "M1") rulebase <- pruneCBA_M1(formula, rulebase, trans)
+  else rulebase <- pruneCBA_M2(formula, rulebase, trans)
 
   # assemble classifier
   structure(list(
@@ -101,6 +101,7 @@ pruneCBA_M2 <- function(formula, rules, trans){
   defaultClass <- class[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
   ### add rule for default class!
   info(rulebase)$defaultClass <- defaultClass
+  info(rulebase)$pruning <- "arulesCBA_M2"
 
   return(rulebase)
 }
@@ -119,14 +120,17 @@ pruneCBA_M1 <- function(formula, rules, trans){
   # Step 1: Sort rules by confidence, support and size.
   rules <- sort(rules, by=c("confidence", "support", "size"), decreasing = c(TRUE, TRUE, FALSE))
 
-  # Step 2: Calculate covered cases (rules x transactions)
-  rulesMatchLHS <- is.subset(lhs(rules), trans, sparse = TRUE)
-  rulesMatchRHS <- is.subset(rhs(rules), trans, sparse = TRUE)
+  # Step 2: Calculate covered cases
+  # All matrices are transactions x rules
+  rulesMatchLHS <- t(is.subset(lhs(rules), trans, sparse = TRUE))
+  rulesMatchRHS <- t(is.subset(rhs(rules), trans, sparse = TRUE))
   trueMatches <- rulesMatchLHS & rulesMatchRHS
   #falseMatches <- rulesMatchLHS & as(!rulesMatchRHS, "lgCMatrix") ### ! makes the matrix dense
   falseMatches <- rulesMatchLHS & !rulesMatchRHS
 
-  matchedTrans <- logical(length(trans))
+  #matchedTrans <- logical(length(trans))
+  # for performance we use a sparse matrix with one column
+  matchedTrans <- sparseMatrix(x = FALSE, i={}, j={}, dims = c(length(trans),1))
 
   ruleStats <- data.frame(
     coveredTrans = numeric(length(rules)),
@@ -135,12 +139,11 @@ pruneCBA_M1 <- function(formula, rules, trans){
     defaultClass = numeric(length(rules))
   )
 
-  classes <- trans[, class_ids]
-  classes <- t(as(classes, "ngCMatrix"))
+  classes <- t(as(trans[, class_ids], "ngCMatrix"))
 
   for(i in 1:length(rules)) {
-    tm <- trueMatches[i, ]
-    fm <- falseMatches[i, ]
+    tm <- trueMatches[, i, drop = FALSE]
+    fm <- falseMatches[, i, drop = FALSE]
 
     ruleStats$coveredTrans[i] <- sum(tm * !matchedTrans)
 
@@ -152,7 +155,7 @@ pruneCBA_M1 <- function(formula, rules, trans){
     # remove covered transactions
     matchedTrans <- matchedTrans | tm
 
-    defaultClassDist <- colSums(classes[!matchedTrans,])
+    defaultClassDist <- colSums(classes[!matchedTrans[,1 ],])
     ruleStats$defaultClass[i] <- which.max(defaultClassDist)
     ruleStats$errorDefault[i] <- sum(defaultClassDist[-ruleStats$defaultClass[i]])
 
@@ -170,6 +173,7 @@ pruneCBA_M1 <- function(formula, rules, trans){
   defaultClass <- colnames(classes)[ruleStats$defaultClass[strongRules[cutoff]]]
 
   info(rulebase)$defaultClass <- defaultClass
+  info(rulebase)$pruning <- "arulesCBA_M1"
 
   return(rulebase)
 }
