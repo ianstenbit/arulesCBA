@@ -14,7 +14,7 @@ CBA(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
     parameter = NULL, control = NULL,
 		disc.method = "mdlp", ...)
 
-pruneCBA_M1(formula, rules, trans)
+pruneCBA_M1(formula, rules, trans, verbose = FALSE)
 pruneCBA_M2(formula, rules, trans)
 }
 
@@ -28,6 +28,7 @@ pruneCBA_M2(formula, rules, trans)
   \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
   \item{rules, trans}{prune a set of rules using a transaction set.}
+  \item{verbose}{Show progress?}
 }
 \details{
   Implementation the CBA algorithm with the M1 or M2 pruning strategy

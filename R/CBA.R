@@ -42,7 +42,10 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
 
 
 ### M1 pruning algorithm for CBA
-pruneCBA_M1 <- function(formula, rules, trans){
+pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
+
+  if(verbose)
+    cat(paste("CBA M1 pruning for", length(rules), "rules and", nrow(trans), "transactions.\n"))
 
   formula <- as.formula(formula)
   parsedFormula <- .parseformula(formula, trans)
@@ -50,9 +53,13 @@ pruneCBA_M1 <- function(formula, rules, trans){
   class_ids <- parsedFormula$class_ids
   vars <- parsedFormula$var_names
 
-  quality(rules)$size <- size(rules)
+  # Pre Step: Get rid of redundent rules sice they can never cover transactions
+  rules <- rules[!is.redundant(rules)]
+  if(verbose)
+    cat(paste("Using", length(rules), " non-redundant rules.\n"))
 
   # Step 1: Sort rules by confidence, support and size.
+  quality(rules)$size <- size(rules)
   rules <- sort(rules, by=c("confidence", "support", "size"), decreasing = c(TRUE, TRUE, FALSE))
 
   # Step 2: Calculate covered cases and errors
@@ -64,11 +71,11 @@ pruneCBA_M1 <- function(formula, rules, trans){
   )
 
   classes <- t(as(trans[, class_ids], "ngCMatrix"))
-
   uncoveredTrans <- as(trans@data, "dgCMatrix")
+
   lhss <- as(lhs(rules)@data, "dgCMatrix")
   rhss <- as(rhs(rules)@data, "dgCMatrix")
-
+  rulesPerClassLeft <- rowSums(rhss[class_ids, ])
 
   for(i in 1:length(rules)) {
     lhs <- lhss[, i, drop = FALSE]
@@ -76,12 +83,16 @@ pruneCBA_M1 <- function(formula, rules, trans){
 
     covered <- crossprod(uncoveredTrans, lhs) == sum(lhs) ### this is is.subset
     numCovered <- sum(covered)
-
     if(numCovered > 0) coveredTrans <-  uncoveredTrans[, covered[,1], drop = FALSE]
     uncoveredTrans <- uncoveredTrans[, !covered[,1], drop = FALSE]
 
+    rulesPerClassLeft <- rulesPerClassLeft - rhs[class_ids]
+
     if(numCovered < 1) next
-    if(ncol(uncoveredTrans) < 1) break   ### all transactions covered
+
+    if(verbose)
+      cat(paste("Rule", i, "covers", numCovered, "transactions.\n"))
+
 
     numTrue <- sum(crossprod(coveredTrans, rhs) > 0)
     numFalse <- numCovered - numTrue
@@ -92,23 +103,30 @@ pruneCBA_M1 <- function(formula, rules, trans){
     numDefaultError <- sum(defaultClassDist[-defaultClass])
 
     ruleStats$coveredTrans[i] <- numCovered
-    ruleStats$errorRules[i] <- numFalse
+    ruleStats$errorRule[i] <- numFalse
     ruleStats$errorDefault[i] = numDefaultError
     ruleStats$defaultClass[i] = defaultClass
+
+    if(verbose) {
+      cat(paste("\tTrans left\t[", paste(defaultClassDist, collapse = ", ") ,"]\n"))
+      cat(paste("\tRules left\t[", paste(rulesPerClassLeft, collapse = ", ") ,"]\n"))
+    }
+
+    if(ncol(uncoveredTrans) < 1) break   ### all transactions covered
+    if(sum(defaultClassDist * rulesPerClassLeft) < 1) break   ### no more rules left for uncovered classes
   }
 
   # Step 3: select rule set that minimizes the total error
   strongRules <- which(ruleStats$coveredTrans>0)
   ruleStats <- ruleStats[strongRules,, drop = FALSE]
-
-  ruleStats$errorRules <- cumsum(ruleStats$errorRules)
-  ruleStats$errorTotal <- ruleStats$errorRules + ruleStats$errorDefault
+  ruleStats$errorTotal <- cumsum(ruleStats$errorRule) + ruleStats$errorDefault
 
   cutoff <- which.min(ruleStats$errorTotal)
 
   rulebase <- rules[strongRules[1:cutoff]]
   defaultClass <- colnames(classes)[ruleStats$defaultClass[cutoff]]
-  quality(rulebase)$errorTotal <- ruleStats$errorTotal[1:cutoff]
+  quality(rulebase)$coveredTransactions <- ruleStats$coveredTrans[1:cutoff]
+  quality(rulebase)$ruleErrors <- ruleStats$errorRule[1:cutoff]
 
   info(rulebase)$defaultClass <- defaultClass
   info(rulebase)$pruning <- "arulesCBA_M1"
