@@ -1,5 +1,6 @@
-# arulesCBA 1.1.4-1 devel (2019-xx-xx)
+# arulesCBA 1.1.5 (2019-11-05)
 * added RCAR (by Tyler Giallanza).
+* The interface for CBA() was updated.
 * CBA now complains if no rules are found.
 * CBA has now also M1 pruning.
 * mineCARs now uses ... to construct the parameters for apriori().
