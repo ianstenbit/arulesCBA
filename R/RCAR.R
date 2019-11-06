@@ -1,5 +1,5 @@
-RCAR <- function(formula, data, support = 0.1, confidence = 0.8, verbose = FALSE,
-  maxlen = 6, lambda = NULL, alpha = 1, balanceSupport = FALSE, disc.method = 'mdlp') {
+RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
+  balanceSupport = FALSE, disc.method = 'mdlp', parameter = NULL, control = NULL, ...) {
 
   disc_info <- NULL
   if(is(data, "data.frame")){
@@ -10,24 +10,27 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, verbose = FALSE
   if(!is(data, "transactions")) data <- as(data, 'transactions')
   form <- .parseformula(formula, data)
 
-  if(verbose) cat("Mining CARs\n")
-  model_rules <- mineCARs(formula, data, balanceSupport,
-    parameter=list(supp=support,conf=confidence,maxlen=maxlen),
-    control=list(verbose=verbose))
+  if(is.null(control)) control <- as(list(verbose = FALSE), "APcontrol")
+  else  control <- as(control, "APcontrol")
 
-  if(verbose) cat("Creating model matrix\n")
+  if(control@verbose) cat("Mining CARs\n")
+  model_rules <- mineCARs(formula, data, balanceSupport,
+    parameter = parameter, control = control,
+    support = support, confidence = confidence, ...)
+
+  if(control@verbose) cat("Creating model matrix\n")
   X <- is.superset(data,lhs(model_rules))
   y <- factor(as(data[, form$class_ids], "matrix") %*% seq(length(form$class_ids)),
     labels = form$class_names)
 
   # find lambda using cross-validation
   if(is.null(lambda)) {
-    if(verbose) cat("Find lambda using cross-validation: ")
+    if(control@verbose) cat("Find lambda using cross-validation: ")
     lambda <- cv.glmnet(X, y, family='multinomial', alpha=alpha)$lambda.1se
-    if(verbose) cat(lambda, "\n")
+    if(control@verbose) cat(lambda, "\n")
   }
 
-  if(verbose) cat("Fitting glmnet\n")
+  if(control@verbose) cat("Fitting glmnet\n")
   model <- glmnet(X, y, family='multinomial', alpha=alpha, lambda=lambda)
 
   weights <- sapply(model$beta, as.vector)

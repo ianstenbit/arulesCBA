@@ -5,11 +5,11 @@ mineCARs <- function(formula, data, balanceSupport = FALSE,
   vars <- .parseformula(formula, data)
 
   # add ... to parameters
+  parameter <- as(parameter , "APparameter")
   moreParameter <- list(...)
-  if(is.null(parameter)) parameter <- as(moreParameter, "APparameter")
-  else {
-    if(length(moreParameter) > 0) stop("Parameters cannot be specified in parameter and ...!")
-    parameter <- as(parameter, "APparameter")
+  if(length(moreParameter) > 0) {
+    replSlots <- slotNames(parameter)[pmatch(names(moreParameter), slotNames(parameter))]
+    for(i in 1:length(replSlots)) slot(parameter, replSlots[i]) <- moreParameter[[i]]
   }
 
   #Generate CARs with APRIORI

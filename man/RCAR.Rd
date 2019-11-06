@@ -6,9 +6,9 @@
   Build a classifier based on association rules mined for an input dataset and weighted with LASSO regularized logistic regression (Azmi, et al., 2019).
 }
 \usage{
-RCAR(formula, data, support = 0.1, confidence = 0.8,
-    verbose=FALSE, maxlen = 6, lambda = NULL, alpha = 1,
-    balanceSupport = FALSE, disc.method = "mdlp")
+RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
+    balanceSupport = FALSE, disc.method = "mdlp",
+    parameter = NULL, control = NULL, ...)
 }
 
 \arguments{
@@ -16,12 +16,12 @@ RCAR(formula, data, support = 0.1, confidence = 0.8,
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame containing the training data.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
-  \item{maxlen}{The maximum length of mined association rules. Parameter given to class association rule mining algorithm.}
   \item{lambda}{The amount of weight given to regularization during the logistic regression learning process. If not specified (\code{NULL}) then cross-validation with the argest value of lambda such that error is within 1 standard error of the minimum is used (see \code{\link{cv.glmnet}}). }
   \item{alpha}{The elasticnet mixing parameter. \code{alpha = 1} is the lasso penalty (default RCAR), and \code{alpha = 0} the ridge penalty. }
 	\item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{parameter, control}{Optional parameter and control lists for apriori.}
+  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
 \details{
   Uses logistic regression to assign rule weights to class assocation rules. The logistic regression is regularized with LASSO regularization, encouraging sparsity in rule weights.

@@ -11,8 +11,8 @@
 }
 \usage{
 CBA(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
-    parameter = NULL, control = NULL,
-		disc.method = "mdlp", ...)
+    disc.method = "mdlp", balanceSupport = FALSE,
+    parameter = NULL, control = NULL, ...)
 
 pruneCBA_M1(formula, rules, trans, verbose = FALSE)
 pruneCBA_M2(formula, rules, trans)
@@ -23,9 +23,10 @@ pruneCBA_M2(formula, rules, trans)
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame or a transaction set containing the training data. Data frames are automatically discretized and converted to transactions.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
+  \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
   \item{pruning}{Pruning strategy used: "M1" or "M2".}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
-  \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
   \item{rules, trans}{prune a set of rules using a transaction set.}
   \item{verbose}{Show progress?}

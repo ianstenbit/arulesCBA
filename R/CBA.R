@@ -1,5 +1,5 @@
-CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
-  parameter = NULL, control = NULL, disc.method = "mdlp", ...){
+CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1", disc.method = "mdlp",
+  balanceSupport = FALSE, parameter = NULL, control = NULL, ...){
 
   # prepare data
   disc_info <- NULL
@@ -17,12 +17,19 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1",
   class <- vars$class_names
   vars <- vars$var_names
 
+  if(is.null(control)) control <- as(list(verbose = FALSE), "APcontrol")
+  else  control <- as(control, "APcontrol")
+
   # mine and prune CARs
-  rulebase <- mineCARs(formula, trans, parameter = parameter,
+  rulebase <- mineCARs(formula, trans, balanceSupport = balanceSupport,
+    parameter = parameter, control = control,
     support = support, confidence = confidence, ...)
 
+  if(control@verbose) cat("\nPruning rules...\n")
   if(pruning == "M1") rulebase <- pruneCBA_M1(formula, rulebase, trans)
   else rulebase <- pruneCBA_M2(formula, rulebase, trans)
+
+  if(control@verbose) cat("Done...\n")
 
   # assemble classifier
   structure(list(

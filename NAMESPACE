@@ -6,7 +6,7 @@ import("Matrix")
 import("testthat")
 import("glmnet")
 
-importFrom("methods", "as", "is", "new")
+importFrom("methods", "as", "is", "new", "slot<-", "slotNames")
 importFrom("stats", "as.formula", "df")
 
 export("CBA",
