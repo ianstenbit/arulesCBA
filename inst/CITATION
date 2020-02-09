@@ -1,0 +1,21 @@
+citation(auto = meta)
+
+bibentry(bibtype = "article",
+  title = "{Associative Classification in R: arc, arulesCBA, and rCBA}",
+  author = {
+    c(person("Michael", "Hahsler", email = "mhahsler@lyle.smu.edu"),
+      person("Ian", "Johnson"),
+      person("Tom{\\'{a}}\\v{s}", "Kliegr"),
+      person("Jaroslav", "Kucha\\v{r}")
+    )
+  },
+  year = 2020,
+  journal = "{The R Journal}",
+  volume = 12,
+  number = 1,
+  pages = "",
+  month = "February",
+  issn = "2073-4859",
+  url = "https://journal.r-project.org/archive/2019/RJ-2019-048/",
+  doi = "10.32614/RJ-2019-048"
+  )
