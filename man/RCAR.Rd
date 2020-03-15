@@ -24,22 +24,25 @@ RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
 \details{
-  Uses logistic regression to assign rule weights to class assocation rules. The logistic regression is regularized with LASSO regularization, encouraging sparsity in rule weights.
+  Uses logistic regression to assign rule weights to class assocation rules. The logistic regression is regularized with LASSO regularization, encouraging sparsity in rule weights (i.e., a small rule base).
+
+  Different to the implementation by Azmi, this implementation also covers non-binary classifiers.
 }
 \value{
   Returns an object of class \code{CBA} representing the trained classifier with the additional fields:
 
   \item{all_rules}{all rules used to build the classifier, including the rules with a weight of zero.}
-  \item{reg_model}{them multinomial logistic regression model as an object of class code{\link{glmnet}}.}
+  \item{reg_model}{them multinomial logistic regression model as an object of class \code{\link{glmnet}}.}
 
 }
 \seealso{
+\code{\link{CBA.object}}, \code{\link{mineCARs}},
 \code{\link{glmnet}} and \code{\link{cv.glmnet}}.
 }
 \references{
 M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. \emph{Information Sciences,} Volume 483, May 2019. Pages 313-331.
 
-Original code at \url{https://github.com/azemi/RCAR}.
+Azmi's implementation on GitHub: \url{https://github.com/azemi/RCAR}.
 }
 
 \author{Tyler Giallanza}

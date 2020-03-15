@@ -49,7 +49,8 @@ Wenmin Li, Jiawei Han and Jian Pei, "CMAR: accurate and efficient classification
 
 \author{Michael Hahsler}
 \seealso{
-\code{\link{CBA.object}}.
+\code{\link{CBA.object}},
+\code{\link{mineCARs}}.
 }
 \examples{
 data("iris")

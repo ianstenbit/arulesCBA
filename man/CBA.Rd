@@ -48,7 +48,8 @@ Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rul
 
 \author{Ian Johnson}
 \seealso{
-\code{\link{CBA.object}}.
+\code{\link{CBA.object}},
+\code{\link{mineCARs}}.
 }
 \examples{
 data("iris")
