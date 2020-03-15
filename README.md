@@ -4,13 +4,20 @@
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 [![CRAN version](http://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 
-This R package 
+This arulesCBA R package (Hahsler et al, 2020) 
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
-association rule-based classification. It includes currently two classification algorithms. The first is the CBA algorithm described in Liu, et al. 1998.
-The second is a new weighted majority-vote based algorithm called bCBA which is currently being designed and tested. Time-critical sections of the code are implemented in C.
+association rule-based classification. The package implements:
 
-The package also provides support for supervised discretization and mining Class Association Rules (CARs).
+* CBA (Liu et al, 1998)
 
+* CMAR (Li et al, 2001)
+
+* RCAR (Azmi et al, 2019)
+
+* bCBA, wCBA (unpublished)
+
+The package also provides the infrastructure including supervized discetization, mining class association rules (CARs), and to implement various association rule-based classification strategies
+(first match, majority voting, weighted voting, etc.).
 
 ## Installation
 
@@ -50,4 +57,7 @@ predict(classifier, head(iris))
 
 ## References
 
+* Michael Hahsler, Ian Johnson, Tomas Kliegr and Jaroslav Kuchar (2020). [Associative Classification in R: arc, arulesCBA, and rCBA](https://journal.r-project.org/archive/2019/RJ-2019-048/). The R Journal, accepted article.
 * Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. _KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,_ New York, 27-31 August. AAAI. pp. 80-86.
+* Wenmin Li, Jiawei Han and Jian Pei, "CMAR: accurate and efficient classification based on multiple class-association rules," Proceedings 2001 IEEE International Conference on Data Mining, San Jose, CA, USA, 2001, pp. 369-376.
+* M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. Information Sciences, Volume 483, May 2019. Pages 313-331.

@@ -1,6 +1,8 @@
 CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1", disc.method = "mdlp",
   balanceSupport = FALSE, parameter = NULL, control = NULL, ...){
 
+  formula <- as.formula(formula)
+
   # prepare data
   disc_info <- NULL
   if(is(data, "data.frame")){
@@ -10,12 +12,6 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1", 
 
   # convert to transactions for rule mining
   trans <- as(data, "transactions")
-
-  # parse formula
-  formula <- as.formula(formula)
-  vars <- .parseformula(formula, trans)
-  class <- vars$class_names
-  vars <- vars$var_names
 
   if(is.null(control)) control <- as(list(verbose = FALSE), "APcontrol")
   else  control <- as(control, "APcontrol")
@@ -34,12 +30,12 @@ CBA <- function(formula, data, support = 0.1, confidence = 0.8, pruning = "M1", 
   # assemble classifier
   structure(list(
     rules = rulebase,
-    class = class,
+    class = .parseformula(formula, trans)$class_name,
     default = info(rulebase)$defaultClass,
     discretization = disc_info,
     formula = formula,
     method = "first",
-    description = paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
+    description = paste0("CBA algorithm (Liu et al., 1998) with support=", support,
       " and confidence=", confidence)
   ),
     class = "CBA"
@@ -88,18 +84,19 @@ pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
     lhs <- lhss[, i, drop = FALSE]
     rhs <- rhss[, i, drop = FALSE]
 
-    covered <- crossprod(uncoveredTrans, lhs) == sum(lhs) ### this is is.subset
-    numCovered <- sum(covered)
-    if(numCovered > 0) coveredTrans <-  uncoveredTrans[, covered[,1], drop = FALSE]
-    uncoveredTrans <- uncoveredTrans[, !covered[,1], drop = FALSE]
-
     rulesPerClassLeft <- rulesPerClassLeft - rhs[class_ids]
 
-    if(numCovered < 1) next
+    covered <- crossprod(uncoveredTrans, lhs) == sum(lhs) ### this is is.subset
+    numCovered <- sum(covered)
 
     if(verbose)
       cat(paste("Rule", i, "covers", numCovered, "transactions.\n"))
 
+    # no rules are covered
+    if(numCovered < 1) next
+
+    coveredTrans <-  uncoveredTrans[, covered[,1], drop = FALSE]
+    uncoveredTrans <- uncoveredTrans[, !covered[,1], drop = FALSE]
 
     numTrue <- sum(crossprod(coveredTrans, rhs) > 0)
     numFalse <- numCovered - numTrue
@@ -136,7 +133,7 @@ pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
   quality(rulebase)$ruleErrors <- ruleStats$errorRule[1:cutoff]
 
   info(rulebase)$defaultClass <- defaultClass
-  info(rulebase)$pruning <- "arulesCBA_M1"
+  info(rulebase)$pruning <- "CBA_M1"
 
   return(rulebase)
 }
@@ -273,7 +270,7 @@ pruneCBA_M2 <- function(formula, rules, trans){
   defaultClass <- class[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
   ### add rule for default class!
   info(rulebase)$defaultClass <- defaultClass
-  info(rulebase)$pruning <- "arulesCBA_M2"
+  info(rulebase)$pruning <- "CBA_M2"
 
   return(rulebase)
 }

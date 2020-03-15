@@ -113,68 +113,61 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   default <- strsplit(object$default, '=')[[1]][2]
   defaultLevel <- which(class_levels == default)
 
-  # For each transaction, if it is matched by any rule, classify it using
-  # the majority, weighted majority or the highest-precidence
-  # rule in the classifier
-
-  if(method == "majority" | method == "weighted" | method == "logit") {
-
-    weights <- object$weights
-    biases <- object$biases
-
-    # use a quality measure
-    if(is.character(weights))
-      weights <- quality(object$rules)[[weights, exact = FALSE]]
-
-    # replicate single value (same as unweighted)
-    if(length(weights) == 1) weights <- rep(weights, length(object$rules))
-
-    # unweighted (use weights of 1)
-    if(is.null(weights)) weights <- rep(1, length(object$rules))
-
-    # transform weight vector into a matrix
-    if(!is.matrix(weights)) {
-      weights <- sapply(1:length(levels(RHSclass)), function(i) {
-        w <- weights
-        w[as.integer(RHSclass) != i] <- 0
-        w
-      })
-    }
-
-    # check
-    if(nrow(weights) != length(object$rules))
-      stop("number of weights does not match number of rules")
-
-    # calculate score
-    scores <- t(crossprod(weights, rulesMatchLHS))
-
-    # add bias terms to the scores
-    if(is.null(biases)) biases <- rep(0, length(class_levels))
-
-    scores <- sweep(scores, 2, biases, '+')
-    colnames(scores) <- levels(RHSclass)
-
-    if(method == "logit") scores <- exp(scores)/(1+rowSums(exp(scores)))
-
-    if(type =="score") return(scores)
-
-    # make sure default wins for ties
-    scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
-    output <- factor(apply(scores, MARGIN = 1, which.max),
-      levels = 1:length(levels(RHSclass)),
-      labels = levels(RHSclass))
-    return(output)
-
-  }else { ### method = first
-
-    if(type =="score") stop("prediction type 'score' is not supported for CBA classifiers using method 'first' (matching rule).")
+  # classify using first match
+  if(method == "first") {
+    if(type =="score") stop("prediction type 'score' is not supported for CBA classifiers using classification method 'first' (matching rule).")
 
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- RHSclass[w]
     output[is.na(w)] <- default
+
+    # preserve the levels of original data for data.frames
+    return(factor(output, levels = class_levels))
   }
 
-  # preserve the levels of original data for data.frames
-  factor(output, levels = class_levels)
+  # For each transaction, if it is matched by any rule, classify it using
+  # the majority, weighted majority
+
+  # weights
+  weights <- object$weights
+  if(is.character(weights)) weights <- quality(object$rules)[[weights, exact = FALSE]]
+  if(is.null(weights)) weights <- rep(1, length(object$rules))
+  if(method == "majority") weights <- rep(1, length(object$rules))
+
+  # transform weight vector into a matrix
+  if(!is.matrix(weights)) {
+    weights <- sapply(1:length(levels(RHSclass)), function(i) {
+      w <- weights
+      w[as.integer(RHSclass) != i] <- 0
+      w
+    })
+  }
+
+  if(nrow(weights) != length(object$rules) || ncol(weights) != length(levels(RHSclass)))
+    stop("number of weights does not match number of rules/classes.")
+
+  # biases
+  biases <- object$biases
+
+  if(!is.null(biases) && nrow(biases) != length(levels(RHSclass)))
+    stop("number of biases does not match number of rules/classes.")
+
+  # sum score and add biases
+  scores <- t(crossprod(weights, rulesMatchLHS))
+  if(!is.null(biases)) scores <- sweep(scores, 2, biases, '+')
+  colnames(scores) <- levels(RHSclass)
+
+  if(method == "logit") scores <- exp(scores)/(1+rowSums(exp(scores)))
+
+  if(type =="score") return(scores)
+
+  # make sure default wins for ties
+  scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
+
+  output <- factor(apply(scores, MARGIN = 1, which.max),
+    levels = 1:length(levels(RHSclass)),
+    labels = levels(RHSclass))
+
+  return(output)
 }
 

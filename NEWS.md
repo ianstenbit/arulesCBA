@@ -1,3 +1,8 @@
+# arulesCBA 1.1.6.1 (2020-xx-xx)
+* added CMAR.
+
+# arulesCBA 1.1.6 (2020-01-05)
+
 # arulesCBA 1.1.5 (2019-11-05)
 * added RCAR (by Tyler Giallanza).
 * The interface for CBA() was updated.

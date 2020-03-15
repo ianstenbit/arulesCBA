@@ -8,6 +8,8 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
   }
 
   if(!is(data, "transactions")) data <- as(data, 'transactions')
+
+  formula <- as.formula(formula)
   form <- .parseformula(formula, data)
 
   if(is.null(control)) control <- as(list(verbose = FALSE), "APcontrol")
@@ -37,17 +39,17 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
   remove <- apply(weights, MARGIN = 1, FUN = function(x) all(x==0))
 
   structure(list(
-    rules=model_rules[!remove],
-    weights=weights[!remove,],
-    biases=model$a0,
-    class=form$class_names,
-    default=form$class_names[which.max(model$a0)],
-    discretization=disc_info,
-    description='RCAR algorithm by Azmi et al. 2019',
+    rules = model_rules[!remove],
+    weights = weights[!remove,],
+    biases = model$a0,
+    class = form$class_names,
+    default = form$class_names[which.max(model$a0)],
+    discretization = disc_info,
+    description = paste("RCAR algorithm (Azmi et al., 2019) with support=", support,
+      " and confidence=", confidence),
     method='logit',
     formula = formula,
-    all_rules=model_rules,
-    reg_model=model
-    ),
-    class = 'CBA')
+    all_rules = model_rules,
+    reg_model = model
+  ), class = 'CBA')
 }

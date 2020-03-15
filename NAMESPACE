@@ -10,17 +10,20 @@ importFrom("methods", "as", "is", "new", "slot<-", "slotNames")
 importFrom("stats", "as.formula", "df")
 
 export("CBA",
-       "pruneCBA_M1",
-       "pruneCBA_M2",
-       "RCAR",
-       "rules",
-       "CBA_ruleset",
-       "bCBA",
-       "wCBA",
-       "discretizeDF.supervised",
-       "mineCARs",
-       "classFrequency"
-       )
+        "pruneCBA_M1",
+        "pruneCBA_M2",
+        "CMAR",
+        "pruneCMAR",
+        "RCAR",
+        "bCBA",
+        "wCBA",
+
+        "rules",
+        "CBA_ruleset",
+        "discretizeDF.supervised",
+        "mineCARs",
+        "classFrequency"
+)
 
 S3method(predict, CBA)
 S3method(print, CBA)
