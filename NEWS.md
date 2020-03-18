@@ -1,5 +1,6 @@
 # arulesCBA 1.1.6.1 (2020-xx-xx)
 * added CMAR.
+* added FOIL.
 
 # arulesCBA 1.1.6 (2020-01-05)
 

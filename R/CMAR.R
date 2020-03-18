@@ -44,7 +44,8 @@ CMAR <- function(formula, data, support = 0.1, confidence = 0.8, coverage = 4, d
 }
 
 
-### CMAR pruning
+# CMAR pruning
+# Note: The paper mentions a difference in confidence threshold, but not how it is used!
 pruneCMAR <- function(formula, rules, trans, coverage = 4, verbose = FALSE){
 
   if(verbose)
@@ -125,7 +126,7 @@ pruneCMAR <- function(formula, rules, trans, coverage = 4, verbose = FALSE){
   quality(rules)$coveredTransactions <- ruleCoverage
   rules <- rules[ruleCoverage > 0]
 
-  # ads weighted Chi2 to the rules
+  # add weighted Chi2 to the rules
   supP <- support(lhs(rules), trans, type = "absolute")
   supC <- support(rhs(rules), trans, type = "absolute")
   n <- length(trans)
