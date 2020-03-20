@@ -1,6 +1,6 @@
 # FOIL algorithm for ARs following Yin & Han (CPAR)
 
-FOIL <- function(formula, data, max_len = 4, min_gain = .7, disc.method = "mdlp"){
+FOIL <- function(formula, data, max_len = 3, min_gain = .7, disc.method = "mdlp"){
 
   formula <- as.formula(formula)
 

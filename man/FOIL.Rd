@@ -8,7 +8,7 @@
   from negative examples.
 }
 \usage{
-FOIL(formula, data, max_len = 4, min_gain = .7,
+FOIL(formula, data, max_len = 3, min_gain = .7,
     disc.method = "mdlp")
 }
 
@@ -17,7 +17,7 @@ FOIL(formula, data, max_len = 4, min_gain = .7,
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame or a transaction set containing the training data. Data frames are automatically discretized and converted to transactions.}
   \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
-  \item{max_len}{maximal length of the RHS of the created rules. }
+  \item{max_len}{maximal length of the LHS of the created rules. }
   \item{min_gain}{minimal gain required to expand a rule. }
 }
 \details{
