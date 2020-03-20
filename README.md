@@ -16,6 +16,12 @@ association rule-based classification. The package implements:
 
 * bCBA, wCBA (unpublished)
 
+* FOIL (Quinlan and Cameron-Jones, 1995)
+
+* RIPPER via R/Weka (Cohen, 1995)
+
+* PART via R/Weka (Frank and Witten, 1998)
+
 The package also provides the infrastructure including supervized discetization, mining class association rules (CARs), and to implement various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).
 
@@ -61,3 +67,6 @@ predict(classifier, head(iris))
 * Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. _KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,_ New York, 27-31 August. AAAI. pp. 80-86.
 * Wenmin Li, Jiawei Han and Jian Pei, "CMAR: accurate and efficient classification based on multiple class-association rules," Proceedings 2001 IEEE International Conference on Data Mining, San Jose, CA, USA, 2001, pp. 369-376.
 * M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. Information Sciences, Volume 483, May 2019. Pages 313-331.
+* Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs: FOIL and related systems. NGCO 13, 287-312 (1995). doi: 10.1007/BF03037228
+* W. W. Cohen (1995). Fast effective rule induction. In A. Prieditis and S. Russell (eds.), Proceedings of the 12th International Conference on Machine Learning, pages 115–123. Morgan Kaufmann. ISBN 1-55860-377-8.
+* E. Frank and I. H. Witten (1998). Generating accurate rule sets without global optimization. In J. Shavlik (ed.), Machine Learning: Proceedings of the Fifteenth International Conference. Morgan Kaufmann Publishers: San Francisco, CA.

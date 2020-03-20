@@ -104,8 +104,9 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
     sparse = (length(newdata) * length(rules(object)) > 150000))
   dimnames(rulesMatchLHS) <- list(NULL, NULL)
 
+  # find class label for each rule
   class_levels <- sapply(strsplit(object$class, '='), '[',2)
-  RHSclass <- unlist(as(rhs(object$rules), "list"))
+  RHSclass <- unname(unlist(as(rhs(object$rules), "list")))
   RHSclass <- sapply(strsplit(RHSclass, '='), '[', 2)
   RHSclass <- factor(RHSclass, levels = class_levels)
 

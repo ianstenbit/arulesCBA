@@ -56,9 +56,7 @@ FOIL <- function(formula, data, max_len = 4, min_gain = .7, disc.method = "mdlp"
         n_neg <- nrow(neg2)
         n_pos_covered <- colSums(pos2[,to_check, drop = FALSE])
         n_neg_covered <- colSums(neg2[,to_check, drop = FALSE])
-        gain <- n_pos_covered * (log(n_pos_covered/(n_pos_covered + n_neg_covered)) - log(n_pos/(n_pos + n_neg)))
-        ### FIXME: maybe we should use log2 for gain.
-
+        gain <- n_pos_covered * (log2(n_pos_covered/(n_pos_covered + n_neg_covered)) - log2(n_pos/(n_pos + n_neg)))
 
         if(all(gain < min_gain, na.rm = TRUE)) break
         take_item <- to_check[which.max(gain)]

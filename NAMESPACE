@@ -9,6 +9,9 @@ import("glmnet")
 importFrom("methods", "as", "is", "new", "slot<-", "slotNames")
 importFrom("stats", "as.formula", "df")
 
+#importFrom("rJava", ...)
+#importFrom("RWeka", ...)
+
 export("CBA",
         "pruneCBA_M1",
         "pruneCBA_M2",
@@ -16,6 +19,8 @@ export("CBA",
         "pruneCMAR",
         "RCAR",
         "FOIL",
+        "RIPPER",
+        "PART_CBA",
         "bCBA",
         "wCBA",
 
