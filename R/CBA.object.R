@@ -64,7 +64,10 @@ print.CBA <- function(x, ...)
     paste("Class:", paste(x$class, collapse = ", ")),
     paste("Default Class:", x$default),
     paste("Number of rules:", length(x$rules)),
-    paste("Classification method:", x$method, if(!is.null(x$weights)) "(weighted)" else ""),
+    paste("Classification method:", x$method,
+      if(is.character(x$weights)) paste("by", x$weights) else "",
+      if(!is.null(x$topN)) paste("- using top", x$topN, "rules") else ""
+      ),
     strwrap(paste("Description:", x$description), exdent = 5),
     ""
   ))
@@ -87,6 +90,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(!is.null(object$discretization)) {
     newdata <- discretizeDF(newdata, lapply(object$discretization,
       FUN = function(x) list(method="fixed", breaks=x)))
+    newdata <- as(newdata, "transactions")
   } else {
     if(!is(newdata, "transactions"))
     stop("Classifier does not contain discretization information. New data needs to be in the form of transactions. Check ? discretizeDF.")
@@ -95,7 +99,6 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   # If new data is not already transactions:
   # Convert new data into transactions and use recode to make sure
   # the new data corresponds to the model data
-  newdata <- as(newdata, "transactions")
   newdata <- recode(newdata, match = lhs(object$rules))
 
   # Matrix of which rules match which transactions (sparse is only better for more
@@ -147,15 +150,31 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(nrow(weights) != length(object$rules) || ncol(weights) != length(levels(RHSclass)))
     stop("number of weights does not match number of rules/classes.")
 
-  # biases
-  biases <- object$biases
+  if(is.null(object$topN)) {
+    ### score is the sum of the weights of all matching rules
 
-  if(!is.null(biases) && nrow(biases) != length(levels(RHSclass)))
-    stop("number of biases does not match number of rules/classes.")
+    # biases
+    biases <- object$biases
 
-  # sum score and add biases
-  scores <- t(crossprod(weights, rulesMatchLHS))
-  if(!is.null(biases)) scores <- sweep(scores, 2, biases, '+')
+    if(!is.null(biases) && nrow(biases) != length(levels(RHSclass)))
+      stop("number of biases does not match number of rules/classes.")
+
+    # sum score and add biases
+    scores <- t(crossprod(weights, rulesMatchLHS))
+    if(!is.null(biases)) scores <- sweep(scores, 2, biases, '+')
+  }else{
+    ### score is the average of the top-N matching rules (see CPAR paper by Yin and Han, 2003)
+
+    scores <- t(apply(rulesMatchLHS, MARGIN = 2, FUN = function(m) {
+      m_weights <- weights*m
+      m_weights <- apply(m_weights, MARGIN = 2, sort, decreasing = TRUE)[1:object$topN, , drop = FALSE]
+      m_weights[m_weights == 0] <- NA
+      score <- colMeans(m_weights, na.rm = TRUE)
+      score[is.na(score)] <- 0
+      score
+      }))
+  }
+
   colnames(scores) <- levels(RHSclass)
 
   if(method == "logit") scores <- exp(scores)/(1+rowSums(exp(scores)))

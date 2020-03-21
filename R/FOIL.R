@@ -101,8 +101,10 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, disc.method = "mdlp"
     default = class[which.max(itemFrequency(trans)[class_ids])], ### FIXME
     discretization = disc_info,
     formula = formula,
-    method = "first",
-    description = paste0("FOIL-based classifier (sorted by Laplace Accuracy)")
+    method = "weighted",
+    weights = "laplace",
+    topN = 5,
+    description = paste0("FOIL-based classifier")
   ),
     class = "CBA"
   )

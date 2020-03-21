@@ -36,19 +36,17 @@
     disc_info <- lapply(data, attr, "discretized:breaks")
   }
 
-  ### FIXME: this is probably not necessary...
-
-  # convert to transactions for rule mining
+  # convert to transactions
   trans <- as(data, "transactions")
 
-  parsedFormula <- .parseformula(formula, trans)
 
   # convert it back
   data <- .trans2DF(trans)
 
+  # call classifier
   classifier <- what(formula, data = data, control = control)
 
-  # extract rules
+  # convert rules
   rules <- rJava::.jcall(classifier$classifier, "S", "toString")
   if(substr(rules[1], 1, 4) == "JRIP") { ### RIPPER
     rule_sep <- '\\s+=>\\s+'
@@ -68,6 +66,7 @@
   n <- length(rules)
   m <- nitems(trans)
 
+  ### FIXME: This could be done sparse (ngTMatrix?)
   mat <- matrix(FALSE, nrow = n, ncol = m, dimnames = list(rows = NULL, cols = ilabels))
   for(i in 1:length(ilabels)) mat[grep(ilabels[i], lhs, fixed = TRUE), i] <- TRUE
   lhs <- as(mat, "itemMatrix")
@@ -83,8 +82,8 @@
   # assemble classifier
   structure(list(
     rules = rules,
-    class = parsedFormula$class_name,
-    default = LIST(rhs(tail(rules, 1)))[[1]], ### FIXME: last rule is the default rules
+    class = .parseformula(formula, trans)$class_names,
+    default = LIST(rhs(tail(rules, 1)))[[1]], ### last rule is the default rules
     #default = names(max(table(data))), ### FIXME: majority class
     discretization = disc_info,
     formula = formula,

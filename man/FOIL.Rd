@@ -8,7 +8,7 @@
   from negative examples.
 }
 \usage{
-FOIL(formula, data, max_len = 3, min_gain = .7,
+FOIL(formula, data, max_len = 3, min_gain = .7, best_k = 5,
     disc.method = "mdlp")
 }
 
@@ -19,11 +19,19 @@ FOIL(formula, data, max_len = 3, min_gain = .7,
   \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
   \item{max_len}{maximal length of the LHS of the created rules. }
   \item{min_gain}{minimal gain required to expand a rule. }
+  \item{best_k}{ use the best k rules per class for prediction. }
 }
 \details{
 Implements FOIL (Quinlan and Cameron-Jones, 1995) to learn rules and then use them as a classifier following Xiaoxin and Han (2003).
 
-For each class, we find the positive and negative examples and lean the rules using FOIL. Then the rules for all classes are combined and sorted by Laplace accuracy on the training data. Differnt to CPAR (Xiaoxin and Han, 2003) we classify using the first matching rule.
+For each class, we find the positive and negative examples and lean the rules using FOIL. Then the rules for all classes are combined and sorted by Laplace accuracy on the training data.
+
+Following Xiaoxin and Han (2003), we classify new examples by
+\enumerate{
+\item select all the rules whose bodies are satisfied by the example;
+\item from the rules select the best k rules per class (highest expected Laplace accuracy);
+\item average the expected Laplace accuracy per class and choose the class with the highest average.
+}
 }
 \value{
   Returns an object of class \code{\link{CBA.object}} representing the trained classifier.
