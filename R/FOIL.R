@@ -1,6 +1,6 @@
 # FOIL algorithm for ARs following Yin & Han (CPAR)
 
-FOIL <- function(formula, data, max_len = 3, min_gain = .7, disc.method = "mdlp"){
+FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.method = "mdlp"){
 
   formula <- as.formula(formula)
 
@@ -103,7 +103,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, disc.method = "mdlp"
     formula = formula,
     method = "weighted",
     weights = "laplace",
-    topN = 5,
+    best_k = 5,
     description = paste0("FOIL-based classifier")
   ),
     class = "CBA"

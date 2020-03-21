@@ -66,7 +66,7 @@ print.CBA <- function(x, ...)
     paste("Number of rules:", length(x$rules)),
     paste("Classification method:", x$method,
       if(is.character(x$weights)) paste("by", x$weights) else "",
-      if(!is.null(x$topN)) paste("- using top", x$topN, "rules") else ""
+      if(!is.null(x$best_k)) paste("- using best", x$best_k, "rules") else ""
       ),
     strwrap(paste("Description:", x$description), exdent = 5),
     ""
@@ -150,7 +150,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(nrow(weights) != length(object$rules) || ncol(weights) != length(levels(RHSclass)))
     stop("number of weights does not match number of rules/classes.")
 
-  if(is.null(object$topN)) {
+  if(is.null(object$best_k)) {
     ### score is the sum of the weights of all matching rules
 
     # biases
@@ -167,7 +167,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
     scores <- t(apply(rulesMatchLHS, MARGIN = 2, FUN = function(m) {
       m_weights <- weights*m
-      m_weights <- apply(m_weights, MARGIN = 2, sort, decreasing = TRUE)[1:object$topN, , drop = FALSE]
+      m_weights <- apply(m_weights, MARGIN = 2, sort, decreasing = TRUE)[1:object$best_k, , drop = FALSE]
       m_weights[m_weights == 0] <- NA
       score <- colMeans(m_weights, na.rm = TRUE)
       score[is.na(score)] <- 0
