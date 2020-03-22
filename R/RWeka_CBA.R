@@ -11,9 +11,14 @@
 
   vars <- unique(ii$variables)
 
-  df <- lapply(vars, FUN = function(v) {
-      t_v <- trans[,ii$variables == v]
-      factor(apply(as(t_v, "ngCMatrix"), MARGIN = 2, which), labels = (colnames(t_v)))
+  df <- lapply(as.character(vars), FUN = function(v) {
+    #cat(v, "\n")
+    t_v <- trans[,ii$variables == v]
+    #factor(apply(as(t_v, "ngCMatrix"), MARGIN = 2, which), labels = (colnames(t_v)))
+    r <- as(t_v, "ngCMatrix")
+    r2 <- colSums(r * seq(nrow(r)))
+    r2[r2 < 1 | r2 >nrow(r)] <- NA
+    factor(r2, labels = (colnames(t_v)))
     })
 
   df <- as.data.frame(df)
