@@ -121,6 +121,8 @@ pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
   }
 
   # Step 3: select rule set that minimizes the total error
+  # (total error is the error made if we delete all rules after and use a default
+  # rule with the majority as the RHS)
   strongRules <- which(ruleStats$coveredTrans>0)
   ruleStats <- ruleStats[strongRules,, drop = FALSE]
   ruleStats$errorTotal <- cumsum(ruleStats$errorRule) + ruleStats$errorDefault
@@ -128,13 +130,21 @@ pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
   cutoff <- which.min(ruleStats$errorTotal)
 
   rulebase <- rules[strongRules[1:cutoff]]
-  defaultClass <- colnames(classes)[ruleStats$defaultClass[cutoff]]
   quality(rulebase)$coveredTransactions <- ruleStats$coveredTrans[1:cutoff]
-  quality(rulebase)$ruleErrors <- ruleStats$errorRule[1:cutoff]
+  quality(rulebase)$totalErrors <- ruleStats$errorTotal[1:cutoff]
+
+  ### add default rule
+  defaultClass <- colnames(classes)[ruleStats$defaultClass[cutoff]]
+
+  default_rule <- new("rules",
+    lhs = encode(character(), itemLabels(rulebase)),
+    rhs = encode(defaultClass, itemLabels(rulebase))
+  )
+  rulebase <- c(rulebase, default_rule)
 
   info(rulebase)$defaultClass <- defaultClass
-  info(rulebase)$pruning <- "CBA_M1"
 
+  info(rulebase)$pruning <- "CBA_M1"
   return(rulebase)
 }
 
@@ -253,9 +263,9 @@ pruneCBA_M2 <- function(formula, rules, trans){
 
   # default class is the majority class in the remaining data)
   defaultClasses <- vector('integer', length=length(rules))
-
   totalErrors <- vector('integer', length=length(rules))
 
+  ### FIXME: there is a bug in stage 3! The totalErrors count is off!
   .Call("R_stage3", strongRules, casesCovered, covered, defaultClasses, totalErrors, classDistr,
     replace,matches@i, matches@p, length(matches@i),
     falseMatches@i, falseMatches@p, length(falseMatches@i), length(class),  PACKAGE = "arulesCBA")
@@ -266,12 +276,18 @@ pruneCBA_M2 <- function(formula, rules, trans){
   # Step 3: The first rule at which there is the least number of errors recorded is the cutoff rule.
   rulebase <- rules[strongRules][1:which.min(totalErrors[strongRules])]
 
-  #add a default class to the classifier (the default class from the last rule included in the classifier)
+  ### add default rule
   defaultClass <- class[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
-  ### add rule for default class!
-  info(rulebase)$defaultClass <- defaultClass
-  info(rulebase)$pruning <- "CBA_M2"
 
+  default_rule <- new("rules",
+    lhs = encode(character(), itemLabels(rulebase)),
+    rhs = encode(defaultClass, itemLabels(rulebase))
+  )
+  rulebase <- c(rulebase, default_rule)
+
+  info(rulebase)$defaultClass <- defaultClass
+
+  info(rulebase)$pruning <- "CBA_M2"
   return(rulebase)
 }
 
