@@ -37,8 +37,11 @@ pruneCMAR(formula, rules, trans, coverage = 4, verbose = FALSE)
   correlated rules are selected (i.e., rules with a significant Chi-squared statistic of more than 3.84). (3) Database coverage pruning is applied where only rules that cover at least one transaction in the training set are retained.
   Rules are processed in rank order and a transaction is considered covered if it was covered by at least \code{coverage} many rules.
 
-  Weighted classification is used. The used weight is the chi-squared value
+  Rule weights are calculated as the chi-squared value
   corrected by the max-chi-squared value (see Li et al, 2001).
+  For classification, for each class, the weights of all matching rules added up. This is called
+  the weighted Chi-squared measure. The class with the highest weighted Chi-squared measure is
+  predicted.
 }
 \value{
   Returns an object of class \code{\link{CBA.object}} representing the trained classifier.
