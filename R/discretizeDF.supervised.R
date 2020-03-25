@@ -20,7 +20,7 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
 
       # cutPoints does not handle missing values!
       missing <- is.na(data[[i]])
-      cPts <- try(cutPoints(data[[i]][!missing], data[[cl_id]][!missing]), silent = TRUE)
+      cPts <- try(discretization::cutPoints(data[[i]][!missing], data[[cl_id]][!missing]), silent = TRUE)
       if(is(cPts, "try-error")) stop("Problem with discretizing column ", i,
         " (maybe not enough non-missing values?)")
 
@@ -36,13 +36,13 @@ discretizeDF.supervised <- function(formula, data, method = "mdlp",
     data_num <- data[,c(data_num_id, cl_id)]
 
     res <- switch(method,
-      caim         = disc.Topdown(data_num, method = 1),
-      cacc         = disc.Topdown(data_num, method = 2),
-      ameva        = disc.Topdown(data_num, method = 3),
-      chi2         = chi2(data_num, ...),
-      chimerge     = chiM(data_num, ...),
-      extendedchi2 = extendChi2(data_num, ...),
-      modchi2      = modChi2(data_num, ...)
+      caim         = discretization::disc.Topdown(data_num, method = 1),
+      cacc         = discretization::disc.Topdown(data_num, method = 2),
+      ameva        = discretization::disc.Topdown(data_num, method = 3),
+      chi2         = discretization::chi2(data_num, ...),
+      chimerge     = discretization::chiM(data_num, ...),
+      extendedchi2 = discretization::extendChi2(data_num, ...),
+      modchi2      = discretization::modChi2(data_num, ...)
     )
 
     ### FIXME: no need for +/-Inf for caim, cacc and ameva?

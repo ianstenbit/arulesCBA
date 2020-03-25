@@ -28,12 +28,12 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
   # find lambda using cross-validation
   if(is.null(lambda)) {
     if(control@verbose) cat("Find lambda using cross-validation: ")
-    lambda <- cv.glmnet(X, y, family='multinomial', alpha=alpha)$lambda.1se
+    lambda <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha)$lambda.1se
     if(control@verbose) cat(lambda, "\n")
   }
 
   if(control@verbose) cat("Fitting glmnet\n")
-  model <- glmnet(X, y, family='multinomial', alpha=alpha, lambda=lambda)
+  model <- glmnet::glmnet(X, y, family='multinomial', alpha=alpha, lambda=lambda)
 
   weights <- sapply(model$beta, as.vector)
   remove <- apply(weights, MARGIN = 1, FUN = function(x) all(x==0))

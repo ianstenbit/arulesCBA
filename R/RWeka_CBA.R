@@ -1,4 +1,4 @@
-# interface to rWeka
+# Interface to rWeka
 
 # M5Rules is only for binary classifier
 # OneR does not make too much sense with pre-discretized data
