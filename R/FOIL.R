@@ -25,15 +25,21 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
   # convert transactions to pattern and class matrices
   # (items are columns in a column oriented sparse format)
   trans_mat <- t(as(trans, "ngCMatrix"))
+  dimnames(trans_mat) <- list(NULL, NULL)
   m <- ncol(trans_mat) # number of items
+  n <- nrow(trans_mat) # number of transactions
 
   rules <- list()
 
-  # positive and negative examples for class i
+  # positive and negative examples for class
   for(cid in class_ids) {
-    p <- trans_mat[, cid]
+    # find transactions for the class
+    p <- trans_mat[, cid, drop = FALSE]
+    p <- p@i+1L ### this is a hack since Matrix does not support sparse subsetting
+                ### and we are guaranteed to have  only one column in p
     pos <- trans_mat[p ,, drop = FALSE]
-    neg <- trans_mat[!p,, drop = FALSE]
+    #neg <- trans_mat[!p,, drop = FALSE]
+    neg <- trans_mat[-p,, drop = FALSE]
 
     patterns <- matrix(NA, nrow = 0, ncol = m)
 
@@ -46,7 +52,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
       pos2 <- pos
       neg2 <- neg
 
-      while(sum(pat, na.rm = TRUE) < max_len) {
+      while(nrow(neg2) > 0 && sum(pat, na.rm = TRUE) < max_len) {
         # calculate gain for adding an item p to r
         # gain(p) = |P*| (log(|P*|/(|P*|+|N*|))-log(|P|/(|P|+|N|)))
         to_check <- which(!pat)
@@ -56,9 +62,11 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
         n_neg <- nrow(neg2)
         n_pos_covered <- colSums(pos2[,to_check, drop = FALSE])
         n_neg_covered <- colSums(neg2[,to_check, drop = FALSE])
-        gain <- n_pos_covered * (log2(n_pos_covered/(n_pos_covered + n_neg_covered)) - log2(n_pos/(n_pos + n_neg)))
+        # could use log2!
+        gain <- n_pos_covered * (log(n_pos_covered/(n_pos_covered + n_neg_covered)) - log(n_pos/(n_pos + n_neg)))
 
         if(all(gain < min_gain, na.rm = TRUE)) break
+
         take_item <- to_check[which.max(gain)]
         pat[take_item] <- TRUE
 
@@ -71,9 +79,11 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
       # no more patterns to find
       if(sum(pat, na.rm = TRUE) < 1) break
 
-      # add rule and remove positive examples covered by the rule
+      # add rule
       ### FIXME: make rules sparse
       patterns <- rbind(patterns, pat)
+
+      # remove positive examples covered by the rule
       pat[is.na(pat)] <- FALSE
       pos <- pos[!rowSums(pos[,pat, drop = FALSE])==sum(pat),, drop = FALSE]
     }
@@ -86,11 +96,15 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
     patterns[, cid] <- TRUE
     rhs <- new("itemMatrix", data = t(as(patterns, "ngCMatrix")), itemInfo = itemInfo(trans))
 
-    rules[[length(rules)+1L]] <- new("rules", lhs = lhs, rhs = rhs)
+    classrules <- new("rules", lhs = lhs, rhs = rhs)
+
+    rules[[length(rules)+1L]] <- classrules
   }
 
   rules <- do.call(c, rules)
-  quality(rules) <- interestMeasure(rules, measure = c("support", "confidence", "laplace"), transactions = trans)
+
+  quality(rules) <- interestMeasure(rules, trans, measure = c("support","confidence","lift", "laplace"),
+      k = length(class_ids))
 
   rules <- sort(rules, by = "laplace")
 
@@ -103,7 +117,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
     formula = formula,
     method = "weighted",
     weights = "laplace",
-    best_k = 5,
+    best_k = best_k,
     description = paste0("FOIL-based classifier")
   ),
     class = "CBA"
