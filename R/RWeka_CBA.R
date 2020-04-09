@@ -31,6 +31,8 @@
 .rules_RWeka <- function(formula, data, what = RWeka::JRip, control = NULL,
   disc.method = "mdlp") {
 
+  if(!.installed("RWeka")) stop("Package 'RWeka' needs to be  installed!")
+
   if(is.null(control)) control <- RWeka::Weka_control()
   formula <- as.formula(formula)
 

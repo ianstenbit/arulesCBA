@@ -22,6 +22,8 @@ PART_CBA(formula, data, control = NULL, disc.method = "mdlp")
   \item{control}{ algorithmic control options for R/Weka Rule learners (see Details Section). }
 }
 \details{
+You need to install package \pkg{RWeka} to use these classifiers.
+
 See R/Weka function \code{\link{JRip}} (RIPPER) and
 \code{\link{PART}} for algorithm details and how control options can be passed on via \code{control}.
 An example is given in the Examples Section below.
@@ -45,6 +47,9 @@ Hornik K, Buchta C, Zeileis A (2009). "Open-Source Machine Learning: R Meets Wek
 \code{\link{CBA.object}}.
 }
 \examples{
+# You need to install rJava and RWeka
+
+\dontrun{
 data("iris")
 
 # learn a classifier using automatic default discretization
@@ -68,4 +73,5 @@ classifier <- PART_CBA(Species ~ ., data = iris, control = RWeka::Weka_control(U
 classifier
 inspect(rules(classifier))
 predict(classifier, head(iris))
+}
 }

@@ -22,7 +22,7 @@ association rule-based classification. The package implements:
 
 * PART via R/Weka (Frank and Witten, 1998)
 
-The package also provides the infrastructure including supervized discetization, mining class association rules (CARs), and to implement various association rule-based classification strategies
+The package also provides infrastructure including supervised discetization, mining class association rules (CARs), and an implementation of various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).
 
 ## Installation

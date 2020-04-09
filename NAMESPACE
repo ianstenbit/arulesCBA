@@ -7,10 +7,12 @@ importFrom("methods", "as", "is", "new", "slot<-", "slotNames")
 importFrom("stats", "as.formula", "df")
 
 # we use qualified names for these:
-#importFrom("rJava", ...)
-#importFrom("RWeka", ...)
 #importFrom("glmnet", ...)
 #importFrom("discretization", ...)
+
+# this is now suggested
+#importFrom("rJava", ...)
+#importFrom("RWeka", ...)
 
 export("CBA",
         "pruneCBA_M1",

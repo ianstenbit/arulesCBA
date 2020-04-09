@@ -46,7 +46,7 @@ CMAR <- function(formula, data, support = 0.1, confidence = 0.8, coverage = 4, d
 
 # CMAR pruning
 # Note: The paper mentions a difference in confidence threshold, but not how it is used!
-pruneCMAR <- function(formula, rules, trans, coverage = 4, verbose = FALSE){
+pruneCMAR <- function(formula, rules, trans, coverage = 4, crit_threshold = 3.8415, verbose = FALSE){
 
   if(verbose)
     cat(paste("CMAR pruning for", length(rules), "rules and", nrow(trans), "transactions.\n"))
@@ -65,9 +65,9 @@ pruneCMAR <- function(formula, rules, trans, coverage = 4, verbose = FALSE){
   rules <- rules[!is.redundant(rules)]
 
   # Step 2: only select positively correlated rules (Chi2 test)
-  # Note: I am not sure if the paper uses 3.84
+  # Note: I am not sure if the paper uses 3.8415
   quality(rules)$chiSquared <- interestMeasure(rules, measure = "chiSquared", transactions = trans)
-  rules <- rules[quality(rules)$chiSquared >= 3.84]
+  rules <- rules[quality(rules)$chiSquared >= crit_threshold]
 
   # Step 3: database coverage (like CBA, but transactions need to be covered delta (coverage) times)
   ruleCoverage <- integer(length(rules))
@@ -136,7 +136,7 @@ pruneCMAR <- function(formula, rules, trans, coverage = 4, verbose = FALSE){
   quality(rules)$weightedChiSquared <- chiSquared^2/maxChiSquared
 
   # default class. use majority class if not unclassified transactions were left
-  defaultClass <- class[max(transPerClassLeft)]
+  defaultClass <- class[which.max(transPerClassLeft)]
   if(is.na(defaultClass)) defaultClass <- colnames(classes)[which.max(colSums(classes))]
 
   info(rules)$defaultClass <- defaultClass

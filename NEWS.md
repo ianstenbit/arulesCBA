@@ -1,4 +1,4 @@
-# arulesCBA 1.1.6.1 (2020-xx-xx)
+# arulesCBA 1.2.0 (2020-xx-xx)
 * CBA now includes a default rule in the rule base.
 * added CMAR.
 * added FOIL.
