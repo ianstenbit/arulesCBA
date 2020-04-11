@@ -1,13 +1,13 @@
-# Classification Based on Association Rules"
+# Classification Based on Association Rules
 
 [![Travis-CI Build Status](https://api.travis-ci.org/ianjjohnson/arulesCBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/arulesCBA)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA
 )](https://cran.r-project.org/package=arulesCBA)
 [![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 
-The [arulesCBA](https://cran.r-project.org/package=arulesCBA) R package (Hahsler et al, 2020) 
+The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler et al, 2020) 
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
-association rule-based classification. The package implements:
+association rule-based classification. The package implements the following algorithms:
 
 * CBA (Liu et al, 1998)
 * RCAR (Azmi et al, 2019)
@@ -16,7 +16,7 @@ association rule-based classification. The package implements:
 * RIPPER via R/Weka (Cohen, 1995)
 * PART via R/Weka (Frank and Witten, 1998)
 
-The package also provides infrastructure including supervised discetization, mining class association rules (CARs), and an implementation of various association rule-based classification strategies
+The package also provides the infrastructure for associative classification (supervised discetization, mining class association rules (CARs)), and implements various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).
 
 ## Installation
