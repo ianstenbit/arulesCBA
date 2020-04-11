@@ -1,6 +1,7 @@
 \name{RWeka_CBA}
 \alias{RWeka_CBA}
 \alias{RIPPER}
+\alias{RIPPER_CBA}
 \alias{PART}
 \alias{PART_CBA}
 \title{CBA classifiers based on rule-based classifiers in RWeka}
@@ -10,7 +11,7 @@
   in Weka via RWeka (Hornik et al, 2009).
 }
 \usage{
-RIPPER(formula, data, control = NULL, disc.method = "mdlp")
+RIPPER_CBA(formula, data, control = NULL, disc.method = "mdlp")
 PART_CBA(formula, data, control = NULL, disc.method = "mdlp")
 }
 
@@ -24,8 +25,8 @@ PART_CBA(formula, data, control = NULL, disc.method = "mdlp")
 \details{
 You need to install package \pkg{RWeka} to use these classifiers.
 
-See R/Weka function \code{\link{JRip}} (RIPPER) and
-\code{\link{PART}} for algorithm details and how control options can be passed on via \code{control}.
+See R/Weka function \code{\link[RWeka]{JRip}} (RIPPER) and
+\code{\link[RWeka]{PART}} for algorithm details and how control options can be passed on via \code{control}.
 An example is given in the Examples Section below.
 }
 \value{
@@ -42,8 +43,8 @@ Hornik K, Buchta C, Zeileis A (2009). "Open-Source Machine Learning: R Meets Wek
 
 \author{Michael Hahsler}
 \seealso{
-\code{\link{JRip}} (RIPPER),
-\code{\link{PART}},
+\code{\link[RWeka]{JRip}} (RIPPER),
+\code{\link[RWeka]{PART}},
 \code{\link{CBA.object}}.
 }
 \examples{
@@ -53,7 +54,7 @@ Hornik K, Buchta C, Zeileis A (2009). "Open-Source Machine Learning: R Meets Wek
 data("iris")
 
 # learn a classifier using automatic default discretization
-classifier <- RIPPER(Species ~ ., data = iris)
+classifier <- RIPPER_CBA(Species ~ ., data = iris)
 classifier
 
 # inspect the rule base

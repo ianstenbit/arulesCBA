@@ -19,16 +19,18 @@ export("CBA",
         "pruneCBA_M2",
         "RCAR",
         "FOIL",
-        "RIPPER",
-        "PART_CBA",
         "bCBA",
         "wCBA",
+
+        "RIPPER_CBA",
+        "PART_CBA",
 
         "rules",
         "CBA_ruleset",
         "discretizeDF.supervised",
         "mineCARs",
-        "classFrequency"
+        "classFrequency",
+        "response"
 )
 
 S3method(predict, CBA)

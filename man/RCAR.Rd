@@ -1,9 +1,9 @@
 \name{RCAR}
 \alias{RCAR}
 \alias{rcar}
-\title{Regularized Class Association Rules (RCAR)}
+\title{Regularized Class Association Rules for Multi-class Problems (RCAR+)}
 \description{
-  Build a classifier based on association rules mined for an input dataset and weighted with LASSO regularized logistic regression (Azmi, et al., 2019).
+  Build a classifier based on association rules mined for an input dataset and weighted with LASSO regularized logistic regression (RCAR; Azmi, et al., 2019). RCAR+ extends RCAR from a binary classifier to a  multi-class classifier.
 }
 \usage{
 RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
@@ -16,7 +16,7 @@ RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame containing the training data.}
   \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{lambda}{The amount of weight given to regularization during the logistic regression learning process. If not specified (\code{NULL}) then cross-validation with the argest value of lambda such that error is within 1 standard error of the minimum is used (see \code{\link{cv.glmnet}}). }
+  \item{lambda}{The amount of weight given to regularization during the logistic regression learning process. If not specified (\code{NULL}) then cross-validation is used to detemine the best value (see Details section).}
   \item{alpha}{The elasticnet mixing parameter. \code{alpha = 1} is the lasso penalty (default RCAR), and \code{alpha = 0} the ridge penalty. }
 	\item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
@@ -24,9 +24,11 @@ RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
 \details{
-  Uses logistic regression to assign rule weights to class assocation rules. The logistic regression is regularized with LASSO regularization, encouraging sparsity in rule weights (i.e., a small rule base).
+  RCAR+ extends RCAR from a binary classifier
+  to a multi-class classifier using regularized multinomial logistic regression via \pkg{glmnet}.
 
-  Different to the implementation by Azmi, this implementation also covers non-binary classifiers.
+  If lambda is not specified (\code{NULL}) then cross-validation with the largest value of lambda such
+  that error is within 1 standard error of the minimum is used to determine the best value (see \code{\link{cv.glmnet}}).
 }
 \value{
   Returns an object of class \code{CBA} representing the trained classifier with the additional fields:
@@ -57,4 +59,9 @@ predict(classifier, head(iris))
 
 # inspect the rule base
 inspect(rules(classifier))
+
+# inspecting the regression model and the cross-validation results to determine lambda
+classifier$reg_model
+classifier$cv
+plot(classifier$cv)
 }

@@ -4,7 +4,7 @@ data("iris")
 
 context("Test classifiers")
 
-classifiers <- c(CBA, FOIL, CMAR, RIPPER, PART_CBA, RCAR)
+classifiers <- c(CBA, FOIL, RIPPER_CBA, PART_CBA, RCAR)
 
 ### use raw data
 dat <- iris

@@ -26,9 +26,11 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
     labels = form$class_names)
 
   # find lambda using cross-validation
+  cv <- NULL
   if(is.null(lambda)) {
     if(control@verbose) cat("Find lambda using cross-validation: ")
-    lambda <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha)$lambda.1se
+    cv <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha)
+    lambda <- cv$lambda.1se
     if(control@verbose) cat(lambda, "\n")
   }
 
@@ -45,11 +47,12 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
     class = form$class_names,
     default = form$class_names[which.max(model$a0)],
     discretization = disc_info,
-    description = paste("RCAR algorithm (Azmi et al., 2019) with support=", support,
+    description = paste("RCAR+ based on RCAR (Azmi et al., 2019) with support=", support,
       " and confidence=", confidence),
     method='logit',
     formula = formula,
     all_rules = model_rules,
-    reg_model = model
+    reg_model = model,
+    cv = cv
   ), class = 'CBA')
 }

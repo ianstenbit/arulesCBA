@@ -101,7 +101,7 @@
   )
 }
 
-RIPPER <- function(formula, data, control = NULL, disc.method = "mdlp")
+RIPPER_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
   .rules_RWeka(formula, data, RWeka::JRip, control, disc.method)
 
 PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")

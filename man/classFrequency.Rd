@@ -1,10 +1,13 @@
 \name{classFrequency}
 \alias{classFrequency}
-\title{Class Frequency in Transactions or CAR Sets}
+\alias{response}
+\title{Extracting the Response and Class Frequency for Transactions or CAR Sets}
 \description{
-Check transactions for class imbalance or the proportion of rules for each class label in a set of CARs.
+Converts the class items in transactions/CARs back to a class label. Class frequence can be used to
+check transactions for class imbalance or the proportion of rules for each class label in a set of CARs.
 }
 \usage{
+response(formula, x)
 classFrequency(formula, x, type = "relative")
 }
 
@@ -30,11 +33,21 @@ data("iris")
 
 iris.disc <- discretizeDF.supervised(Species ~ ., iris)
 iris.trans <- as(iris.disc, "transactions")
+inspect(head(iris.trans, n = 2))
+
+# convert the class items back to a class label
+response(Species ~ ., head(iris.trans, n = 2))
 
 # Class distribution. The iris dataset is perfectly balanced.
 classFrequency(Species ~ ., iris.trans)
 
-# Number of rules for each class
+
+# Use for CARs
 cars <- mineCARs(Species ~ ., iris.trans, parameter = list(support = 0.3))
+
+# Number of rules for each class
 classFrequency(Species ~ ., cars, type = "absolute")
+
+# conclusion (item in the RHS) of the rule as a class label
+response(Species ~ ., head(iris.trans, n = 2))
 }
