@@ -17,8 +17,6 @@ importFrom("stats", "as.formula", "df")
 export("CBA",
         "pruneCBA_M1",
         "pruneCBA_M2",
-        "CMAR",
-        "pruneCMAR",
         "RCAR",
         "FOIL",
         "RIPPER",

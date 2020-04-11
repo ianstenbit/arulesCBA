@@ -10,8 +10,6 @@ association rule-based classification. The package implements:
 
 * CBA (Liu et al, 1998)
 
-* CMAR (Li et al, 2001)
-
 * RCAR (Azmi et al, 2019)
 
 * bCBA, wCBA (unpublished)
