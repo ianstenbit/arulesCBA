@@ -135,11 +135,16 @@ pruneCBA_M1 <- function(formula, rules, trans, verbose = FALSE){
 
   ### add default rule
   defaultClass <- colnames(classes)[ruleStats$defaultClass[cutoff]]
-
   default_rule <- new("rules",
     lhs = encode(character(), itemLabels(rulebase)),
     rhs = encode(defaultClass, itemLabels(rulebase))
   )
+
+  s <- itemFrequency(trans[, defaultClass])
+  quality(default_rule) <- data.frame(support = s, confidence = s, lift = 1,
+    count = length(trans), size = 1,
+    coveredTransactions = length(trans) - sum(quality(rulebase)$coveredTransactions),
+    totalErrors = min(ruleStats$errorTotal))
   rulebase <- c(rulebase, default_rule)
 
   info(rulebase)$defaultClass <- defaultClass
@@ -270,7 +275,7 @@ pruneCBA_M2 <- function(formula, rules, trans){
     replace,matches@i, matches@p, length(matches@i),
     falseMatches@i, falseMatches@p, length(falseMatches@i), length(class),  PACKAGE = "arulesCBA")
 
-  quality(rules)$casesCovered <- casesCovered
+  quality(rules)$coveredTransactions <- casesCovered
   quality(rules)$totalErrors <- totalErrors
 
   # Step 3: The first rule at which there is the least number of errors recorded is the cutoff rule.
@@ -283,6 +288,11 @@ pruneCBA_M2 <- function(formula, rules, trans){
     lhs = encode(character(), itemLabels(rulebase)),
     rhs = encode(defaultClass, itemLabels(rulebase))
   )
+  s <- itemFrequency(trans[, defaultClass])
+  quality(default_rule) <- data.frame(support = s, confidence = s, lift = 1,
+    count = length(trans), size = 1,
+    coveredTransactions = length(trans) - sum(quality(rulebase)$coveredTransactions),
+    totalErrors = min(totalErrors[strongRules]))
   rulebase <- c(rulebase, default_rule)
 
   info(rulebase)$defaultClass <- defaultClass
