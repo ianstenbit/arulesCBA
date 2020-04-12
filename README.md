@@ -1,6 +1,6 @@
 # Classification Based on Association Rules
 
-[![CRAN version](https://www.r-pkg.org/bad  ges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
+[![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 [![Rdoc](http://www.rdocumentation.org/badges/version/arulesCBA)](http://www.rdocumentation.org/packages/arulesCBA)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 [![Travis-CI Build Status](https://api.travis-ci.org/ianjjohnson/arulesCBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/arulesCBA)
