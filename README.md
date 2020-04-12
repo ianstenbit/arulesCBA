@@ -1,9 +1,10 @@
 # Classification Based on Association Rules
 
+[![CRAN version](https://www.r-pkg.org/bad  ges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
+[![Rdoc](http://www.rdocumentation.org/badges/version/arulesCBA)](http://www.rdocumentation.org/packages/arulesCBA)
+[![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 [![Travis-CI Build Status](https://api.travis-ci.org/ianjjohnson/arulesCBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/arulesCBA)
-[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA
-)](https://cran.r-project.org/package=arulesCBA)
-[![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 
 The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler et al, 2020) 
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
@@ -62,5 +63,5 @@ predict(classifier, head(iris))
 * Wenmin Li, Jiawei Han and Jian Pei, "CMAR: accurate and efficient classification based on multiple class-association rules," _Proceedings 2001 IEEE International Conference on Data Mining,_ San Jose, CA, USA, 2001, pp. 369-376.
 * M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. _Information Sciences,_ Volume 483, May 2019. Pages 313-331.
 * Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs: FOIL and related systems. NGCO 13, 287-312 (1995). doi: 10.1007/BF03037228
-* W. W. Cohen (1995). Fast effective rule induction. In A. Prieditis and S. Russell (eds.), _Proceedings of the 12th International Conference on Machine Learning,_ pages 115–123. Morgan Kaufmann. ISBN 1-55860-377-8.
+* W. W. Cohen (1995). Fast effective rule induction. In A. Prieditis and S. Russell (eds.), _Proceedings of the 12th International Conference on Machine Learning,_ pages 115-123. Morgan Kaufmann. ISBN 1-55860-377-8.
 * E. Frank and I. H. Witten (1998). Generating accurate rule sets without global optimization. In J. Shavlik (ed.), _Machine Learning: Proceedings of the Fifteenth International Conference,_ Morgan Kaufmann Publishers: San Francisco, CA.
