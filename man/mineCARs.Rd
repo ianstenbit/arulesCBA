@@ -6,12 +6,14 @@
   in the RHS as introduced for the CBA algorithm by Liu et al., 1998.
 }
 \usage{
-mineCARs(formula, data, balanceSupport = FALSE, parameter = NULL, control = NULL, ...)
+mineCARs(formula, data, support = 0.1, confidence = 0.5, balanceSupport = FALSE,
+  parameter = NULL, control = NULL, ...)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted.}
   \item{data}{An object of class \code{\link[arules]{transactions}} containing the training data.}
+  \item{support, confidence}{Minimum support and confidence for creating association rules.}
   \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by
   using class specific minimum support values. Alternatively, a support value for each class can be specified (see Details section).}
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
@@ -79,6 +81,22 @@ cars <- mineCARs(Species ~ ., iris.trans, balanceSupport = c(
 cars
 
 # suppress progess report
-cars <- mineCARs(Species ~ ., iris.trans, control = list(verbose = FALSE), support = 0.1, confidence = 0.5)
+cars <- mineCARs(Species ~ ., iris.trans, control = list(verbose = FALSE))
+
+
+# balance support for class imbalance
+data("Lymphography")
+Lymphography_trans <- as(Lymphography, "transactions")
+
+classFrequency(class ~ ., Lymphography_trans)
+
+# mining does not produce CARs for the minority classes
+cars <- mineCARs(class ~ ., Lymphography_trans, support = .3, parameter = list(maxlen = 3))
+classFrequency(class ~ ., cars, type = "absolute")
+
+# Balance support by reducing the minimum support for minority classes
+cars <- mineCARs(class ~ ., Lymphography_trans, support = .3,
+  balanceSupport = TRUE, parameter = list(maxlen = 3))
+classFrequency(class ~ ., cars, type = "absolute")
 }
 

@@ -1,4 +1,4 @@
-mineCARs <- function(formula, data, balanceSupport = FALSE,
+mineCARs <- function(formula, data, support = 0.1, confidence = 0.5, balanceSupport = FALSE,
   parameter = NULL, control = NULL, ...) {
 
   if(!is(data, "transactions")) stop("data needs to contain an object of class transactions.")
@@ -8,7 +8,7 @@ mineCARs <- function(formula, data, balanceSupport = FALSE,
 
   # add ... to parameters
   parameter <- as(parameter , "APparameter")
-  moreParameter <- list(...)
+  moreParameter <- list(..., support = support, confidence = confidence)
   if(length(moreParameter) > 0) {
     replSlots <- slotNames(parameter)[pmatch(names(moreParameter), slotNames(parameter))]
     if(any(is.na(replSlots)))
@@ -29,7 +29,7 @@ mineCARs <- function(formula, data, balanceSupport = FALSE,
     if(is.numeric(balanceSupport)) {
     # specify class support directly
       if(length(balanceSupport) != length(vars$class_ids))
-        stop("balanceSupport requires 0ne support value for each class label.")
+        stop("balanceSupport requires One support value for each class label.")
       support <- balanceSupport
       if(is.null(names(support))) names(support) <- vars$class_names
 
@@ -45,9 +45,11 @@ mineCARs <- function(formula, data, balanceSupport = FALSE,
 
       parameter@support <- support[[rhs]]
 
-      apriori(data, parameter = parameter,
-        appearance = list(rhs = rhs, lhs=vars$var_names),
-        control=control)
+      suppressWarnings(
+        apriori(data, parameter = parameter,
+          appearance = list(rhs = rhs, lhs=vars$var_names),
+          control=control)
+      )
     })
 
     cars <- do.call(c, rs)
