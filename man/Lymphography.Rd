@@ -6,7 +6,7 @@ The Lymphography Domain Data Set (UCI)
 }
 \description{
 This is lymphography domain obtained from the University Medical Centre,
-   Institute of Oncology, Ljubljana, Yugoslavia. It 
+   Institute of Oncology, Ljubljana, Yugoslavia. It
    was repeatedly used in the machine learning literature.
 }
 \usage{data("Lymphography")}
@@ -44,8 +44,8 @@ This is lymphography domain obtained from the University Medical Centre,
 This lymphography domain was obtained from the University Medical Centre, Institute of Oncology, Ljubljana, Yugoslavia. Thanks go to M. Zwitter and M. Soklic for providing the data. Please include this citation if you plan to use this database.
 }
 \examples{
-data(Lymphography)
+data("Lymphography")
 
-summary(Lymphogrpahy)
+summary(Lymphography)
 }
 \keyword{datasets}
