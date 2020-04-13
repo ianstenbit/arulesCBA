@@ -1,5 +1,5 @@
 RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
-  balanceSupport = FALSE, disc.method = 'mdlp', parameter = NULL, control = NULL, ...) {
+  balanceSupport = FALSE, disc.method = 'mdlp', cv.parallel = FALSE, parameter = NULL, control = NULL, ...) {
 
   disc_info <- NULL
   if(is(data, "data.frame")){
@@ -29,7 +29,7 @@ RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, 
   cv <- NULL
   if(is.null(lambda)) {
     if(control@verbose) cat("Find lambda using cross-validation: ")
-    cv <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha)
+    cv <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha, parallel = cv.parallel)
     lambda <- cv$lambda.1se
     if(control@verbose) cat(lambda, "\n")
   }

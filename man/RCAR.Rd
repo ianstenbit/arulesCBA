@@ -3,11 +3,13 @@
 \alias{rcar}
 \title{Regularized Class Association Rules for Multi-class Problems (RCAR+)}
 \description{
-  Build a classifier based on association rules mined for an input dataset and weighted with LASSO regularized logistic regression (RCAR; Azmi, et al., 2019). RCAR+ extends RCAR from a binary classifier to a  multi-class classifier.
+  Build a classifier based on association rules mined for an input dataset and weighted with LASSO regularized
+  logistic regression following RCAR (Azmi, et al., 2019). RCAR+ extends RCAR from a binary classifier to a
+  multi-class classifier and can use support-balanced CARs.
 }
 \usage{
 RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
-    balanceSupport = FALSE, disc.method = "mdlp",
+    balanceSupport = FALSE, disc.method = "mdlp", cv.parallel = FALSE,
     parameter = NULL, control = NULL, ...)
 }
 
@@ -20,6 +22,7 @@ RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
   \item{alpha}{The elasticnet mixing parameter. \code{alpha = 1} is the lasso penalty (default RCAR), and \code{alpha = 0} the ridge penalty. }
 	\item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+	\item{cv.parallel}{ Should the cross-validation to find the best lambda be executed in parallel? See \code{\link[glmnet]{cv.glmnet}} for details.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
