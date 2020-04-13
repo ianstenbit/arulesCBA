@@ -15,7 +15,7 @@ mineCARs(formula, data, balanceSupport = FALSE, parameter = NULL, control = NULL
   \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by
   using class specific minimum support values. Alternatively, a support value for each class can be specified (see Details section).}
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
-  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
+  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the \code{support} and \code{confidence} thresholds, and the \code{maxlen} of rules).}
 }
 \details{
 Class association rules (CARs) are of the form
@@ -52,6 +52,7 @@ Liu B., Ma Y., Wong C.K. (2000) Improving an Association Rule Based Classifier. 
 \examples{
 data("iris")
 
+# discretize and convert to transactions
 iris.disc <- discretizeDF.supervised(Species ~ ., iris)
 iris.trans <- as(iris.disc, "transactions")
 
@@ -59,7 +60,7 @@ iris.trans <- as(iris.disc, "transactions")
 cars <- mineCARs(Species ~ ., iris.trans, parameter = list(support = 0.3, confidence = 0.9))
 inspect(cars)
 
-# for conveiniance this can also be written without parameter and the list
+# for conveniance this can also be written without parameter and the list
 cars <- mineCARs(Species ~ ., iris.trans, support = 0.3, confidence = 0.9)
 
 # restrict the predictors to items starting with "Sepal"
@@ -76,5 +77,8 @@ cars <- mineCARs(Species ~ ., iris.trans, balanceSupport = c(
   "Species=versicolor" = 0.5,
   "Species=virginica" = 0.01), confidence = 0.9)
 cars
+
+# suppress progess report
+cars <- mineCARs(Species ~ ., iris.trans, control = list(verbose = FALSE), support = 0.1, confidence = 0.5)
 }
 

@@ -70,3 +70,4 @@ classifier <- CBA(Species ~ Sepal, data = trans, supp = 0.05, conf = 0.9)
 classifier
 predict(classifier, head(trans))
 }
+

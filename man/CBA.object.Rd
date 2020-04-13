@@ -66,11 +66,10 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
 }
 \examples{
 data("iris")
-iris.disc <- discretizeDF.supervised(Species ~., iris)
 
-# create transactions
+# discretize and create transactions
+iris.disc <- discretizeDF.supervised(Species ~., iris)
 trans <- as(iris.disc, "transactions")
-truth <- iris.disc$Species
 
 # create rule base with CARs
 cars <- mineCARs(Species ~ ., trans, parameter = list(support = .01, confidence = .8))
@@ -87,12 +86,12 @@ rules(cl)
 
 # make predictions
 prediction <- predict(cl, trans)
-table(prediction, truth)
+table(prediction, response(Species ~ ., trans))
 
 # use weighted majority
 cl <- CBA_ruleset(Species ~ ., cars, method = "majority", weights = "lift")
 cl
 
 prediction <- predict(cl, trans)
-table(prediction, truth)
+table(prediction, response(Species ~ ., trans))
 }
