@@ -25,6 +25,10 @@ export("CBA",
         "RIPPER_CBA",
         "PART_CBA",
 
+        "FOIL2",
+        "CPAR",
+        "PRM",
+
         "rules",
         "CBA_ruleset",
         "discretizeDF.supervised",

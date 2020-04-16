@@ -16,10 +16,10 @@ FOIL(formula, data, max_len = 3, min_gain = .7, best_k = 5,
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame or a transaction set containing the training data. Data frames are automatically discretized and converted to transactions.}
-  \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
   \item{max_len}{maximal length of the LHS of the created rules. }
   \item{min_gain}{minimal gain required to expand a rule. }
-  \item{best_k}{ use the best k rules per class for prediction. }
+  \item{best_k}{ use the average expected accuracy (laplace) of the best k rules per class for prediction. }
+  \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
 }
 \details{
 Implements FOIL (Quinlan and Cameron-Jones, 1995) to learn rules and then use them as a classifier following Xiaoxin and Han (2003).
@@ -39,7 +39,7 @@ Following Xiaoxin and Han (2003), we classify new examples by
 \references{
 Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs: FOIL and related systems. NGCO 13, 287-312 (1995). \doi{https://doi.org/10.1007/BF03037228}
 
-Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive Association Rules. SDM (2003).
+Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive Association Rules, SDM, 2003. \doi{10.1137/1.9781611972733.40}
 }
 
 \author{Michael Hahsler}
