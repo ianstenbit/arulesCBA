@@ -109,7 +109,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
-    description = paste0("FOIL-based classifier")
+    description = paste0("FOIL-based classifier (Yin and Han, 2003)")
   ),
     class = "CBA"
   )
