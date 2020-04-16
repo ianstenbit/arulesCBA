@@ -11,19 +11,12 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  if(!is(newdata, "transactions") && !is.null(object$discretization)) {
-    newdata <- discretizeDF(newdata, lapply(object$discretization,
-      FUN = function(x) list(method="fixed", breaks=x)))
-    newdata <- as(newdata, "transactions")
-  } else {
-    if(!is(newdata, "transactions"))
+  ### convert data
+  if(is.null(object$discretization) && !is(newdata, "transactions"))
     stop("Classifier does not contain discretization information. New data needs to be in the form of transactions. Check ? discretizeDF.")
-  }
 
-  # If new data is not already transactions:
-  # Convert new data into transactions and use recode to make sure
-  # the new data corresponds to the model data
-  newdata <- recode(newdata, match = lhs(object$rules))
+  newdata <- prepareTransactions(object$formula, newdata, disc.method = object$discretization,
+    match = object$rules)
 
   # Matrix of which rules match which transactions (sparse is only better for more
   # than 150000 entries)

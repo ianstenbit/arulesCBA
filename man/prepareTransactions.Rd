@@ -5,13 +5,14 @@
 Converts a data.frame into transactions by applying class-based discretization.
 }
 \usage{
-prepareTransactions(formula, data, disc.method = "mdlp")
+prepareTransactions(formula, data, disc.method = "mdlp", match = NULL)
 }
 \arguments{
   \item{formula}{ the formula. }
   \item{data}{ a data.frame with the data.}
   \item{disc.method}{Discretization method used to discretize continuous variables if data is a data.frame
   (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{match}{ typically \code{NULL}. Only used internally if data is a already a set of transactions.}
 }
 \value{
 An object of class \code{\link[arules]{transactions}} from \pkg{arules} with an attribute called \code{"disc_info"} that
