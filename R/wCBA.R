@@ -1,10 +1,9 @@
-wCBA <- function(formula, data, support = 0.2, confidence = 0.8,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter = NULL, lhs.support=FALSE, class.weights=NULL,
-	disc.method = "mdlp"){
+wCBA <- function(formula, data,
+  parameter = NULL, control = NULL, sort.parameter = NULL, lhs.support=FALSE, class.weights=NULL,
+	disc.method = "mdlp", verbose=FALSE, ...){
 
-    return(CBA.internal(formula, data, method="weighted", support = support,
-      confidence = confidence, verbose = verbose,
+    return(CBA.internal(formula, data, method="weighted", verbose = verbose,
       parameter = parameter, control = control, sort.parameter = sort.parameter,
-      lhs.support = lhs.support, disc.method=disc.method))
+      lhs.support = lhs.support, disc.method=disc.method, ...))
 
 }

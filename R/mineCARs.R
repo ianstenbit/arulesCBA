@@ -1,30 +1,32 @@
-mineCARs <- function(formula, data, support = 0.1, confidence = 0.5, balanceSupport = FALSE,
-  parameter = NULL, control = NULL, ...) {
+# Note: mineCars redefined confidence to .5 and maxlen to 5!
 
-  if(!is(data, "transactions")) stop("data needs to contain an object of class transactions.")
-  vars <- .parseformula(formula, data)
+mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, balanceSupport = FALSE, verbose = TRUE, ...) {
+
+  if(!is(transactions, "transactions")) stop("transactions needs to contain an object of class transactions.")
+  vars <- .parseformula(formula, transactions)
 
   control <- as(control, "APcontrol")
+  if(!verbose) control@verbose <- FALSE
 
-  # add ... to parameters
-  parameter <- as(parameter , "APparameter")
-  moreParameter <- list(..., support = support, confidence = confidence)
-  if(length(moreParameter) > 0) {
-    replSlots <- slotNames(parameter)[pmatch(names(moreParameter), slotNames(parameter))]
-    if(any(is.na(replSlots)))
-      stop("Not valid slot names for class APparameter: ",
-        paste(names(moreParameter)[is.na(replSlots)], collapse = ", "))
-
-    for(i in 1:length(replSlots)) slot(parameter, replSlots[i]) <- moreParameter[[i]]
+  dotParameter <-  list(...)
+  if(!is.null(parameter) && length(dotParameter)>0) stop("You cannot specify parameters only either using parameter or ...")
+  if(is.null(parameter)) parameter <- dotParameter
+  if(is.null(parameter) || is.list(parameter)) {
+    if(is.null(parameter$conf)) parameter$confidence <- .5
+    if(is.null(parameter$maxlen)) parameter$maxlen <- 5L
   }
+  parameter <- as(parameter , "APparameter")
 
   # Generate CARs with APRIORI
-
   if(is.logical(balanceSupport) &&!balanceSupport) {
     # single support
-    cars <- apriori(data, parameter = parameter,
-      appearance = list(rhs=vars$class_names, lhs=vars$var_names),
-      control=control)
+
+    ### suppress maxlen warnings!
+    suppressWarnings(
+      cars <- apriori(transactions, parameter = parameter,
+        appearance = list(rhs=vars$class_names, lhs=vars$var_names),
+        control=control)
+    )
   }else{
     if(is.numeric(balanceSupport)) {
     # specify class support directly
@@ -36,7 +38,7 @@ mineCARs <- function(formula, data, support = 0.1, confidence = 0.5, balanceSupp
     }else{ # balanceSupport is TRUE
       # Following roughly: Liu B., Ma Y., Wong C.K. (2000) Improving an Association
       #  Rule Based Classifier.
-      classSupport <- itemFrequency(data)[vars$class_ids]
+      classSupport <- itemFrequency(transactions)[vars$class_ids]
       support <- parameter@support * classSupport/max(classSupport)
     }
 
@@ -45,8 +47,9 @@ mineCARs <- function(formula, data, support = 0.1, confidence = 0.5, balanceSupp
 
       parameter@support <- support[[rhs]]
 
+      ### suppress maxlen warnings!
       suppressWarnings(
-        apriori(data, parameter = parameter,
+        apriori(transactions, parameter = parameter,
           appearance = list(rhs = rhs, lhs=vars$var_names),
           control=control)
       )

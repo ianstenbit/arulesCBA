@@ -4,21 +4,12 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
 
   formula <- as.formula(formula)
 
-  # prepare data
-  disc_info <- NULL
-  if(is(data, "data.frame")){
-    data <- discretizeDF.supervised(formula, data, method = disc.method)
-    disc_info <- lapply(data, attr, "discretized:breaks")
-  }
-
-  # convert to transactions for rule mining
-  trans <- as(data, "transactions")
+  trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
   parsedFormula <- .parseformula(formula, trans)
   class <- parsedFormula$class_names
   class_ids <- parsedFormula$class_ids
   vars <- parsedFormula$var_names
-
 
   # Do FOIL for each class label and join the resulting rules. (see CPAR)
 
@@ -113,7 +104,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
     rules = rules,
     class = .parseformula(formula, trans)$class_name,
     default = class[which.max(itemFrequency(trans)[class_ids])], ### FIXME
-    discretization = disc_info,
+    discretization = attr(trans, "disc_info"),
     formula = formula,
     method = "weighted",
     weights = "laplace",

@@ -8,22 +8,23 @@
   multi-class classifier and can use support-balanced CARs.
 }
 \usage{
-RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
-    balanceSupport = FALSE, disc.method = "mdlp", cv.parallel = FALSE,
-    parameter = NULL, control = NULL, ...)
+RCAR(formula, data, lambda = NULL, alpha = 1, glmnet.args = NULL, cv.glmnet.args = NULL,
+    parameter = NULL, control = NULL, balanceSupport = FALSE,
+    disc.method = "mdlp", verbose = FALSE, ...)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}
   or \code{class ~ predictor1 + predictor2}.}
   \item{data}{A data.frame containing the training data.}
-  \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{lambda}{The amount of weight given to regularization during the logistic regression learning process. If not specified (\code{NULL}) then cross-validation is used to detemine the best value (see Details section).}
-  \item{alpha}{The elasticnet mixing parameter. \code{alpha = 1} is the lasso penalty (default RCAR), and \code{alpha = 0} the ridge penalty. }
+  \item{lambda}{The amount of weight given to regularization during the logistic regression learning process. If not specified (\code{NULL}) then cross-validation is used to determine the best value (see Details section).}
+  \item{alpha}{The elastic net mixing parameter. \code{alpha = 1} is the lasso penalty (default RCAR), and \code{alpha = 0} the ridge penalty. }
+	\item{cv.glmnet.args, glmnet.args}{ A list of arguments passed on to \code{\link[glmnet]{cv.glmnet}}
+	and \code{\link[glmnet]{glmnet}}, respectively. See Example section.}
+  \item{parameter, control}{Optional parameter and control lists for apriori.}
 	\item{balanceSupport}{balanceSupport parameter passed to \code{\link{mineCARs}} function.}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
-	\item{cv.parallel}{ Should the cross-validation to find the best lambda be executed in parallel? See \code{\link[glmnet]{cv.glmnet}} for details.}
-  \item{parameter, control}{Optional parameter and control lists for apriori.}
+  \item{verbose}{Report progress?}
   \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the support and confidence thresholds).}
 }
 \details{
@@ -32,12 +33,15 @@ RCAR(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
 
   If lambda is not specified (\code{NULL}) then cross-validation with the largest value of lambda such
   that error is within 1 standard error of the minimum is used to determine the best value (see \code{\link{cv.glmnet}}).
+
+  See \code{\link{cv.glmnet}} for performing cross-validation in parallel.
 }
 \value{
   Returns an object of class \code{CBA} representing the trained classifier with the additional fields:
 
   \item{all_rules}{all rules used to build the classifier, including the rules with a weight of zero.}
   \item{reg_model}{them multinomial logistic regression model as an object of class \code{\link{glmnet}}.}
+  \item{cv}{contains the results for the cross-validation used determine lambda.}
 
 }
 \seealso{
@@ -50,21 +54,24 @@ M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class ass
 Azmi's implementation on GitHub: \url{https://github.com/azemi/RCAR}.
 }
 
-\author{Tyler Giallanza}
+\author{Tyler Giallanza and Michael Hahsler}
 \examples{
 data("iris")
 
 classifier <- RCAR(Species~., iris)
 classifier
 
+# inspect the rule base sorted by the larges class weight
+inspect(sort(rules(classifier), by = "weight"))
+
 # make predictions for the first few instances of iris
 predict(classifier, head(iris))
-
-# inspect the rule base
-inspect(rules(classifier))
 
 # inspecting the regression model and the cross-validation results to determine lambda
 classifier$reg_model
 classifier$cv
 plot(classifier$cv)
+
+# show progress report and use 5 instead of the default 10 cross-validation folds.
+classifier <- RCAR(Species~., iris, cv.glmnet.args = list(nfolds = 5), verbose = TRUE)
 }

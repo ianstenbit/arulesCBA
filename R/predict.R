@@ -11,7 +11,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  if(!is.null(object$discretization)) {
+  if(!is(newdata, "transactions") && !is.null(object$discretization)) {
     newdata <- discretizeDF(newdata, lapply(object$discretization,
       FUN = function(x) list(method="fixed", breaks=x)))
     newdata <- as(newdata, "transactions")

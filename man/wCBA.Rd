@@ -7,22 +7,21 @@
   The algorithm is currently in development, and is not yet formally documented.
 }
 \usage{
-wCBA(formula, data, support = 0.2, confidence = 0.8,
-    verbose = FALSE, parameter = NULL, control = NULL,
+wCBA(formula, data, parameter = NULL, control = NULL,
     sort.parameter = NULL, lhs.support = FALSE, class.weights = NULL,
-    disc.method = "mdlp")
+    disc.method = "mdlp", verbose = FALSE, ...)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted. Has to be of form \code{class ~ .}. The class is the variable name (part of the item label before \code{=}).}
   \item{data}{A data.frame containing the training data.}
-  \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
   \item{parameter, control}{Optional parameter and control lists for apriori.}
   \item{sort.parameter}{Ordered vector of arules interest measures (as characters) which are used to sort rules in preprocessing.}
   \item{lhs.support}{Logical variable, which, when set to default value of True, indicates that LHS support should be used for rule mining.}
   \item{class.weights}{Weights that should be assigned to the rows of each class (ordered by appearance in levels(classColumn))}
 	\item{disc.method}{Discretization method for factorizing numeric input (default: \code{"mdlp"}). See \code{\link{discretizeDF.supervised}} for more supervised discretization methods.}
+  \item{verbose}{Optional logical flag to allow verbose execution, where additional intermediary execution information is printed at runtime.}
+  \item{...}{Additional parameters are added to the apriori parameters (e.g., support and confidence).}
 }
 
 \details{
@@ -39,15 +38,14 @@ wCBA(formula, data, support = 0.2, confidence = 0.8,
 \author{Ian Johnson}
 \seealso{
 \code{\link{predict.CBA}},
-\code{\link{CBA}},
+\code{\link{CBA.object}},
 \code{\link[arules]{apriori}},
-\code{\link[arules]{rules}},
-\code{\link[arules]{transactions}}.
 }
 \examples{
 data("iris")
 
 classifier <- wCBA(Species ~ ., data = iris, supp = 0.05, conf = 0.9)
+classifier
 
 predict(classifier, head(iris))
 }

@@ -6,18 +6,18 @@
   in the RHS as introduced for the CBA algorithm by Liu et al., 1998.
 }
 \usage{
-mineCARs(formula, data, support = 0.1, confidence = 0.5, balanceSupport = FALSE,
-  parameter = NULL, control = NULL, ...)
+mineCARs(formula, transactions, parameter = NULL, control = NULL,
+         balanceSupport = FALSE, verbose = TRUE, ...)
 }
 
 \arguments{
   \item{formula}{A symbolic description of the model to be fitted.}
-  \item{data}{An object of class \code{\link[arules]{transactions}} containing the training data.}
-  \item{support, confidence}{Minimum support and confidence for creating association rules.}
-  \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by
-  using class specific minimum support values. Alternatively, a support value for each class can be specified (see Details section).}
+  \item{transactions}{An object of class \code{\link[arules]{transactions}} containing the training data.}
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
-  \item{...}{For convenience, additional parameters are used to create the \code{parameter} control list for apriori (e.g., to specify the \code{support} and \code{confidence} thresholds, and the \code{maxlen} of rules).}
+  \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by using class specific minimum support values. Alternatively, a support value for each class can be specified (see Details section).}
+  \item{verbose}{logical; report progress?}
+  \item{...}{For convenience, the mining parameters for apriori can be sepcified as .... Examples are
+    the \code{support} and \code{confidence} thresholds, and the  \code{maxlen} of rules.}
 }
 \details{
 Class association rules (CARs) are of the form
@@ -25,6 +25,9 @@ Class association rules (CARs) are of the form
 \deqn{P \Rightarrow c_i,}{P => c_i,}
 
 where the LHS \eqn{P} is a pattern (i.e., an itemset) and \eqn{c_i} is a single items representing the class label.
+
+\bold{Mining parameters.} Mining parameters for \code{\link[arules]{apriori}} can be either specified as a list (or object of \code{\link[arules]{APparameter}}) as argument \code{parameter} or, for conveininance, as arguments in \code{...}. \bold{Note:} \code{mineCARs} uses by default a support of 0.1, a confidence of 0.5 and
+a \code{maxlen} (rule length including items in the LHS and RHS) of 5.
 
 \bold{Balancing minimum support.} Using a single minimum support threshold for a highly class imbalanced dataset will lead to the problem, that minority classes will only be presented in very few rules. To address this issue,
 \code{balanceSupport = TRUE} can be used to adjust minimum support for each class
@@ -48,6 +51,7 @@ Liu B., Ma Y., Wong C.K. (2000) Improving an Association Rule Based Classifier. 
 \author{Michael Hahsler}
 \seealso{
 \code{\link[arules]{apriori}},
+\code{\link[arules]{APparameter}},
 \code{\link[arules]{rules}},
 \code{\link[arules]{transactions}}.
 }
@@ -58,31 +62,29 @@ data("iris")
 iris.disc <- discretizeDF.supervised(Species ~ ., iris)
 iris.trans <- as(iris.disc, "transactions")
 
-# mine CARs with items for "Species" in the RHS
-cars <- mineCARs(Species ~ ., iris.trans, parameter = list(support = 0.3, confidence = 0.9))
-inspect(cars)
+# mine CARs with items for "Species" in the RHS.
+# Note: mineCars uses a default confidence of .5 and maxlen of 5
+cars <- mineCARs(Species ~ ., iris.trans)
+inspect(head(cars))
 
-# for conveniance this can also be written without parameter and the list
-cars <- mineCARs(Species ~ ., iris.trans, support = 0.3, confidence = 0.9)
+# specify minimum support and confidence
+cars <- mineCARs(Species ~ ., iris.trans,
+  parameter = list(support = 0.3, confidence = 0.9, maxlen = 3))
+inspect(head(cars))
+
+# for conveniance this can also be written without a list for parameter using ...
+cars <- mineCARs(Species ~ ., iris.trans, support = 0.3, confidence = 0.9, maxlen = 3)
 
 # restrict the predictors to items starting with "Sepal"
-cars <- mineCARs(Species ~ Sepal, iris.trans, support = 0.1, confidence = 0.9)
+cars <- mineCARs(Species ~ Sepal, iris.trans)
 inspect(cars)
 
-# using different support for different classes using automatically balancing
-cars <- mineCARs(Species ~ ., iris.trans, balanceSupport = TRUE, confidence = 0.9)
-inspect(cars)
-
-# specify support for each class
+# using different support for each class
 cars <- mineCARs(Species ~ ., iris.trans, balanceSupport = c(
   "Species=setosa" = 0.1,
   "Species=versicolor" = 0.5,
   "Species=virginica" = 0.01), confidence = 0.9)
 cars
-
-# suppress progess report
-cars <- mineCARs(Species ~ ., iris.trans, control = list(verbose = FALSE))
-
 
 # balance support for class imbalance
 data("Lymphography")
@@ -91,12 +93,12 @@ Lymphography_trans <- as(Lymphography, "transactions")
 classFrequency(class ~ ., Lymphography_trans)
 
 # mining does not produce CARs for the minority classes
-cars <- mineCARs(class ~ ., Lymphography_trans, support = .3, parameter = list(maxlen = 3))
+cars <- mineCARs(class ~ ., Lymphography_trans, support = .3, maxlen = 3)
 classFrequency(class ~ ., cars, type = "absolute")
 
 # Balance support by reducing the minimum support for minority classes
-cars <- mineCARs(class ~ ., Lymphography_trans, support = .3,
-  balanceSupport = TRUE, parameter = list(maxlen = 3))
+cars <- mineCARs(class ~ ., Lymphography_trans, support = .3, maxlen = 3,
+  balanceSupport = TRUE)
 classFrequency(class ~ ., cars, type = "absolute")
 }
 

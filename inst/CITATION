@@ -16,6 +16,6 @@ bibentry(bibtype = "article",
   pages = "",
   month = "February",
   issn = "2073-4859",
-  url = "https://journal.r-project.org/archive/2019/RJ-2019-048/",
-  doi = "10.32614/RJ-2019-048"
+#  doi = "10.32614/RJ-2019-048", # not registered yet
+  url = "https://journal.r-project.org/archive/2019/RJ-2019-048/"
   )

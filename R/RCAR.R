@@ -1,57 +1,64 @@
-RCAR <- function(formula, data, support = 0.1, confidence = 0.8, lambda = NULL, alpha = 1,
-  balanceSupport = FALSE, disc.method = 'mdlp', cv.parallel = FALSE, parameter = NULL, control = NULL, ...) {
+RCAR <- function(formula, data,
+  lambda = NULL, alpha = 1, glmnet.args = NULL, cv.glmnet.args = NULL,
+  parameter = NULL, control = NULL, balanceSupport = FALSE,
+  disc.method = 'mdlp', verbose = FALSE, ...) {
 
-  disc_info <- NULL
-  if(is(data, "data.frame")){
-    data <- discretizeDF.supervised(formula, data, method=disc.method)
-    disc_info <- lapply(data, attr, "discretized:breaks")
+  trans <- prepareTransactions(formula, data, disc.method)
+  formula <- as.formula(formula)
+  form <- .parseformula(formula, trans)
+
+
+  if(verbose) {
+    glmnet.args$trace.it <- TRUE
+    cv.glmnet.args$trace.it <- TRUE
   }
 
-  if(!is(data, "transactions")) data <- as(data, 'transactions')
+  # mine and prune CARs
+  if(verbose) cat("* Mining CARs...\n")
+  cars <- mineCARs(formula, trans,
+    parameter = parameter, control = control, balanceSupport = balanceSupport,
+    verbose = verbose, ...)
 
-  formula <- as.formula(formula)
-  form <- .parseformula(formula, data)
-
-  if(is.null(control)) control <- as(list(verbose = FALSE), "APcontrol")
-  else  control <- as(control, "APcontrol")
-
-  if(control@verbose) cat("Mining CARs\n")
-  model_rules <- mineCARs(formula, data, balanceSupport,
-    parameter = parameter, control = control,
-    support = support, confidence = confidence, ...)
-
-  if(control@verbose) cat("Creating model matrix\n")
-  X <- is.superset(data,lhs(model_rules))
-  y <- factor(as(data[, form$class_ids], "matrix") %*% seq(length(form$class_ids)),
-    labels = form$class_names)
+  # create coverage matrix
+  if(verbose) cat("* Creating model matrix\n")
+  X <- is.superset(trans, lhs(cars))
+  y <- response(formula, trans)
 
   # find lambda using cross-validation
   cv <- NULL
   if(is.null(lambda)) {
-    if(control@verbose) cat("Find lambda using cross-validation: ")
-    cv <- glmnet::cv.glmnet(X, y, family='multinomial', alpha=alpha, parallel = cv.parallel)
+    if(verbose) cat("* Determine lambda using cross-validation: ")
+    cv <- do.call(glmnet::cv.glmnet, c(list(x = X, y = y, family='multinomial', alpha=alpha), cv.glmnet.args))
     lambda <- cv$lambda.1se
-    if(control@verbose) cat(lambda, "\n")
+    if(verbose) cat(lambda, "\n")
   }
 
-  if(control@verbose) cat("Fitting glmnet\n")
-  model <- glmnet::glmnet(X, y, family='multinomial', alpha=alpha, lambda=lambda)
+  if(verbose) cat("* Fitting glmnet\n")
+  model <- do.call(glmnet::glmnet, c(list(x = X, y = y, family='multinomial', alpha=alpha, lambda=lambda), glmnet.args))
 
+  # weights: The odds multiply by exp(beta) for every 1-unit increase of x
   weights <- sapply(model$beta, as.vector)
   remove <- apply(weights, MARGIN = 1, FUN = function(x) all(x==0))
+  quality(cars)$weight <- apply(weights, MARGIN = 1, max)
+  quality(cars)$oddsratio <- exp(quality(cars)$weight)
+  rulebase <- cars[!remove]
+  weights <- weights[!remove,]
+  biases <- model$a0
+
+  if(verbose) cat("* CARs left:", length(rulebase), "\n")
+
 
   structure(list(
-    rules = model_rules[!remove],
-    weights = weights[!remove,],
-    biases = model$a0,
+    rules = rulebase,
+    weights = weights,
+    biases = biases,
     class = form$class_names,
-    default = form$class_names[which.max(model$a0)],
-    discretization = disc_info,
-    description = paste("RCAR+ based on RCAR (Azmi et al., 2019) with support=", support,
-      " and confidence=", confidence),
+    default = form$class_names[which.max(biases)], # this is not used!
+    discretization = attr(trans, "disc_info"),
+    description = paste("RCAR+ based on RCAR (Azmi et al., 2019)"),
     method='logit',
     formula = formula,
-    all_rules = model_rules,
+    all_rules = cars,
     reg_model = model,
     cv = cv
   ), class = 'CBA')

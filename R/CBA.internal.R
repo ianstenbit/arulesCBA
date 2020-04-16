@@ -12,27 +12,31 @@
 #}
 
 
-CBA.internal <- function(formula, data, method="boosted", support = 0.1, confidence = 0.8, gamma = 0.05, cost = 10.0,
-  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL, lhs.support=TRUE, class.weights=NULL,
-  disc.method="mdlp"){
+CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 10.0,
+  verbose=FALSE, parameter = NULL, control = NULL, sort.parameter=NULL,
+  lhs.support=TRUE, class.weights=NULL, disc.method="mdlp", ...){
 
   if(method == "boosted"){
-    description <- paste0("Transaction boosted associative classifier with support=", support,
-      " confidence=", confidence, " gamma=", gamma, " cost=", cost)
+    description <- "Transaction boosted associative classifier"
   } else if(method == "weighted"){
     description <- "Weighted CBA algorithm"
   } else {
-    description <- paste0("CBA algorithm by Liu, et al. 1998 with support=", support,
-      " and confidence=", confidence)
+    description <- "CBA algorithm by Liu, et al. 1998"
   }
 
-  if(is.null(parameter)) parameter <- list()
-  parameter$support <- support
-  parameter$confidence <- confidence
-  parameter$minlen <- 2
+  control <- as(control, "APcontrol")
+  control@verbose <- verbose
 
-  if(is.null(control)) control <- list()
-  control$verbose <- verbose
+  ### FIXME: maybe minlen = 2 is needed!
+  dotParameter <-  list(...)
+  if(!is.null(parameter) && length(dotParameter)>0) stop("You cannot specify parameters only either using parameter or ...")
+  if(is.null(parameter)) parameter <- dotParameter
+  if(is.null(parameter) || is.list(parameter)) {
+    if(is.null(parameter$conf)) parameter$confidence <- .5
+    if(is.null(parameter$maxlen)) parameter$maxlen <- 5L
+    if(is.null(parameter$minlen)) parameter$minlen <- 2L
+  }
+  parameter <- as(parameter , "APparameter")
 
   disc_info <- NULL
 
@@ -65,9 +69,9 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.1, confide
   #LHS rule mining (currently in need of optimization)
   if(lhs.support){
 
-    parameter$minlen <- 1
-    pot_lhs <- apriori(ds.mat, control=control,
-      parameter = list(support=support, confidence=confidence, target = "frequent"),
+    parameter@minlen <- 1L
+    parameter@target <- "frequent itemsets"
+    pot_lhs <- apriori(ds.mat, control = control, parameter = parameter,
       appearance = list(items = vars))
 
     n <- length(pot_lhs)
@@ -90,9 +94,8 @@ CBA.internal <- function(formula, data, method="boosted", support = 0.1, confide
 
   } else {
     #Generate association rules with apriori
-    rules <- apriori(ds.mat, parameter = parameter,
-      appearance = list(rhs=class, lhs=vars),
-      control=control)
+    rules <- apriori(ds.mat, parameter = parameter, control = control,
+      appearance = list(rhs=class, lhs=vars))
   }
 
   ### MFH: Maybe this should be a warning and the classifier just always returns the majority class?

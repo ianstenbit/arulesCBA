@@ -12,7 +12,7 @@ association rule-based classification. The package implements the following algo
 
 * CBA (Liu et al, 1998)
 * RCAR (Azmi et al, 2019)
-* bCBA, wCBA (unpublished)
+* bCBA, wCBA (Ian Johnson, unpublished)
 * FOIL (Quinlan and Cameron-Jones, 1995)
 * RIPPER via R/Weka (Cohen, 1995)
 * PART via R/Weka (Frank and Witten, 1998)
@@ -38,16 +38,29 @@ install_github("ianjjohnson/arulesCBA")
 library("arulesCBA")
 data("iris")
  
-# learn a classifier using automatic default discretization
-classifier <- CBA(Species ~ ., data = iris, supp = 0.05, conf = 0.9)
+# learn a classifier
+classifier <- CBA(Species ~ ., data = iris)
 classifier
 
-  CBA Classifier Object
-  Class: Species=setosa, Species=versicolor, Species=virginica
-  Default Class: Species=setosa
-  Number of rules: 8
-  Classification method: first 
-  Description: CBA algorithm by Liu, et al. 1998 with support=0.05 and confidence=0.9
+    CBA Classifier Object
+    Class: Species=setosa, Species=versicolor, Species=virginica
+    Default Class: Species=versicolor
+    Number of rules: 6
+    Classification method: first  
+    Description: CBA algorithm (Liu et al., 1998)
+
+# inspect the rulebase
+inspect(rules(classifier), linebreak = TRUE)
+     lhs                           rhs                  support conf lift count 
+ [1] {Petal.Length=[-Inf,2.45)} => {Species=setosa}        0.33 1.00  3.0    50 
+ [2] {Sepal.Length=[6.15, Inf],       
+      Petal.Width=[1.75, Inf]}  => {Species=virginica}     0.25 1.00  3.0    37 
+ [3] {Sepal.Length=[5.55,6.15),   
+      Petal.Length=[2.45,4.75)} => {Species=versicolor}    0.14 1.00  3.0    21 
+ [4] {Sepal.Width=[-Inf,2.95),
+      Petal.Width=[1.75, Inf]}  => {Species=virginica}     0.11 1.00  3.0    17
+ [5] {Petal.Width=[1.75, Inf]}  => {Species=virginica}     0.30 0.98  2.9    45 
+ [6] {}                         => {Species=versicolor}    0.33 0.33  1.0   150
 
 # make predictions for the first few instances of iris
 predict(classifier, head(iris))

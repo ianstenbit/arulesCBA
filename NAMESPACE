@@ -28,6 +28,7 @@ export("CBA",
         "rules",
         "CBA_ruleset",
         "discretizeDF.supervised",
+        "prepareTransactions",
         "mineCARs",
         "classFrequency",
         "response"

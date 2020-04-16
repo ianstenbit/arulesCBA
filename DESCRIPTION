@@ -8,9 +8,9 @@ Authors@R: c(person("Ian", "Johnson", role=c("aut", "cre", "cph"),
             email = "mhahsler@lyle.smu.edu"),
             person("Tyler", "Giallanza", role=c("ctb"))
             )
-Description: Provides a function to build an association rule-based classifier for data frames, and to classify incoming data frames using such a classifier.
+Description: Provides the infrastructure for association rule-based classification including algorithms like Classification Based on Associations (CBA).
 Maintainer: Ian Johnson <ianjjohnson@icloud.com>
-Depends: R (>= 3.2.0), Matrix (>= 1.2-0), arules (>= 1.6-5) 
+Depends: R (>= 3.5.0), Matrix (>= 1.2-0), arules (>= 1.6-5) 
 Imports: methods, discretization (>= 1.0-1), glmnet (>= 2.0-16) 
 Suggests: testthat, RWeka, rJava 
 License: GPL-3

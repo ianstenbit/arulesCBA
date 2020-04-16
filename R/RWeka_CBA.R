@@ -36,18 +36,10 @@
   if(is.null(control)) control <- RWeka::Weka_control()
   formula <- as.formula(formula)
 
-  # prepare data
-  disc_info <- NULL
-  if(is(data, "data.frame")){
-    data <- discretizeDF.supervised(formula, data, method = disc.method)
-    disc_info <- lapply(data, attr, "discretized:breaks")
-  }
-
   # convert to transactions
-  trans <- as(data, "transactions")
+  trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
-
-  # convert it back
+  # convert it back since weka likes it his way
   data <- .trans2DF(trans)
 
   # call classifier
@@ -91,8 +83,7 @@
     rules = rules,
     class = .parseformula(formula, trans)$class_names,
     default = LIST(rhs(tail(rules, 1)))[[1]], ### last rule is the default rules
-    #default = names(max(table(data))), ### FIXME: majority class
-    discretization = disc_info,
+    discretization = attr(trans, "disc_info"),
     formula = formula,
     method = "first",
     description = paste("RWeka classifier", attr(what, "meta")$name)
