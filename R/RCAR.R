@@ -49,17 +49,19 @@ RCAR <- function(formula, data,
 
 
   structure(list(
+    formula = formula,
+    class = form$class_names,
+    discretization = attr(trans, "disc_info"),
     rules = rulebase,
+    default = form$class_names[which.max(biases)], # this is not used!
     weights = weights,
     biases = biases,
-    class = form$class_names,
-    default = form$class_names[which.max(biases)], # this is not used!
-    discretization = attr(trans, "disc_info"),
-    description = paste("RCAR+ based on RCAR (Azmi et al., 2019)"),
     method='logit',
-    formula = formula,
-    all_rules = cars,
-    reg_model = model,
-    cv = cv
+    model = list(
+      all_rules = cars,
+      reg_model = model,
+      cv = cv
+    ),
+    description = paste("RCAR+ based on RCAR (Azmi et al., 2019)")
   ), class = 'CBA')
 }

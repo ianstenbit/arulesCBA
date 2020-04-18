@@ -19,11 +19,12 @@ CBA <- function(formula, data, pruning = "M1",
 
   # assemble classifier
   structure(list(
-    rules = rulebase,
-    class = .parseformula(formula, trans)$class_name,
-    default = info(rulebase)$defaultClass,
-    discretization = attr(trans, "disc_info"),
     formula = formula,
+    class = .parseformula(formula, trans)$class_name,
+    discretization = attr(trans, "disc_info"),
+    parameter = c(list(...), list(parameter)),
+    rules = rulebase,
+    default = info(rulebase)$defaultClass,
     method = "first",
     description = paste0("CBA algorithm (Liu et al., 1998)")
   ),

@@ -47,10 +47,10 @@ CBA_ruleset <- function(formula, rules, method = "first",
       unlist(as(rhs(rules), "list"))), sum)))
 
   structure(list(
-    rules = rules,
     formula = formula,
-    default = default,
     class = class,
+    rules = rules,
+    default = default,
     method = method,
     weights = weights,
     description = description),

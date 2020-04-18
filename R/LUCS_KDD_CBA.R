@@ -40,8 +40,8 @@ install_LUCS_KDD_CPAR <- function(force = FALSE,
 
   path <- .getLUCS_KDD("CPAR", stop = FALSE)
   if(attr(path, "exists") && !force) {
-    cat("LUCS-KDD CPAR is already installed.")
-    return()
+    cat(paste0("LUCS-KDD CPAR is already installed.\nLocation: ", path, "\n"))
+    return(invisible())
   }
 
   directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
@@ -66,6 +66,7 @@ install_LUCS_KDD_CPAR <- function(force = FALSE,
   utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
   utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory))
 
+  cat("to:", path, "\n")
   file.copy(file.path(src, "runCPAR.java"), path)
   file.copy(file.path(src, "runFOIL.java"), path)
   file.copy(file.path(src, "runPRM.java"), path)
@@ -84,8 +85,8 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
 
   path <- .getLUCS_KDD("CMAR", stop = FALSE)
   if(attr(path, "exists") && !force) {
-    cat("LUCS-KDD CMAR already installed.")
-    return()
+    cat(paste0("LUCS-KDD CMAR is already installed.\nLocation: ", path, "\n"))
+    return(invisible())
   }
 
   directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
@@ -110,6 +111,7 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
   utils::download.file(source,
     destfile = file.path(directory, "cmar.tgz"))
 
+  cat("to:", path, "\n")
   #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
   utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path))
 
@@ -169,8 +171,10 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
 ### Run the algorithms
 ### FIXME: add CMAR
 ### FIXME: add more memory java -Xms600m -Xmx600m FILE_NAME
-.LUCS_KDD <- function(formula, trans, method = c("FOIL", "PRM", "CPAR", "CMAR"), parameter = "") {
+.LUCS_KDD <- function(formula, trans, method = c("FOIL", "PRM", "CPAR", "CMAR"), parameter = "", verbose = FALSE) {
   method <- match.arg(method)
+
+  if(verbose) cat(paste("LUCS-KDD:", method, "\n"))
 
   if(method == "CMAR") path <- .getLUCS_KDD("CMAR")
   else path <- .getLUCS_KDD("CPAR")
@@ -184,28 +188,33 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
 
   exe <- paste(.java(), "-cp", path, paste0("run", method),
     classParameter, paste0("-F", filename), parameter)
+  if(verbose) cat(paste("Call:", exe, "\n\n"))
 
   ret <- system(exe, intern = TRUE)
+  if(!is.null(attr(ret, "status")) && attr(ret, "status") != 0) stop("Error in call: ", exe, "\n",ret)
+  if(verbose) print(ret)
+
   rules <- .parse_rules_LUCS_KDD(ret, formula, trans)
+  if(verbose) cat(paste("\nRules used:", length(rules), "\n"))
 
   rules
 }
 
-### Note: We use the most prevalent class if no rules match!
-
-FOIL2 <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp") {
+### NOTE: MIN_GAIN parameter is not exposed by LUCS-KDD CPAR implmentation. It is set to 0.7
+### NOTE: We use the most prevalent class if no rules match!
+FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
   parsed_formula <- .parseformula(formula, trans)
 
-  rules <- .LUCS_KDD(formula, trans, method = "FOIL", parameter = parameter)
+  rules <- .LUCS_KDD(formula, trans, method = "FOIL", parameter = "", verbose = verbose)
 
   structure(list(
-    rules = rules,
-    class = parsed_formula$class_name,
-    default = parsed_formula$class_name[which.max(itemFrequency(trans)[parsed_formula$class_ids])],
-    discretization = attr(trans, "disc_info"),
     formula = formula,
+    class = parsed_formula$class_name,
+    discretization = attr(trans, "disc_info"),
+    rules = rules,
+    default = parsed_formula$class_name[which.max(itemFrequency(trans)[parsed_formula$class_ids])],
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
@@ -215,18 +224,18 @@ FOIL2 <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp
   )
 }
 
-CPAR <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp") {
+CPAR <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
   parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "CPAR", parameter = parameter)
+  rules <- .LUCS_KDD(formula, trans, method = "CPAR", parameter = "", verbose = verbose)
 
   structure(list(
-    rules = rules,
+    formula = formula,
     class = parsed_formula$class_name,
+    rules = rules,
     default = parsed_formula$class_name[which.max(itemFrequency(trans)[parsed_formula$class_ids])],
     discretization = attr(trans, "disc_info"),
-    formula = formula,
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
@@ -236,18 +245,18 @@ CPAR <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp"
   )
 }
 
-PRM <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp") {
+PRM <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
   parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "PRM", parameter = parameter)
+  rules <- .LUCS_KDD(formula, trans, method = "PRM", parameter = "", verbose = verbose)
 
   structure(list(
-    rules = rules,
-    class = parsed_formula$class_name,
-    default = majorityClass(formula, trans),
-    discretization = attr(trans, "disc_info"),
     formula = formula,
+    class = parsed_formula$class_name,
+    discretization = attr(trans, "disc_info"),
+    rules = rules,
+    default = majorityClass(formula, trans),
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
@@ -257,11 +266,13 @@ PRM <- function(formula, data, parameter = "", best_k = 5, disc.method = "mdlp")
   )
 }
 
-CMAR <- function(formula, data, parameter = "", disc.method = "mdlp") {
+CMAR <- function(formula, data, support = 0.1, confidence = 0.5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
   parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "CMAR", parameter = parameter)
+  rules <- .LUCS_KDD(formula, trans, method = "CMAR",
+    parameter = paste0("-S",floor(support*100)," -C", floor(confidence*100)),
+    verbose = verbose)
 
   # add weighted Chi2 to the rules
   quality(rules)$chiSquared <- interestMeasure(rules, "chiSquared", transactions = trans)
@@ -273,11 +284,12 @@ CMAR <- function(formula, data, parameter = "", disc.method = "mdlp") {
   quality(rules)$weightedChiSquared <- quality(rules)$chiSquared^2/maxChiSquared
 
   structure(list(
-    rules = rules,
-    class = parsed_formula$class_name,
-    default = majorityClass(formula, trans),
-    discretization = attr(trans, "disc_info"),
     formula = formula,
+    class = parsed_formula$class_name,
+    discretization = attr(trans, "disc_info"),
+    parameter = list(support = support, confidence = confidence),
+    rules = rules,
+    default = majorityClass(formula, trans),
     weights = "weightedChiSquared",
     method = "weighted",
     description = paste0("CMAR (Li, Han and Pei, 2001 - LUCS-KDD implementation).")

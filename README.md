@@ -11,14 +11,14 @@ is an extension of the package [arules](https://cran.r-project.org/package=arule
 association rule-based classification. The package implements the following algorithms:
 
 * CBA (Liu et al, 1998)
-* CMAR via LUCS-KDD Software Library (Li, Han, Pei, 2001)
-* CPAR via LUCS-KDD Software Library (Yin and Han, 2003)
-* PRM via LUCS-KDD Software Library (Yin and Han, 2003)
-* FOIL (Yin and Han, 2003)
-* RIPPER via R/Weka (Cohen, 1995)
-* PART via R/Weka (Frank and Witten, 1998)
-* RCAR (Azmi et al, 2019)
 * bCBA, wCBA (Ian Johnson, unpublished)
+* CMAR via LUCS-KDD Software Library (Li, Han and Pei, 2001)
+* CPAR via LUCS-KDD Software Library (Yin and Han, 2003)
+* FOIL (Yin and Han, 2003)
+* PART via R/Weka (Frank and Witten, 1998)
+* PRM via LUCS-KDD Software Library (Yin and Han, 2003)
+* RCAR (Azmi et al, 2019)
+* RIPPER via R/Weka (Cohen, 1995)
 
 The package also provides the infrastructure for associative classification (supervised discetization, mining class association rules (CARs)), and implements various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).

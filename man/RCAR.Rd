@@ -37,7 +37,8 @@ RCAR(formula, data, lambda = NULL, alpha = 1, glmnet.args = NULL, cv.glmnet.args
   See \code{\link{cv.glmnet}} for performing cross-validation in parallel.
 }
 \value{
-  Returns an object of class \code{CBA} representing the trained classifier with the additional fields:
+  Returns an object of class \code{CBA} representing the trained classifier with the additional field \code{model}
+  containing a list with the following elements:
 
   \item{all_rules}{all rules used to build the classifier, including the rules with a weight of zero.}
   \item{reg_model}{them multinomial logistic regression model as an object of class \code{\link{glmnet}}.}
@@ -68,9 +69,8 @@ inspect(sort(rules(classifier), by = "weight"))
 predict(classifier, head(iris))
 
 # inspecting the regression model and the cross-validation results to determine lambda
-classifier$reg_model
-classifier$cv
-plot(classifier$cv)
+str(classifier$model$reg_model)
+plot(classifier$model$cv)
 
 # show progress report and use 5 instead of the default 10 cross-validation folds.
 classifier <- RCAR(Species~., iris, cv.glmnet.args = list(nfolds = 5), verbose = TRUE)
