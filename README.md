@@ -11,11 +11,14 @@ is an extension of the package [arules](https://cran.r-project.org/package=arule
 association rule-based classification. The package implements the following algorithms:
 
 * CBA (Liu et al, 1998)
-* RCAR (Azmi et al, 2019)
-* bCBA, wCBA (Ian Johnson, unpublished)
-* FOIL (Quinlan and Cameron-Jones, 1995)
+* CMAR via LUCS-KDD Software Library (Li, Han, Pei, 2001)
+* CPAR via LUCS-KDD Software Library (Yin and Han, 2003)
+* PRM via LUCS-KDD Software Library (Yin and Han, 2003)
+* FOIL (Yin and Han, 2003)
 * RIPPER via R/Weka (Cohen, 1995)
 * PART via R/Weka (Frank and Witten, 1998)
+* RCAR (Azmi et al, 2019)
+* bCBA, wCBA (Ian Johnson, unpublished)
 
 The package also provides the infrastructure for associative classification (supervised discetization, mining class association rules (CARs)), and implements various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).
@@ -71,10 +74,10 @@ predict(classifier, head(iris))
 
 ## References
 
-* Michael Hahsler, Ian Johnson, Tomas Kliegr and Jaroslav Kuchar (2019). [Associative Classification in R: arc, arulesCBA, and rCBA](https://journal.r-project.org/archive/2019/RJ-2019-048/). _The R Journal_, 11(2) pp. 254-267.
-* Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and Association Rule Mining. _KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,_ New York, 27-31 August. AAAI. pp. 80-86.
-* Wenmin Li, Jiawei Han and Jian Pei, "CMAR: accurate and efficient classification based on multiple class-association rules," _Proceedings 2001 IEEE International Conference on Data Mining,_ San Jose, CA, USA, 2001, pp. 369-376.
-* M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. _Information Sciences,_ Volume 483, May 2019. Pages 313-331.
-* Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs: FOIL and related systems. NGCO 13, 287-312 (1995). doi: 10.1007/BF03037228
-* W. W. Cohen (1995). Fast effective rule induction. In A. Prieditis and S. Russell (eds.), _Proceedings of the 12th International Conference on Machine Learning,_ pages 115-123. Morgan Kaufmann. ISBN 1-55860-377-8.
+* M. Hahsler, I. Johnson, T. Kliegr and J. Kuchar (2019). [Associative Classification in R: arc, arulesCBA, and rCBA](https://journal.r-project.org/archive/2019/RJ-2019-048/). _The R Journal_ 11(2), pp. 254-267.
+* M. Azmi, G.C. Runger, and A. Berrado (2019). Interpretable regularized class association rules algorithm for classification in a categorical data space. _Information Sciences,_ Volume 483, May 2019, pp. 313-331.
+* W. W. Cohen (1995). Fast effective rule induction. In A. Prieditis and S. Russell (eds.), _Proceedings of the 12th International Conference on Machine Learning,_ pp. 115-123. Morgan Kaufmann. ISBN 1-55860-377-8.
 * E. Frank and I. H. Witten (1998). Generating accurate rule sets without global optimization. In J. Shavlik (ed.), _Machine Learning: Proceedings of the Fifteenth International Conference,_ Morgan Kaufmann Publishers: San Francisco, CA.
+* W. Li, J. Han and J. Pei (2001). CMAR: accurate and efficient classification based on multiple class-association rules, _Proceedings 2001 IEEE International Conference on Data Mining,_ San Jose, CA, USA, pp. 369-376.
+* B. Liu, W. Hsu and Y. Ma (1998). Integrating Classification and Association Rule Mining. _KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,_ New York, AAAI, pp. 80-86.
+* X. Yin and J. Han (2003). CPAR: Classification based on Predictive Association Rules, _Proceedings of the 2003 SIAM International Conference on Data Minin,_ pp. 331-235.

@@ -35,7 +35,7 @@ pruneCBA_M2(formula, rules, transactions, verbose = FALSE)
   introduced by Liu, et al. (1998).
 
   Candidate classification association rules (CARs) are mined with the standard APRIORI algorithm.
-  Rules are ranked bt confidence, support and size. Then either the M1 or M2 algoritm are used
+  Rules are ranked by confidence, support and size. Then either the M1 or M2 algorithm are used
   to perform database coverage pruning and to determin the number of rules to use and the default class.
 }
 \value{

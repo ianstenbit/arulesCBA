@@ -16,7 +16,7 @@ mineCARs(formula, transactions, parameter = NULL, control = NULL,
   \item{parameter, control}{Optional parameter and control lists for the \code{\link[arules]{apriori}} algorithm.}
   \item{balanceSupport}{logical; if \code{TRUE}, class imbalance is counteracted by using class specific minimum support values. Alternatively, a support value for each class can be specified (see Details section).}
   \item{verbose}{logical; report progress?}
-  \item{...}{For convenience, the mining parameters for apriori can be sepcified as .... Examples are
+  \item{...}{For convenience, the mining parameters for apriori can be specified as .... Examples are
     the \code{support} and \code{confidence} thresholds, and the  \code{maxlen} of rules.}
 }
 \details{
@@ -26,7 +26,7 @@ Class association rules (CARs) are of the form
 
 where the LHS \eqn{P} is a pattern (i.e., an itemset) and \eqn{c_i} is a single items representing the class label.
 
-\bold{Mining parameters.} Mining parameters for \code{\link[arules]{apriori}} can be either specified as a list (or object of \code{\link[arules]{APparameter}}) as argument \code{parameter} or, for conveininance, as arguments in \code{...}. \bold{Note:} \code{mineCARs} uses by default a support of 0.1, a confidence of 0.5 and
+\bold{Mining parameters.} Mining parameters for \code{\link[arules]{apriori}} can be either specified as a list (or object of \code{\link[arules]{APparameter}}) as argument \code{parameter} or, for convenience, as arguments in \code{...}. \bold{Note:} \code{mineCARs} uses by default a support of 0.1, a confidence of 0.5 and
 a \code{maxlen} (rule length including items in the LHS and RHS) of 5.
 
 \bold{Balancing minimum support.} Using a single minimum support threshold for a highly class imbalanced dataset will lead to the problem, that minority classes will only be presented in very few rules. To address this issue,

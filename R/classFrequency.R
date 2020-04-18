@@ -7,6 +7,8 @@ classFrequency <- function(formula, x, type = "relative") {
   } else { stop("Only implemented for transactions!") }
 }
 
+majorityClass <- function(formula, transactions) names(which.max(classFrequency(Species ~ ., transactions)))
+
 response <- function(formula, x) {
   x <- items(x)
   if(is(x, "itemMatrix")) {

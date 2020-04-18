@@ -25,9 +25,12 @@ export("CBA",
         "RIPPER_CBA",
         "PART_CBA",
 
+        "install_LUCS_KDD_CMAR",
+        "install_LUCS_KDD_CPAR",
         "FOIL2",
         "CPAR",
         "PRM",
+        "CMAR",
 
         "rules",
         "CBA_ruleset",
@@ -35,6 +38,7 @@ export("CBA",
         "prepareTransactions",
         "mineCARs",
         "classFrequency",
+        "majorityClass",
         "response"
 )
 

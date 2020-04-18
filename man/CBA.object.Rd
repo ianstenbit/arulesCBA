@@ -52,7 +52,7 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
   \item{method}{classification method.}
   \item{formula}{used formula.}
 
-\code{predict} retuns predicted labels for \code{newdata}.
+\code{predict} returns predicted labels for \code{newdata}.
 
 \code{rules} returns the rule base.
 }

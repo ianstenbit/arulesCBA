@@ -7,7 +7,7 @@
 \title{CBA classifiers based on rule-based classifiers in RWeka}
 \description{
   Provides CBA-type classifiers based on RIPPER (Cohen, 1995)
-  and PART (Frank and Witten, 1998) using the implementaion
+  and PART (Frank and Witten, 1998) using the implementation
   in Weka via RWeka (Hornik et al, 2009).
 }
 \usage{

@@ -1,4 +1,3 @@
-
 CBA <- function(formula, data, pruning = "M1",
   parameter = NULL, control = NULL, balanceSupport = FALSE,
   disc.method = "mdlp", verbose = FALSE, ...){

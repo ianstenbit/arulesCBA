@@ -32,7 +32,7 @@ wCBA(formula, data, parameter = NULL, control = NULL,
   Returns an object of class \code{CBA} representing the trained classifier
   with fields:
   \item{rules}{the classifier rule base.}
-  \item{default}{deault class label.}
+  \item{default}{default class label.}
   \item{levels}{levels of the class variable.}
 }
 \author{Ian Johnson}
