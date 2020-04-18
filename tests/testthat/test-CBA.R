@@ -6,7 +6,6 @@ context("CBA")
 
 cba_classifier <- CBA(Species ~ ., iris, supp = 0.05, conf = 0.9, pruning = "M1")
 expect_equal(length(rules(cba_classifier)), 8L)
-expect_equal(cba_classifier$default, "Species=versicolor")
 
 results <- predict(cba_classifier, iris)
 expect_equal(results[1], factor("setosa",

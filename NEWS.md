@@ -6,7 +6,7 @@
 * added new function response to convert class items to class labels (factors).
 * added new function majorityClass.
 * added FOIL.
-* added RIPPER and PART (via RWeka).
+* added RIPPER C4.5, and PART (via RWeka).
 * added PRM, CPAR and CMAR (via LUCS-KDD Software Library).
 * added datasets Mushroom and Lymphography.
 

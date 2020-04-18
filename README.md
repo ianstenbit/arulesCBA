@@ -14,6 +14,7 @@ association rule-based classification. The package implements the following algo
 * bCBA, wCBA (Ian Johnson, unpublished)
 * CMAR via LUCS-KDD Software Library (Li, Han and Pei, 2001)
 * CPAR via LUCS-KDD Software Library (Yin and Han, 2003)
+* C4.5 via J48 in R/Weka (Quinlan, 1993)
 * FOIL (Yin and Han, 2003)
 * PART via R/Weka (Frank and Witten, 1998)
 * PRM via LUCS-KDD Software Library (Yin and Han, 2003)
@@ -80,4 +81,5 @@ predict(classifier, head(iris))
 * E. Frank and I. H. Witten (1998). Generating accurate rule sets without global optimization. In J. Shavlik (ed.), _Machine Learning: Proceedings of the Fifteenth International Conference,_ Morgan Kaufmann Publishers: San Francisco, CA.
 * W. Li, J. Han and J. Pei (2001). CMAR: accurate and efficient classification based on multiple class-association rules, _Proceedings 2001 IEEE International Conference on Data Mining,_ San Jose, CA, USA, pp. 369-376.
 * B. Liu, W. Hsu and Y. Ma (1998). Integrating Classification and Association Rule Mining. _KDD'98 Proceedings of the Fourth International Conference on Knowledge Discovery and Data Mining,_ New York, AAAI, pp. 80-86.
+* R. Quinlan (1993). _C4.5: Programs for Machine Learning._ Morgan Kaufmann Publishers, San Mateo, CA.
 * X. Yin and J. Han (2003). CPAR: Classification based on Predictive Association Rules, _Proceedings of the 2003 SIAM International Conference on Data Minin,_ pp. 331-235.

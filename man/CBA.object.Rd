@@ -42,15 +42,14 @@ CBA_ruleset(formula, rules, method = "first", weights = NULL, default = NULL,
   \code{CBA_ruleset()} returns an object of class
   \code{CBA} representing the trained classifier
   with fields:
+  \item{formula}{used formula.}
+  \item{discretization}{discretization information.}
   \item{rules}{the classifier rule base.}
+  \item{default}{default class label ot \code{NA}.}
   \item{weights}{rule weights.}
   \item{biases}{class biases.}
-  \item{class}{class variable.}
-  \item{default}{default class label.}
-  \item{discretization}{discretization information.}
-  \item{description}{description in human readable form.}
   \item{method}{classification method.}
-  \item{formula}{used formula.}
+  \item{description}{description in human readable form.}
 
 \code{predict} returns predicted labels for \code{newdata}.
 

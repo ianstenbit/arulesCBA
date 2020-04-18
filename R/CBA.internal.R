@@ -149,13 +149,12 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
     defaultClass <- class[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
 
     classifier <- list(
-      rules = classifier,
-      class = class,
-      default = defaultClass,
-      description = description,
-      discretization = disc_info,
       formula = formula,
-      method = "first"
+      discretization = disc_info,
+      rules = classifier,
+      default = defaultClass,
+      method = "first",
+      description = description
     )
 
   } else if(method == "boosted") {
@@ -173,14 +172,13 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
     defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(class), class.weights)
 
     classifier <- list(
-      rules = rules.sorted[rule_weights > 0],
-      weights = rule_weights[rule_weights > 0],
-      class = class,
-      default = class[defaultClass],
-      description = description,
-      discretization = disc_info,
       formula = formula,
-      method = "weighted"
+      discretization = disc_info,
+      rules = rules.sorted[rule_weights > 0],
+      default = class[defaultClass],
+      weights = rule_weights[rule_weights > 0],
+      method = "weighted",
+      description = description
     )
 
 
@@ -188,14 +186,13 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
 
     rule_weights <- quality(rules)[["support"]] * quality(rules)[["confidence"]]
     classifier <- list(
-      rules = rules,
-      weights = rule_weights,
-      class = class,
-      default = names(which.max(rightHand)),
-      description = description,
-      discretization = disc_info,
       formula = formula,
-      method = "weighted"
+      discretization = disc_info,
+      rules = rules,
+      default = names(which.max(rightHand)),
+      weights = rule_weights,
+      method = "weighted",
+      description = description
     )
 
   } else {

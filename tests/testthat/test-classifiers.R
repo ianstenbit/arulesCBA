@@ -5,7 +5,8 @@ data("iris")
 context("Test classifiers")
 
 classifiers <- c(CBA, FOIL, RCAR)
-if("RWeka" %in% utils::installed.packages()[,"Package"]) classifiers <- append(classifiers, c(RIPPER_CBA, PART_CBA))
+if("RWeka" %in% utils::installed.packages()[,"Package"])
+  classifiers <- append(classifiers, c(RIPPER_CBA, PART_CBA, C4.5_CBA))
 
 ### use raw data
 dat <- iris

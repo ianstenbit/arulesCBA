@@ -50,10 +50,9 @@ RCAR <- function(formula, data,
 
   structure(list(
     formula = formula,
-    class = form$class_names,
     discretization = attr(trans, "disc_info"),
     rules = rulebase,
-    default = form$class_names[which.max(biases)], # this is not used!
+    default = NA,
     weights = weights,
     biases = biases,
     method='logit',

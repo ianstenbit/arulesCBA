@@ -102,8 +102,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
   # assemble classifier
   structure(list(
     rules = rules,
-    class = .parseformula(formula, trans)$class_name,
-    default = class[which.max(itemFrequency(trans)[class_ids])], ### FIXME
+    default = majorityClass(formula, trans), ### FIXME
     discretization = attr(trans, "disc_info"),
     formula = formula,
     method = "weighted",

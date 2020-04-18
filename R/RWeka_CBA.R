@@ -81,8 +81,7 @@
   # assemble classifier
   structure(list(
     rules = rules,
-    class = .parseformula(formula, trans)$class_names,
-    default = LIST(rhs(tail(rules, 1)))[[1]], ### last rule is the default rules
+    default = NA,
     discretization = attr(trans, "disc_info"),
     formula = formula,
     method = "first",
@@ -97,3 +96,67 @@ RIPPER_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
 
 PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
   .rules_RWeka(formula, data, RWeka::PART, control, disc.method)
+
+### C4.5 are rules extracte from a tree -> does not need a defaut class and first is the only match
+.tree_RWeka <- function(formula, data, what = RWeka::J48, control = NULL,
+  disc.method = "mdlp") {
+
+  if(!.installed("RWeka")) stop("Package 'RWeka' needs to be  installed!")
+
+  if(is.null(control)) control <- RWeka::Weka_control()
+  formula <- as.formula(formula)
+
+  # convert to transactions
+  trans <- prepareTransactions(formula, data, disc.method = disc.method)
+
+  # convert it back since weka likes it his way
+  data <- .trans2DF(trans)
+
+  # call classifier
+  classifier <- what(formula, data = data, control = control)
+
+  # convert rules
+  tree <- rJava::.jcall(classifier$classifier, "S", "toString")
+
+  # isolate rules
+  tree <- strsplit(tree, "\n")[[1]]
+  space <- which(tree == "")
+  tree <- tree[(space[1]+1L):(space[2]-1L)]
+
+  # find RHS
+  leafs <- grep(": .*\\)$", tree)
+  rhs <- sub(".*: (.*) \\(.*", "\\1", tree[leafs])
+
+  # construct LHS
+  lvl <- nchar(gsub("[^\\|]", "", tree))+1L
+  lhs_item <- gsub("\\|\\s+", "", tree)
+  lhs_item <- sub(": (.*) \\(.*", "", lhs_item)
+  lhs_item <- sub("^\\S+ = ", "", lhs_item)
+  lhs <- lapply(leafs, FUN = function(l) {
+    lvl1 <- lvl[1:l]
+    lvl1[lvl1>lvl[l]] <- 1
+    lhs_item[c(which(diff(lvl1)>0), l)]
+    })
+
+  rhs <- encode(lapply(rhs, c), itemLabels = itemLabels(trans))
+  lhs <- encode(lhs, itemLabels = itemLabels(trans))
+
+  rules <- new("rules", lhs = lhs, rhs = rhs)
+  quality(rules) <- interestMeasure(rules, measure = c("support", "confidence"),
+    transactions = trans)
+
+  # assemble classifier
+  structure(list(
+    rules = rules,
+    default = NA,
+    discretization = attr(trans, "disc_info"),
+    formula = formula,
+    method = "first",
+    description = paste("RWeka classifier", attr(what, "meta")$name)
+  ),
+    class = "CBA"
+  )
+}
+
+C4.5_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
+  .tree_RWeka(formula, data, RWeka::J48, control, disc.method)

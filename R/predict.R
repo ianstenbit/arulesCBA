@@ -26,16 +26,6 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
   # find class label for each rule
   RHSclass <- response(object$formula, object$rules)
-  class_levels <- levels(RHSclass)
-
-  #class_levels <- sapply(strsplit(object$class, '='), '[',2)
-  ##RHSclass <- unname(unlist(as(rhs(object$rules), "list")))
-  #RHSclass <- sapply(strsplit(RHSclass, '='), '[', 2)
-  #RHSclass <- factor(RHSclass, levels = class_levels)
-
-  # Default class
-  default <- strsplit(object$default, '=')[[1]][2]
-  defaultLevel <- which(class_levels == default)
 
   # classify using first match
   if(method == "first") {
@@ -43,10 +33,10 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- RHSclass[w]
-    output[is.na(w)] <- default
+    if(any(is.na(w)) && is.na(object$default)) stop("Classifier has not default class, but produces NA!")
+    output[is.na(w)] <- object$default
 
     # preserve the levels of original data for data.frames
-    #return(factor(output, levels = class_levels))
     return(output)
   }
 
@@ -103,7 +93,10 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(type =="score") return(scores)
 
   # make sure default wins for ties
-  scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
+  if(!is.null(object$default)) {
+    defaultLevel <- which(object$default == levels(RHSclass))
+    scores[,defaultLevel] <- scores[,defaultLevel] + .Machine$double.eps
+  }
 
   output <- factor(apply(scores, MARGIN = 1, which.max),
     levels = 1:length(levels(RHSclass)),
@@ -111,4 +104,3 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
   return(output)
 }
-

@@ -7,7 +7,10 @@ classFrequency <- function(formula, x, type = "relative") {
   } else { stop("Only implemented for transactions!") }
 }
 
-majorityClass <- function(formula, transactions) names(which.max(classFrequency(Species ~ ., transactions)))
+majorityClass <- function(formula, transactions) {
+  majorityItem <- names(which.max(classFrequency(Species ~ ., transactions)))
+  strsplit(majorityItem, "=")[[1]][2]
+}
 
 response <- function(formula, x) {
   x <- items(x)

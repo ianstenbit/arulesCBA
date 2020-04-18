@@ -211,10 +211,9 @@ FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FAL
 
   structure(list(
     formula = formula,
-    class = parsed_formula$class_name,
     discretization = attr(trans, "disc_info"),
     rules = rules,
-    default = parsed_formula$class_name[which.max(itemFrequency(trans)[parsed_formula$class_ids])],
+    default = majorityClass(formula, trans),
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
@@ -234,7 +233,7 @@ CPAR <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALS
     formula = formula,
     class = parsed_formula$class_name,
     rules = rules,
-    default = parsed_formula$class_name[which.max(itemFrequency(trans)[parsed_formula$class_ids])],
+    default = majorityClass(formula, trans),
     discretization = attr(trans, "disc_info"),
     method = "weighted",
     weights = "laplace",
@@ -253,7 +252,6 @@ PRM <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE
 
   structure(list(
     formula = formula,
-    class = parsed_formula$class_name,
     discretization = attr(trans, "disc_info"),
     rules = rules,
     default = majorityClass(formula, trans),
@@ -285,7 +283,6 @@ CMAR <- function(formula, data, support = 0.1, confidence = 0.5, disc.method = "
 
   structure(list(
     formula = formula,
-    class = parsed_formula$class_name,
     discretization = attr(trans, "disc_info"),
     parameter = list(support = support, confidence = confidence),
     rules = rules,

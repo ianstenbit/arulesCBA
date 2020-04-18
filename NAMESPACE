@@ -24,6 +24,7 @@ export("CBA",
 
         "RIPPER_CBA",
         "PART_CBA",
+        "C4.5_CBA",
 
         "install_LUCS_KDD_CMAR",
         "install_LUCS_KDD_CPAR",
