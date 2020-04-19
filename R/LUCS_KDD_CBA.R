@@ -186,7 +186,7 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
   filename <- tempfile(fileext = ".num")
   .write_trans_LUCS_KDD(formula, trans, filename)
 
-  exe <- paste(.java(), "-cp", path, paste0("run", method),
+  exe <- paste(.java(), options()$java.parameters[1], "-cp", path, paste0("run", method),
     classParameter, paste0("-F", filename), parameter)
   if(verbose) cat(paste("Call:", exe, "\n\n"))
 

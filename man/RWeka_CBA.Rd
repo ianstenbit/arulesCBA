@@ -31,6 +31,9 @@ You need to install package \pkg{RWeka} to use these classifiers.
 See R/Weka functions \code{\link[RWeka]{JRip}} (RIPPER), \code{\link[RWeka]{J48}} (C4.5 rules)
 \code{\link[RWeka]{PART}} for algorithm details and how control options can be passed on via \code{control}.
 An example is given in the Examples Section below.
+
+Memory for \pkg{RWeka} can be increased using the R options (e.g., \code{options(java.parameters = "-Xmx1024m")})
+before \pkg{RWeka} or \pkg{rJava} is loaded or any RWeka-based classigier in this package is used.
 }
 \value{
   Returns an object of class \code{\link{CBA.object}} representing the trained classifier.

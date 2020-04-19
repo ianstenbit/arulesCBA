@@ -43,6 +43,8 @@ install_LUCS_KDD_CPAR(force = FALSE,
 Java JDK installation including the \code{javac} compiler. On some systems (Windows), you may need to set
 the \code{JAVA_HOME} environment variable so the system finds the compiler.
 
+\bold{Memory:} The memory for Java can be increased via R options. For example: \code{options(java.parameters = "-Xmx1024m")}
+
 \bold{Note:} The implementation does not expose the min. gain parameter for CPAR, PRM and FOIL2. It is
 fixed at 0.7 (the value used by Yin and Han, 2001). FOIL2 is an alternative Java implementation to the native implementation of FOIL already provided in the \pkg{arulesCBA}. \code{\link{FOIL}} exposes min. gain.
 }
@@ -64,7 +66,7 @@ data("iris")
 install_LUCS_KDD_CMAR()
 
 # build a classifier, inspect rules and make predictions
-cl <- CMAR(Species ~ ., iris, support = .2, confidence = .8)
+cl <- CMAR(Species ~ ., iris, support = .2, confidence = .8, verbose = TRUE)
 cl
 
 inspect(rules(cl))
