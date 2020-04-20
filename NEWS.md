@@ -1,4 +1,4 @@
-# arulesCBA 1.2.0 (2020-04-17)
+# arulesCBA 1.2.0 (2020-04-19)
 * Version 1.2.0 has a major interface cleanup. This might require some change in existing code.
 * The classifiers now use as the default a min. confidence of .5 and maxlen of 5 (max. rule length). 
 * CBA now includes a default rule in the rule base.

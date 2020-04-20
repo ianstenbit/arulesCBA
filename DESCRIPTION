@@ -1,6 +1,6 @@
 Package: arulesCBA
 Version: 1.2.0
-Date: 2020-4-17
+Date: 2020-4-19
 Title: Classification Based on Association Rules
 Authors@R: c(
   person("Michael", "Hahsler", role=c("aut", "cre", "cph"),
@@ -10,10 +10,9 @@ Authors@R: c(
   person("Tyler", "Giallanza", role=c("ctb"))
   )
 Description: Provides the infrastructure for association rule-based classification including algorithms like Classification Based on Associations (CBA).
-Maintainer: Ian Johnson <ianjjohnson@icloud.com>
 Depends: R (>= 3.5.0), Matrix (>= 1.2-0), arules (>= 1.6-5) 
-Imports: methods, discretization (>= 1.0-1), glmnet (>= 2.0-16) 
-Suggests: testthat, RWeka, rJava 
+Imports: methods, discretization (>= 1.0-1), glmnet (>= 3.0-0) 
+Suggests: testthat, rJava, RWeka
 License: GPL-3
 URL: https://github.com/ianjjohnson/arulesCBA
 BugReports: https://github.com/ianjjohnson/arulesCBA
