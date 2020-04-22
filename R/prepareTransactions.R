@@ -1,5 +1,29 @@
-
-### convert a data.frame into transactions with an attribute "disc_info"
+#' Helper to Convert Data into Transactions
+#'
+#' Converts a data.frame into transactions by applying class-based
+#' discretization.
+#'
+#'
+#' @param formula the formula.
+#' @param data a data.frame with the data.
+#' @param disc.method Discretization method used to discretize continuous
+#' variables if data is a data.frame (default: \code{"mdlp"}). See
+#' \code{\link{discretizeDF.supervised}} for more supervised discretization
+#' methods.
+#' @param match typically \code{NULL}. Only used internally if data is a
+#' already a set of transactions.
+#' @return An object of class \code{\link[arules]{transactions}} from
+#' \pkg{arules} with an attribute called \code{"disc_info"} that contains
+#' information on the used discretization for each column.
+#' @author Michael Hahsler
+#' @seealso \code{\link[arules]{transactions}}.
+#' @examples
+#'
+#' data("iris")
+#'
+#' iris_trans <- prepareTransactions(Species ~ ., iris)
+#' iris_trans
+#'
 prepareTransactions <- function(formula, data, disc.method = "mdlp", match = NULL) {
 
   ### Note: transactions might need recoding!

@@ -1,7 +1,90 @@
-## FIXME: Default class???
+#' Interface to the LUCS-KDD Implementations of CMAR, PRM and CPAR
+#'
+#' Interface for the LUCS-KDD Software Library Java implementations of CMAR
+#' (Li, Han and Pei, 2001), PRM, and CPAR (Yin and Han, 2003). \bold{Note:} The
+#' Java implementations is not part of \pkg{arulesCBA} and not covered by the
+#' packages license. It will be downloaded and compiled separately. It is
+#' available free of charge for \bold{non-commercial use.}
+#'
+#' \bold{Installation:} The LUCS-KDD code is not part of the package and has to
+#' be downloaded, compiled and installed using \code{install_LUCS_KDD_CMAR()}
+#' and \code{install_LUCS_KDD_CPAR()}. You need a complete Java JDK
+#' installation including the \code{javac} compiler. On some systems (Windows),
+#' you may need to set the \code{JAVA_HOME} environment variable so the system
+#' finds the compiler.
+#'
+#' \bold{Memory:} The memory for Java can be increased via R options. For
+#' example: \code{options(java.parameters = "-Xmx1024m")}
+#'
+#' \bold{Note:} The implementation does not expose the min. gain parameter for
+#' CPAR, PRM and FOIL2. It is fixed at 0.7 (the value used by Yin and Han,
+#' 2001). FOIL2 is an alternative Java implementation to the native
+#' implementation of FOIL already provided in the \pkg{arulesCBA}.
+#' \code{\link{FOIL}} exposes min. gain.
+#'
+#' @name LUCS_KDD_CBA
+#' @param formula a symbolic description of the model to be fitted. Has to be
+#' of form \code{class ~ .} or \code{class ~ predictor1 + predictor2}.
+#' @param data A data.frame or a transaction set containing the training data.
+#' Data frames are automatically discretized and converted to transactions.
+#' @param support,confidence minimum support and minimum confidence thresholds
+#' for CMAR (range [0, 1]).
+#' @param best_k use average expected accuracy (laplace) of the best k rules
+#' per class for prediction.
+#' @param disc.method Discretization method used to discretize continuous
+#' variables if data is a data.frame (default: \code{"mdlp"}). See
+#' \code{\link{discretizeDF.supervised}} for more supervised discretization
+#' methods.
+#' @param verbose Show verbose output?
+#' @param force logical; force redownload, rebuilding and reinstallation?
+#' @param source source for the code. A local file can be specified as a URI
+#' starting with \code{file://} (see \code{\link[utils]{download.file}}).
+#' @return Returns an object of class \code{\link{CBA.object}} representing the
+#' trained classifier.
+#' @references Li W., Han, J. and Pei, J. CMAR: Accurate and Efficient
+#' Classification Based on Multiple Class-Association Rules, ICDM, 2001, pp.
+#' 369-376.
+#'
+#' Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive
+#' Association Rules, SDM, 2003.
+#' c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
+#' "10.1137/1.9781611972733.40")\Sexpr{tools:::Rd_expr_doi("10.1137/1.9781611972733.40")}
+#'
+#' Frans Coenen et al. The LUCS-KDD Software Library,
+#' \url{https://cgi.csc.liv.ac.uk/~frans/KDD/Software/}
+#' @examples
+#'
+#' \dontrun{
+#' data("iris")
+#'
+#' # install and compile CMAR
+#' install_LUCS_KDD_CMAR()
+#'
+#' # build a classifier, inspect rules and make predictions
+#' cl <- CMAR(Species ~ ., iris, support = .2, confidence = .8, verbose = TRUE)
+#' cl
+#'
+#' inspect(rules(cl))
+#'
+#' predict(cl, head(iris))
+#'
+#' # install CPAR (also installs PRM and FOIL2)
+#' install_LUCS_KDD_CPAR()
+#'
+#' cl <- CPAR(Species ~ ., iris)
+#' cl
+#'
+#' cl <- PRM(Species ~ ., iris)
+#' cl
+#'
+#' cl <- FOIL2(Species ~ ., iris)
+#' cl
+#' }
+#'
+NULL
 
-### Find java and javac
-# from http://stackoverflow.com/a/34031214/470769
+
+# Find java and javac from http://stackoverflow.com/a/34031214/470769
 .Sys.which2 <- function(cmd) {
   stopifnot(length(cmd) == 1)
   if (.Platform$OS.type == "windows") {
@@ -33,95 +116,6 @@
 
   path
 }
-
-
-install_LUCS_KDD_CPAR <- function(force = FALSE,
-  source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/FOIL_PRM_CPAR/foilPrmCpar.tgz") {
-
-  path <- .getLUCS_KDD("CPAR", stop = FALSE)
-  if(attr(path, "exists") && !force) {
-    cat(paste0("LUCS-KDD CPAR is already installed.\nLocation: ", path, "\n"))
-    return(invisible())
-  }
-
-  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
-  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
-
-  dir.create(directory, showWarnings = FALSE)
-
-  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CPAR algorithms.",
-    "\nThis requires a working installation of the Java JDK including java and javac.",
-    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
-    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
-    "\n")
-
-  # check for java/javac (stops if not found)
-  .java()
-  .javac()
-
-  if(!is.null(options()$LUCS_KDD_CPAR_FILE))
-    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CPAR_FILE))
-
-  cat("Installing from:", source, "\n")
-  utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
-  utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory))
-
-  cat("to:", path, "\n")
-  file.copy(file.path(src, "runCPAR.java"), path)
-  file.copy(file.path(src, "runFOIL.java"), path)
-  file.copy(file.path(src, "runPRM.java"), path)
-
-  cat("Compiling.\n")
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runCPAR.java"))
-  ret <- system(exe, intern = TRUE)
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runFOIL.java"))
-  ret <- system(exe, intern = TRUE)
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runPRM.java"))
-  ret <- system(exe, intern = TRUE)
-}
-
-install_LUCS_KDD_CMAR <- function(force = FALSE,
-  source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/CMAR/cmar.tgz") {
-
-  path <- .getLUCS_KDD("CMAR", stop = FALSE)
-  if(attr(path, "exists") && !force) {
-    cat(paste0("LUCS-KDD CMAR is already installed.\nLocation: ", path, "\n"))
-    return(invisible())
-  }
-
-  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
-  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
-
-  dir.create(directory, showWarnings = FALSE)
-
-  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CMAR algorithms.",
-    "\nThis requires a working installation of the Java JDK including java and javac.",
-    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
-    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
-    "\n")
-
-  # check for java/javac (stops if not found)
-  .java()
-  .javac()
-
-  if(!is.null(options()$LUCS_KDD_CMAR_FILE))
-    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CMAR_FILE))
-
-  cat("Installing from:", source, "\n")
-  utils::download.file(source,
-    destfile = file.path(directory, "cmar.tgz"))
-
-  cat("to:", path, "\n")
-  #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
-  utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path))
-
-  file.copy(file.path(src, "runCMAR.java"), path)
-
-  cat("Compiling.\n")
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runCMAR.java"))
-  ret <- system(exe, intern = TRUE)
-}
-
 
 ### Write and read LUCS-KDD format files
 # LUCS-KDD uses item ids and the highest item ids are the class labels.
@@ -202,6 +196,7 @@ install_LUCS_KDD_CMAR <- function(force = FALSE,
 
 ### NOTE: MIN_GAIN parameter is not exposed by LUCS-KDD CPAR implmentation. It is set to 0.7
 ### NOTE: We use the most prevalent class if no rules match!
+#' @rdname LUCS_KDD_CBA
 FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
@@ -223,6 +218,7 @@ FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FAL
   )
 }
 
+#' @rdname LUCS_KDD_CBA
 CPAR <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
@@ -244,6 +240,7 @@ CPAR <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALS
   )
 }
 
+#' @rdname LUCS_KDD_CBA
 PRM <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
@@ -264,6 +261,7 @@ PRM <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE
   )
 }
 
+#' @rdname LUCS_KDD_CBA
 CMAR <- function(formula, data, support = 0.1, confidence = 0.5, disc.method = "mdlp", verbose = FALSE) {
   formula <- as.formula(formula)
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
@@ -294,3 +292,92 @@ CMAR <- function(formula, data, support = 0.1, confidence = 0.5, disc.method = "
     class = "CBA"
   )
 }
+
+
+#' @rdname LUCS_KDD_CBA
+install_LUCS_KDD_CPAR <- function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/FOIL_PRM_CPAR/foilPrmCpar.tgz") {
+
+  path <- .getLUCS_KDD("CPAR", stop = FALSE)
+  if(attr(path, "exists") && !force) {
+    cat(paste0("LUCS-KDD CPAR is already installed.\nLocation: ", path, "\n"))
+    return(invisible())
+  }
+
+  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
+  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
+
+  dir.create(directory, showWarnings = FALSE)
+
+  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CPAR algorithms.",
+    "\nThis requires a working installation of the Java JDK including java and javac.",
+    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
+    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
+    "\n")
+
+  # check for java/javac (stops if not found)
+  .java()
+  .javac()
+
+  if(!is.null(options()$LUCS_KDD_CPAR_FILE))
+    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CPAR_FILE))
+
+  cat("Installing from:", source, "\n")
+  utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
+  utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory))
+
+  cat("to:", path, "\n")
+  file.copy(file.path(src, "runCPAR.java"), path)
+  file.copy(file.path(src, "runFOIL.java"), path)
+  file.copy(file.path(src, "runPRM.java"), path)
+
+  cat("Compiling.\n")
+  exe <- paste(.javac(), "-cp", path, file.path(path, "runCPAR.java"))
+  ret <- system(exe, intern = TRUE)
+  exe <- paste(.javac(), "-cp", path, file.path(path, "runFOIL.java"))
+  ret <- system(exe, intern = TRUE)
+  exe <- paste(.javac(), "-cp", path, file.path(path, "runPRM.java"))
+  ret <- system(exe, intern = TRUE)
+}
+
+#' @rdname LUCS_KDD_CBA
+install_LUCS_KDD_CMAR <- function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/CMAR/cmar.tgz") {
+
+  path <- .getLUCS_KDD("CMAR", stop = FALSE)
+  if(attr(path, "exists") && !force) {
+    cat(paste0("LUCS-KDD CMAR is already installed.\nLocation: ", path, "\n"))
+    return(invisible())
+  }
+
+  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
+  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
+
+  dir.create(directory, showWarnings = FALSE)
+
+  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CMAR algorithms.",
+    "\nThis requires a working installation of the Java JDK including java and javac.",
+    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
+    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
+    "\n")
+
+  # check for java/javac (stops if not found)
+  .java()
+  .javac()
+
+  if(!is.null(options()$LUCS_KDD_CMAR_FILE))
+    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CMAR_FILE))
+
+  cat("Installing from:", source, "\n")
+  utils::download.file(source,
+    destfile = file.path(directory, "cmar.tgz"))
+
+  cat("to:", path, "\n")
+  #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
+  utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path))
+
+  file.copy(file.path(src, "runCMAR.java"), path)
+
+  cat("Compiling.\n")
+  exe <- paste(.javac(), "-cp", path, file.path(path, "runCMAR.java"))
+  ret <- system(exe, intern = TRUE)
+}
+

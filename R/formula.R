@@ -1,5 +1,5 @@
+# formula helper
 
-### formula helper
 .parseformula <- function(formula, data) {
   formula <- as.formula(formula)
   vars <- all.vars(formula)

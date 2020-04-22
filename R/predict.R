@@ -1,4 +1,5 @@
-
+#' @rdname CBA_ruleset
+#' @method predict CBA
 predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
   type <- match.arg(type)
