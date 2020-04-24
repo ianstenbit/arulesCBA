@@ -74,13 +74,11 @@ predict(classifier, head(iris))
 \references{
 Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs:
 FOIL and related systems. NGCO 13, 287-312 (1995).
-c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-"https://doi.org/10.1007/BF03037228")\Sexpr{tools:::Rd_expr_doi("https://doi.org/10.1007/BF03037228")}
+\doi{10.1007/BF03037228}
 
 Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive
 Association Rules, SDM, 2003.
-c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1137/1.9781611972733.40")\Sexpr{tools:::Rd_expr_doi("10.1137/1.9781611972733.40")}
+\doi{10.1137/1.9781611972733.40}
 }
 \seealso{
 \code{\link{CBA.object}}.

@@ -4,11 +4,17 @@
 \alias{classFrequency}
 \alias{majorityClass}
 \alias{response}
-\title{Extracting the Response and Class Frequency for Transactions or CAR Sets}
+\alias{transactionCoverage}
+\alias{uncoveredClassExamples}
+\title{Helper Functions For Dealing with Classes}
 \usage{
 classFrequency(formula, x, type = "relative")
 
 majorityClass(formula, transactions)
+
+transactionCoverage(transactions, rules)
+
+uncoveredClassExamples(formula, transactions, rules)
 
 response(formula, x)
 }
@@ -20,6 +26,8 @@ or \code{\link[arules]{rules}}.}
 
 \item{type}{\code{"relative"} or \code{"absolute"} to return proportions or
 absolute counts.}
+
+\item{rules}{A set of \code{\link[arules]{rules}}.}
 }
 \value{
 \code{response} returns the response label as a factor.
@@ -31,9 +39,9 @@ vector.
 transactions.
 }
 \description{
-Converts the class items in transactions/CARs back to a class label. Class
-frequency can be used to check transactions for class imbalance or the
-proportion of rules for each class label in a set of CARs.
+Helper functions to extract the response from transactions or rules, determine the
+class frequency, majority class, transaction coverage and the
+uncovered examples per class.
 }
 \examples{
 

@@ -1,14 +1,15 @@
-#' Extracting the Response and Class Frequency for Transactions or CAR Sets
+#' Helper Functions For Dealing with Classes
 #'
-#' Converts the class items in transactions/CARs back to a class label. Class
-#' frequency can be used to check transactions for class imbalance or the
-#' proportion of rules for each class label in a set of CARs.
+#' Helper functions to extract the response from transactions or rules, determine the
+#' class frequency, majority class, transaction coverage and the
+#' uncovered examples per class.
 #'
 #'
 #' @aliases classFrequency majorityClass response
 #' @param formula A symbolic description of the model to be fitted.
 #' @param x,transactions An object of class \code{\link[arules]{transactions}}
 #' or \code{\link[arules]{rules}}.
+#' @param rules A set of \code{\link[arules]{rules}}.
 #' @param type \code{"relative"} or \code{"absolute"} to return proportions or
 #' absolute counts.
 #' @return \code{response} returns the response label as a factor.
@@ -61,6 +62,20 @@ classFrequency <- function(formula, x, type = "relative") {
 majorityClass <- function(formula, transactions) {
   majorityItem <- names(which.max(classFrequency(Species ~ ., transactions)))
   strsplit(majorityItem, "=")[[1]][2]
+}
+
+#' @rdname classFrequency
+transactionCoverage <- function(transactions, rules) {
+  rulesMatchLHS <- is.subset(lhs(rules), transactions,
+                             sparse = (length(transactions) * length(rules) > 150000))
+  dimnames(rulesMatchLHS) <- list(NULL, NULL)
+  colSums(rulesMatchLHS)
+}
+
+#' @rdname classFrequency
+uncoveredClassExamples <- function(formula, transactions, rules) {
+  transCover <- transactionCoverage(transactions, rules)
+  table(response(formula, transactions)[transCover<1])
 }
 
 #' @rdname classFrequency

@@ -40,7 +40,9 @@ export("CBA",
         "mineCARs",
         "classFrequency",
         "majorityClass",
-        "response"
+        "response",
+        "transactionCoverage",
+        "uncoveredClassExamples"
 )
 
 S3method(predict, CBA)

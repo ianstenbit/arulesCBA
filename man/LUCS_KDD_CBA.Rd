@@ -126,8 +126,7 @@ Classification Based on Multiple Class-Association Rules, ICDM, 2001, pp.
 
 Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive
 Association Rules, SDM, 2003.
-c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1137/1.9781611972733.40")\Sexpr{tools:::Rd_expr_doi("10.1137/1.9781611972733.40")}
+\doi{10.1137/1.9781611972733.40}
 
 Frans Coenen et al. The LUCS-KDD Software Library,
 \url{https://cgi.csc.liv.ac.uk/~frans/KDD/Software/}

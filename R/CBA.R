@@ -85,18 +85,16 @@ CBA <- function(formula, data, pruning = "M1",
   if(verbose) cat("CARs left:", length(rulebase), "\n")
 
   # assemble classifier
-  structure(list(
+  CBA_ruleset(
     formula = formula,
-    discretization = attr(trans, "disc_info"),
-    parameter = c(list(...), list(parameter)),
     rules = rulebase,
-    default = NA,
     method = "first",
+    model = list(
+      parameter = c(list(...), list(parameter))
+    ),
+    discretization = attr(trans, "disc_info"),
     description = paste0("CBA algorithm (Liu et al., 1998)")
-  ),
-    class = "CBA"
   )
-
 }
 
 

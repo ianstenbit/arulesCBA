@@ -36,13 +36,11 @@
 #' @seealso \code{\link{CBA.object}}.
 #' @references Quinlan, J.R., Cameron-Jones, R.M. Induction of logic programs:
 #' FOIL and related systems. NGCO 13, 287-312 (1995).
-#' c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-#' "https://doi.org/10.1007/BF03037228")\Sexpr{tools:::Rd_expr_doi("https://doi.org/10.1007/BF03037228")}
+#' \doi{10.1007/BF03037228}
 #'
 #' Yin, Xiaoxin and Jiawei Han. CPAR: Classification based on Predictive
 #' Association Rules, SDM, 2003.
-#' c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1137/1.9781611972733.40")\Sexpr{tools:::Rd_expr_doi("10.1137/1.9781611972733.40")}
+#' \doi{10.1137/1.9781611972733.40}
 #' @examples
 #'
 #' data("iris")
@@ -157,17 +155,14 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
   rules <- sort(rules, by = "laplace")
 
   # assemble classifier
-  structure(list(
+  CBA_ruleset(
+    formula = formula,
     rules = rules,
     default = majorityClass(formula, trans), ### FIXME
-    discretization = attr(trans, "disc_info"),
-    formula = formula,
     method = "weighted",
     weights = "laplace",
     best_k = best_k,
+    discretization = attr(trans, "disc_info"),
     description = paste0("FOIL-based classifier (Yin and Han, 2003)")
-  ),
-    class = "CBA"
   )
-
 }

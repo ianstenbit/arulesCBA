@@ -1,4 +1,4 @@
-#' Objects for Classifiers Based on Association Rules
+#' Constructor for Objects for Classifiers Based on Association Rules
 #'
 #' Objects for classifiers based on association rules have class \code{"CBA"}.
 #' A creator function \code{CBA_ruleset()} and several methods are provided.
@@ -14,27 +14,34 @@
 #' label before \code{=}).
 #' @param rules A set of class association rules mined with \code{mineCars} or
 #' \code{apriori} (from \pkg{arules}).
+#' @param default Default class. If not
+#' specified then objects that are not matched by rules are classified as \code{NA}.
 #' @param method Classification method \code{"first"} found rule or
 #' \code{"majority"}.
 #' @param weights Rule weights for method majority. Either a quality measure
 #' available in \code{rules} or a numeric vector of the same length are
 #' \code{rules} can be specified. If missing, then equal weights are used
-#' @param default Default class of the form \code{variable=level}. If not
-#' specified then the most frequent RHS in rules is used.
+#' @param bias Class bias vector.
+#' @param model An optional list with model information (e.g., parameters).
+#' @param discretization A list with discretization information used by \code{predict} to discretize data supplied as a \code{data.frame}.
 #' @param description Description field used when the classifier is printed.
 #' @param x,object An object of class \code{CBA}.
 #' @param newdata A data.frame or transactions containing rows of new entries
 #' to be classified.
 #' @param type Predict \code{"class"} labels. Some classifiers can also return
 #' \code{"scores"}.
-#' @param \dots Additional arguments currently not used.
+#' @param \dots Additional arguments added as list elements to the CBA object.
 #' @return \code{CBA_ruleset()} returns an object of class \code{CBA}
-#' representing the trained classifier with fields: \item{formula}{used
-#' formula.} \item{discretization}{discretization information.}
-#' \item{rules}{the classifier rule base.} \item{default}{default class label
-#' ot \code{NA}.} \item{weights}{rule weights.} \item{biases}{class biases.}
-#' \item{method}{classification method.} \item{description}{description in
-#' human readable form.}
+#' representing the trained classifier with fields:
+#'   \item{formula}{used formula.}
+#'   \item{rules}{the classifier rule base.}
+#'   \item{default}{default class label or \code{NA}.}
+#'   \item{method}{classification method.}
+#'   \item{weights}{rule weights.}
+#'   \item{bias}{class bias vector if available.}
+#'   \item{model}{list with model description.}
+#'   \item{discretization}{discretization information.}
+#'   \item{description}{description in human readable form.}
 #'
 #' \code{predict} returns predicted labels for \code{newdata}.
 #'
@@ -57,8 +64,9 @@
 #' cars <- cars[!is.redundant(cars)]
 #' cars <- sort(cars, by = "conf")
 #'
-#' # create classifier
-#' cl <- CBA_ruleset(Species ~ ., cars)
+#' # create classifier and use the majority class as the default if no rule matches.
+#' cl <- CBA_ruleset(Species ~ ., cars, method = "first",
+#'   default = majorityClass(Species ~ ., trans))
 #' cl
 #'
 #' # look at the rule base
@@ -75,68 +83,64 @@
 #' prediction <- predict(cl, trans)
 #' table(prediction, response(Species ~ ., trans))
 #'
-CBA_ruleset <- function(formula, rules, method = "first",
-  weights = NULL, default = NULL, description = "Custom rule set"){
+CBA_ruleset <- function(formula, rules, default = NA,
+      method = "first", weights = NULL, bias = NULL,
+      model = NULL, discretization = NULL, description = "Custom rule set", ...){
 
-  # method
-  methods <- c("first", "majority")
+  # method (need to match with predict!)
+  methods <- c("first", "majority", "weighted", "logit")
   m <- pmatch(method, methods)
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
-  # find class
-  formula <- as.formula(formula)
-  vars <- .parseformula(formula, as(lhs(rules[1]), "transactions"))
-  class <- vars$class_names
-
-  # TODO: filter rules to only use predictors?
-  if(all.vars(formula)[2] != ".")
-    stop("Formula needs to be of the form class ~ .")
-
-  # only use class rules
-  take <- rhs(rules) %in% class
-  rules <- rules[take]
-  if(any(!take)) warning("Some provided rules are not CARs with the class in the RHS and are ignored. Only ",
-    length(rules), " rules used.")
-
+  # add weights
   if(!is.null(weights)) {
     if(is.character(weights))
       weights <- quality(rules)[[weights, exact = FALSE]]
-    else {
-      weights <- weights[take]
-      quality(rules)$ weights <- weights
-    }
-
-    if(length(rules) != length(weights))
-      stop("length of weights does not match number of rules")
+    else
+      weights <- weights
   }
 
-  # FIXME: find default rules if it exists to set default class
-  # If not given, use the RHS for the rules with the largest support
-  if(!is.null(default)) {
-    default <- class[grepl(default, class)]
-    if(length(default) != 1) stop("unable to identify default class")
-  } else
-    default <- names(which.max(sapply(split(quality(rules)$support,
-      unlist(as(rhs(rules), "list"))), sum)))
+  formula <- as.formula(formula)
+  parsedformula <- .parseformula(formula, as(lhs(rules[1]), "itemMatrix"))
 
-  structure(list(
+  # RHS can only contain class items
+  take <- rhs(rules) %in% parsedformula$class_names
+  if(any(!take)) {
+    warning("Some provided rules are not CARs with the class in the RHS and are ignored. Only ",
+    length(rules), " rules used.")
+
+    rules <- rules[take]
+    if(is.matrix(weights)) weights <- weights[take, ]
+    else weights <- weights[take]
+  }
+
+  # check if LHS is in formula!
+  lhscnt <- itemFrequency(lhs(rules), type = "absolute")
+  if(sum(lhscnt[-parsedformula$var_ids]) != 0)
+    warning("LHS of CARs contains items not in the formula!")
+
+  structure(c(list(
     formula = formula,
-    class = class,
     rules = rules,
     default = default,
-    method = method,
     weights = weights,
-    description = description),
-    class = "CBA")
+    method = method,
+    model = model,
+    discretization = discretization,
+    description = description
+  ), list(...)
+
+  ),
+  class = "CBA")
 }
 
 print.CBA <- function(x, ...)
   writeLines(c(
     "CBA Classifier Object",
-    paste("Class:", paste(x$class, collapse = ", ")),
-    paste("Default Class:", x$default),
+    paste("Formula:", deparse(x$formula)),
     paste("Number of rules:", length(x$rules)),
+    paste("Default Class:", x$default),
     paste("Classification method:", x$method,
       if(is.character(x$weights)) paste("by", x$weights) else "",
       if(!is.null(x$best_k)) paste("- using best", x$best_k, "rules") else ""

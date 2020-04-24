@@ -31,7 +31,8 @@
 #' @author Michael Hahsler
 #' @seealso \code{\link[RWeka]{JRip}} (RIPPER), \code{\link[RWeka]{PART}},
 #' \code{\link{CBA.object}}.
-#' @references W. W. Cohen (1995). Fast effective rule induction. In A.
+#' @references
+#' W. W. Cohen (1995). Fast effective rule induction. In A.
 #' Prieditis and S. Russell (eds.), Proceedings of the 12th International
 #' Conference on Machine Learning, pages 115-123. Morgan Kaufmann. ISBN
 #' 1-55860-377-8.
@@ -46,8 +47,7 @@
 #'
 #' Hornik K, Buchta C, Zeileis A (2009). "Open-Source Machine Learning: R Meets
 #' Weka." \emph{Computational Statistics}, 24(2), 225-232.
-#' c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-#' "10.1007/s00180-008-0119-7")\Sexpr{tools:::Rd_expr_doi("10.1007/s00180-008-0119-7")}
+#' \doi{10.1007/s00180-008-0119-7}
 #' @examples
 #'
 #' # You need to install rJava and RWeka
@@ -161,15 +161,12 @@ NULL
     transactions = trans)
 
   # assemble classifier
-  structure(list(
-    rules = rules,
-    default = NA,
-    discretization = attr(trans, "disc_info"),
+  CBA_ruleset(
     formula = formula,
+    rules = rules,
     method = "first",
+    discretization = attr(trans, "disc_info"),
     description = paste("RWeka classifier", attr(what, "meta")$name)
-  ),
-    class = "CBA"
   )
 }
 
@@ -230,15 +227,12 @@ PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
     transactions = trans)
 
   # assemble classifier
-  structure(list(
-    rules = rules,
-    default = NA,
-    discretization = attr(trans, "disc_info"),
+  CBA_ruleset(
     formula = formula,
+    rules = rules,
     method = "first",
+    discretization = attr(trans, "disc_info"),
     description = paste("RWeka classifier", attr(what, "meta")$name)
-  ),
-    class = "CBA"
   )
 }
 

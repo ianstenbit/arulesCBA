@@ -12,10 +12,14 @@
 CBA_ruleset(
   formula,
   rules,
+  default = NA,
   method = "first",
   weights = NULL,
-  default = NULL,
-  description = "Custom rule set"
+  bias = NULL,
+  model = NULL,
+  discretization = NULL,
+  description = "Custom rule set",
+  ...
 )
 
 rules(x)
@@ -32,6 +36,9 @@ label before \code{=}).}
 \item{rules}{A set of class association rules mined with \code{mineCars} or
 \code{apriori} (from \pkg{arules}).}
 
+\item{default}{Default class. If not
+specified then objects that are not matched by rules are classified as \code{NA}.}
+
 \item{method}{Classification method \code{"first"} found rule or
 \code{"majority"}.}
 
@@ -39,10 +46,15 @@ label before \code{=}).}
 available in \code{rules} or a numeric vector of the same length are
 \code{rules} can be specified. If missing, then equal weights are used}
 
-\item{default}{Default class of the form \code{variable=level}. If not
-specified then the most frequent RHS in rules is used.}
+\item{bias}{Class bias vector.}
+
+\item{model}{An optional list with model information (e.g., parameters).}
+
+\item{discretization}{A list with discretization information used by \code{predict} to discretize data supplied as a \code{data.frame}.}
 
 \item{description}{Description field used when the classifier is printed.}
+
+\item{\dots}{Additional arguments added as list elements to the CBA object.}
 
 \item{x, object}{An object of class \code{CBA}.}
 
@@ -51,17 +63,19 @@ to be classified.}
 
 \item{type}{Predict \code{"class"} labels. Some classifiers can also return
 \code{"scores"}.}
-
-\item{\dots}{Additional arguments currently not used.}
 }
 \value{
 \code{CBA_ruleset()} returns an object of class \code{CBA}
-representing the trained classifier with fields: \item{formula}{used
-formula.} \item{discretization}{discretization information.}
-\item{rules}{the classifier rule base.} \item{default}{default class label
-ot \code{NA}.} \item{weights}{rule weights.} \item{biases}{class biases.}
-\item{method}{classification method.} \item{description}{description in
-human readable form.}
+representing the trained classifier with fields:
+  \item{formula}{used formula.}
+  \item{rules}{the classifier rule base.}
+  \item{default}{default class label or \code{NA}.}
+  \item{method}{classification method.}
+  \item{weights}{rule weights.}
+  \item{bias}{class bias vector if available.}
+  \item{model}{list with model description.}
+  \item{discretization}{discretization information.}
+  \item{description}{description in human readable form.}
 
 \code{predict} returns predicted labels for \code{newdata}.
 
@@ -91,8 +105,9 @@ cars <- mineCARs(Species ~ ., trans, parameter = list(support = .01, confidence 
 cars <- cars[!is.redundant(cars)]
 cars <- sort(cars, by = "conf")
 
-# create classifier
-cl <- CBA_ruleset(Species ~ ., cars)
+# create classifier and use the majority class as the default if no rule matches.
+cl <- CBA_ruleset(Species ~ ., cars, method = "first",
+  default = majorityClass(Species ~ ., trans))
 cl
 
 # look at the rule base

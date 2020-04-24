@@ -238,7 +238,7 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
 
     defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(class), class.weights)
 
-    classifier <- list(
+    classifier <- CBA_ruleset(
       formula = formula,
       discretization = disc_info,
       rules = rules.sorted[rule_weights > 0],
@@ -252,7 +252,8 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
   } else if(method == "weighted"){
 
     rule_weights <- quality(rules)[["support"]] * quality(rules)[["confidence"]]
-    classifier <- list(
+
+    classifier <- CBA_ruleset(
       formula = formula,
       discretization = disc_info,
       rules = rules,
@@ -266,7 +267,6 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
     stop("Method must be one of: 'CBA', 'boosted', 'weighted'.")
   }
 
-  class(classifier) <- "CBA"
-  return(classifier)
+  classifier
 
 }

@@ -102,8 +102,7 @@ Publishers, San Mateo, CA.
 
 Hornik K, Buchta C, Zeileis A (2009). "Open-Source Machine Learning: R Meets
 Weka." \emph{Computational Statistics}, 24(2), 225-232.
-c("\\Sexpr[results=rd,stage=build]{tools:::Rd_expr_doi(\"#1\")}",
-"10.1007/s00180-008-0119-7")\Sexpr{tools:::Rd_expr_doi("10.1007/s00180-008-0119-7")}
+\doi{10.1007/s00180-008-0119-7}
 }
 \seealso{
 \code{\link[RWeka]{JRip}} (RIPPER), \code{\link[RWeka]{PART}},

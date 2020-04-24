@@ -1,5 +1,7 @@
 # arulesCBA 1.2.0.1 (2020-xx-xx)
-
+* the CBA_ruleset function is now used consistently as constructor for CBA objects.
+* added transactionCoverage.
+* added uncoveredClassExamples.
 
 # arulesCBA 1.2.0 (2020-04-19)
 * Version 1.2.0 has a major interface cleanup. This might require some change in existing code.

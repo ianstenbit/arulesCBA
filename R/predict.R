@@ -34,7 +34,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- RHSclass[w]
-    if(any(is.na(w)) && is.na(object$default)) stop("Classifier has not default class, but produces NA!")
+    if(any(is.na(w)) && is.na(object$default)) warning("Classifier has not default class when no rules matches! Producing NAs!")
     output[is.na(w)] <- object$default
 
     # preserve the levels of original data for data.frames
@@ -65,15 +65,15 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(is.null(object$best_k)) {
     ### score is the sum of the weights of all matching rules
 
-    # biases
-    biases <- object$biases
+    # class bias
+    bias <- object$bias
 
-    if(!is.null(biases) && nrow(biases) != length(levels(RHSclass)))
-      stop("number of biases does not match number of rules/classes.")
+    if(!is.null(bias) && nrow(bias) != length(levels(RHSclass)))
+      stop("number of class bias values does not match number of rules/classes.")
 
-    # sum score and add biases
+    # sum score and add bias
     scores <- t(crossprod(weights, rulesMatchLHS))
-    if(!is.null(biases)) scores <- sweep(scores, 2, biases, '+')
+    if(!is.null(bias)) scores <- sweep(scores, 2, bias, '+')
   }else{
     ### score is the average of the top-N matching rules (see CPAR paper by Yin and Han, 2003)
 
