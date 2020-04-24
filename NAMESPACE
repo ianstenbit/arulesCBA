@@ -38,11 +38,12 @@ export("CBA",
         "discretizeDF.supervised",
         "prepareTransactions",
         "mineCARs",
+        "response",
         "classFrequency",
         "majorityClass",
-        "response",
         "transactionCoverage",
-        "uncoveredClassExamples"
+        "uncoveredClassExamples",
+        "uncoveredMajorityClass"
 )
 
 S3method(predict, CBA)

@@ -7,7 +7,7 @@
 \alias{print.CBA}
 \alias{rules}
 \alias{rules.CBA}
-\title{Objects for Classifiers Based on Association Rules}
+\title{Constructor for Objects for Classifiers Based on Association Rules}
 \usage{
 CBA_ruleset(
   formula,
@@ -107,7 +107,7 @@ cars <- sort(cars, by = "conf")
 
 # create classifier and use the majority class as the default if no rule matches.
 cl <- CBA_ruleset(Species ~ ., cars, method = "first",
-  default = majorityClass(Species ~ ., trans))
+  default = uncoveredMajorityClass(Species ~ ., trans, cars))
 cl
 
 # look at the rule base
@@ -118,7 +118,8 @@ prediction <- predict(cl, trans)
 table(prediction, response(Species ~ ., trans))
 
 # use weighted majority
-cl <- CBA_ruleset(Species ~ ., cars, method = "majority", weights = "lift")
+cl <- CBA_ruleset(Species ~ ., cars, method = "majority", weights = "lift",
+  default = uncoveredMajorityClass(Species ~ ., trans, cars))
 cl
 
 prediction <- predict(cl, trans)

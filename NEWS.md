@@ -2,6 +2,7 @@
 * the CBA_ruleset function is now used consistently as constructor for CBA objects.
 * added transactionCoverage.
 * added uncoveredClassExamples.
+* added uncoveredMajorityClass.
 
 # arulesCBA 1.2.0 (2020-04-19)
 * Version 1.2.0 has a major interface cleanup. This might require some change in existing code.

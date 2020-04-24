@@ -66,7 +66,7 @@
 #'
 #' # create classifier and use the majority class as the default if no rule matches.
 #' cl <- CBA_ruleset(Species ~ ., cars, method = "first",
-#'   default = majorityClass(Species ~ ., trans))
+#'   default = uncoveredMajorityClass(Species ~ ., trans, cars))
 #' cl
 #'
 #' # look at the rule base
@@ -77,7 +77,8 @@
 #' table(prediction, response(Species ~ ., trans))
 #'
 #' # use weighted majority
-#' cl <- CBA_ruleset(Species ~ ., cars, method = "majority", weights = "lift")
+#' cl <- CBA_ruleset(Species ~ ., cars, method = "majority", weights = "lift",
+#'   default = uncoveredMajorityClass(Species ~ ., trans, cars))
 #' cl
 #'
 #' prediction <- predict(cl, trans)

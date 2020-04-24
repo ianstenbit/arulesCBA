@@ -4,8 +4,6 @@
 #' class frequency, majority class, transaction coverage and the
 #' uncovered examples per class.
 #'
-#'
-#' @aliases classFrequency majorityClass response
 #' @param formula A symbolic description of the model to be fitted.
 #' @param x,transactions An object of class \code{\link[arules]{transactions}}
 #' or \code{\link[arules]{rules}}.
@@ -19,6 +17,7 @@
 #'
 #' \code{majorityClass} returns the most frequent class label in the
 #' transactions.
+#' @name CBA_helpers
 #' @author Michael Hahsler
 #' @seealso \code{\link[arules]{itemFrequency}}, \code{\link[arules]{rules}},
 #' \code{\link[arules]{transactions}}.
@@ -47,38 +46,19 @@
 #' classFrequency(Species ~ ., cars, type = "absolute")
 #'
 #' # conclusion (item in the RHS) of the rule as a class label
-#' response(Species ~ ., head(iris.trans, n = 2))
+#' response(Species ~ ., cars)
 #'
-classFrequency <- function(formula, x, type = "relative") {
-  x <- items(x)
-  if(is(x, "itemMatrix")) {
-    vars <- .parseformula(formula, x)
-    x <- x[,vars$class_ids]
-    itemFrequency(x, type)
-  } else { stop("Only implemented for transactions!") }
-}
+#' # How many rules (using the first three rules) cover each transactions?
+#' transactionCoverage(iris.trans, cars[1:3])
+#'
+#' # Number of transactions per class not covered by the first three rules
+#' uncoveredClassExamples(Species ~ ., iris.trans, cars[1:3])
+#'
+#' # Majority class of the uncovered examples
+#' uncoveredMajorityClass(Species ~ ., iris.trans, cars[1:3])
+NULL
 
-#' @rdname classFrequency
-majorityClass <- function(formula, transactions) {
-  majorityItem <- names(which.max(classFrequency(Species ~ ., transactions)))
-  strsplit(majorityItem, "=")[[1]][2]
-}
-
-#' @rdname classFrequency
-transactionCoverage <- function(transactions, rules) {
-  rulesMatchLHS <- is.subset(lhs(rules), transactions,
-                             sparse = (length(transactions) * length(rules) > 150000))
-  dimnames(rulesMatchLHS) <- list(NULL, NULL)
-  colSums(rulesMatchLHS)
-}
-
-#' @rdname classFrequency
-uncoveredClassExamples <- function(formula, transactions, rules) {
-  transCover <- transactionCoverage(transactions, rules)
-  table(response(formula, transactions)[transCover<1])
-}
-
-#' @rdname classFrequency
+#' @rdname CBA_helpers
 response <- function(formula, x) {
   x <- items(x)
   if(is(x, "itemMatrix")) {
@@ -88,3 +68,38 @@ response <- function(formula, x) {
     factor(unlist(LIST(x, decode = FALSE)), levels = 1:length(l), labels = l)
   } else { stop("Only implemented for transactions!") }
 }
+
+#' @rdname CBA_helpers
+classFrequency <- function(formula, x, type = "relative") {
+  x <- items(x)
+  if(is(x, "itemMatrix")) {
+    vars <- .parseformula(formula, x)
+    x <- x[,vars$class_ids]
+    itemFrequency(x, type)
+  } else { stop("Only implemented for transactions!") }
+}
+
+#' @rdname CBA_helpers
+majorityClass <- function(formula, transactions) {
+  majorityItem <- names(which.max(classFrequency(Species ~ ., transactions)))
+  strsplit(majorityItem, "=")[[1]][2]
+}
+
+#' @rdname CBA_helpers
+transactionCoverage <- function(transactions, rules) {
+  rulesMatchLHS <- is.subset(lhs(rules), transactions,
+                             sparse = (length(transactions) * length(rules) > 150000))
+  dimnames(rulesMatchLHS) <- list(NULL, NULL)
+  colSums(rulesMatchLHS)
+}
+
+#' @rdname CBA_helpers
+uncoveredClassExamples <- function(formula, transactions, rules) {
+  transCover <- transactionCoverage(transactions, rules)
+  table(response(formula, transactions)[transCover<1])
+}
+
+#' @rdname CBA_helpers
+uncoveredMajorityClass <- function(formula, transactions, rules)
+  names(which.max(uncoveredClassExamples(formula, transactions, rules)))
+
