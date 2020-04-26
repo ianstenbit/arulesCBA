@@ -8,7 +8,7 @@
 
 The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler et al, 2020) 
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
-association rule-based classification. The package implements the following algorithms:
+association rule-based classification. The package provides the infrastructure for class association rules and implements associative classifiers based on the following algorithms:
 
 * CBA (Liu et al, 1998)
 * bCBA, wCBA (Ian Johnson, unpublished)

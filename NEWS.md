@@ -9,8 +9,8 @@
 * The classifiers now use as the default a min. confidence of .5 and maxlen of 5 (max. rule length). 
 * CBA now includes a default rule in the rule base.
 * added prepareTransactions to discretize and convert a data.frame into transactions. 
-* added new function response  to convert class items to class labels (factors).
-* added new function majorityClass.
+* added response to convert class items to class labels (factors).
+* added majorityClass.
 * added FOIL.
 * added RIPPER C4.5, and PART (via RWeka).
 * added PRM, CPAR and CMAR (via LUCS-KDD Software Library).
