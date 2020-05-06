@@ -9,8 +9,7 @@ Authors@R: c(
   email = "ianjjohnson@icloud.com"),
   person("Tyler", "Giallanza", role=c("ctb"))
   )
-Description: Provides the infrastructure for association rule-based classification including the algorithms CBA, CMAR, CPAR, C4.5 
-FOIL, PART, PRM, RCAR, and RIPPER to build associative classifiers.
+Description: Provides the infrastructure for association rule-based classification including the algorithms CBA, CMAR, CPAR, C4.5, FOIL, PART, PRM, RCAR, and RIPPER to build associative classifiers.
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>
 Depends: R (>= 3.5.0), Matrix (>= 1.2-0), arules (>= 1.6-5) 
 Imports: methods, discretization (>= 1.0-1), glmnet (>= 3.0-0) 
