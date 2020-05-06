@@ -3,6 +3,7 @@
 * added transactionCoverage.
 * added uncoveredClassExamples.
 * added uncoveredMajorityClass.
+* RCAR is now faster (does not run glmnet again for the chosen lambda) and returns the whole regularization path.
 
 # arulesCBA 1.2.0 (2020-04-19)
 * Version 1.2.0 has a major interface cleanup. This might require some change in existing code.

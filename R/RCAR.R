@@ -67,8 +67,10 @@
 #' # make predictions for the first few instances of iris
 #' predict(classifier, head(iris))
 #'
-#' # inspecting the regression model and the cross-validation results to determine lambda
+#' # inspecting the regression model, plot the regularization path, and
+#' # plot the cross-validation results to determine lambda
 #' str(classifier$model$reg_model)
+#' plot(classifier$model$reg_model)
 #' plot(classifier$model$cv)
 #'
 #' # show progress report and use 5 instead of the default 10 cross-validation folds.
@@ -100,26 +102,31 @@ RCAR <- function(formula, data,
   X <- is.superset(trans, lhs(cars))
   y <- response(formula, trans)
 
-  # find lambda using cross-validation
+  # find lambda using cross-validation or fit the model for a fixed lambda
   cv <- NULL
   if(is.null(lambda)) {
-    if(verbose) cat("* Determine lambda using cross-validation: ")
-    cv <- do.call(glmnet::cv.glmnet, c(list(x = X, y = y, family='multinomial', alpha=alpha), cv.glmnet.args))
+    if(verbose) cat("* Fitting glmnet and determine lambda using cross-validation.\n")
+    cv <- do.call(glmnet::cv.glmnet, c(list(x = X, y = y,
+      family='multinomial', alpha=alpha), cv.glmnet.args))
     lambda <- cv$lambda.1se
-    if(verbose) cat(lambda, "\n")
+    if(verbose) cat("* Found lambda:", lambda, "\n")
+    model <- cv$glmnet.fit
+    weights <- sapply(model$beta, FUN = function(x) as.vector(x[,model$lambda == lambda]))
+    bias <- model$a0[model$lambda == lambda]
+  }else{
+    if(verbose) cat("* Fitting glmnet for fixed lambda.\n")
+    model <- do.call(glmnet::glmnet, c(list(x = X, y = y, family='multinomial',
+      alpha=alpha, lambda=lambda), glmnet.args))
+    weights <- sapply(model$beta, as.vector)
+    bias <- model$a0
   }
 
-  if(verbose) cat("* Fitting glmnet\n")
-  model <- do.call(glmnet::glmnet, c(list(x = X, y = y, family='multinomial', alpha=alpha, lambda=lambda), glmnet.args))
-
   # weights: The odds multiply by exp(beta) for every 1-unit increase of x
-  weights <- sapply(model$beta, as.vector)
   remove <- apply(weights, MARGIN = 1, FUN = function(x) all(x==0))
   quality(cars)$weight <- apply(weights, MARGIN = 1, max)
   quality(cars)$oddsratio <- exp(quality(cars)$weight)
   rulebase <- cars[!remove]
   weights <- weights[!remove,]
-  bias <- model$a0
 
   if(verbose) cat("* CARs left:", length(rulebase), "\n")
 
