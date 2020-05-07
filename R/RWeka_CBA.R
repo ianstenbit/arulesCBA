@@ -151,10 +151,12 @@ NULL
   mat <- matrix(FALSE, nrow = n, ncol = m, dimnames = list(rows = NULL, cols = ilabels))
   for(i in 1:length(ilabels)) mat[grep(ilabels[i], lhs, fixed = TRUE), i] <- TRUE
   lhs <- as(mat, "itemMatrix")
+  itemInfo(lhs) <- itemInfo(trans)
 
   mat <- matrix(FALSE, nrow = n, ncol = m, dimnames = list(rows = NULL, cols = ilabels))
   for(i in 1:length(ilabels)) mat[grep(ilabels[i], rhs, fixed = TRUE), i] <- TRUE
   rhs <- as(mat, "itemMatrix")
+  itemInfo(rhs) <- itemInfo(trans)
 
   rules <- new("rules", lhs = lhs, rhs = rhs)
   quality(rules) <- interestMeasure(rules, measure = c("support", "confidence"),
@@ -221,6 +223,8 @@ PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
 
   rhs <- encode(lapply(rhs, c), itemLabels = itemLabels(trans))
   lhs <- encode(lhs, itemLabels = itemLabels(trans))
+  itemInfo(rhs) <- itemInfo(trans)
+  itemInfo(lhs) <- itemInfo(trans)
 
   rules <- new("rules", lhs = lhs, rhs = rhs)
   quality(rules) <- interestMeasure(rules, measure = c("support", "confidence"),

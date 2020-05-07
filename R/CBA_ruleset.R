@@ -103,10 +103,10 @@ CBA_ruleset <- function(formula, rules, default = NA,
   }
 
   formula <- as.formula(formula)
-  parsedformula <- .parseformula(formula, as(lhs(rules[1]), "itemMatrix"))
+  parsedformula <- .parseformula(formula, rhs(rules))
 
   # RHS can only contain class items
-  take <- rhs(rules) %in% parsedformula$class_names
+  take <- rhs(rules) %in% parsedformula$class_items
   if(any(!take)) {
     warning("Some provided rules are not CARs with the class in the RHS and are ignored. Only ",
     length(rules), " rules used.")

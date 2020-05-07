@@ -62,9 +62,7 @@ FOIL <- function(formula, data, max_len = 3, min_gain = .7, best_k = 5, disc.met
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
   parsedFormula <- .parseformula(formula, trans)
-  class <- parsedFormula$class_names
   class_ids <- parsedFormula$class_ids
-  vars <- parsedFormula$var_names
 
   # Do FOIL for each class label and join the resulting rules. (see CPAR)
 

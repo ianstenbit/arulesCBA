@@ -118,12 +118,12 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
   ds.mat <- as(data, "transactions")
   info <- itemInfo(ds.mat)
 
-  #Build vector of rhe right hahd (target for classification)
+  #Build vector of the right hand (target for classification)
 
   formula <- as.formula(formula)
   vars <- .parseformula(formula, ds.mat)
-  class <- vars$class_names
-  vars <- vars$var_names
+  class <- vars$class_items
+  vars <- vars$var_items
 
   rightHand <- as(ds.mat[, class], "list")
   if(!all(sapply(rightHand, length) == 1L)) stop("Problem with items used for class. Examples with multiple/no class label!")
@@ -143,15 +143,16 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
 
     n <- length(pot_lhs)
     lhs_sup <- quality(pot_lhs)$support
+    lhs_sup <- rep(lhs_sup, each = length(class))
 
     pot_lhs <- items(pot_lhs)
     pot_lhs <- do.call("c", replicate(length(class), pot_lhs))
-
-    lhs_sup <- rep(lhs_sup, each = length(class))
+    itemInfo(pot_lhs) <- itemInfo(ds.mat)
 
     ### RHS
     pot_rhs <- encode(as.list(rep(class, each = n)),
                       itemLabels = itemLabels(ds.mat))
+    itemInfo(pot_rhs) <- itemInfo(ds.mat)
 
 
     ### Assemble rules and add quality
@@ -215,7 +216,7 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
     #add a default class to the classifier (the default class from the last rule included in the classifier)
     defaultClass <- class[defaultClasses[strongRules][[which.min(totalErrors[strongRules])]]]
 
-    classifier <- list(
+    classifier <- CBA_ruleset(
       formula = formula,
       discretization = disc_info,
       rules = classifier,
@@ -236,7 +237,10 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
 
     rule_weights <- rep(0, length(rules.sorted))
 
-    defaultClass <- .Call("R_weighted", rule_weights, rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i, ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim, gamma, cost, length(class), class.weights)
+    defaultClass <- .Call("R_weighted", rule_weights,
+      rules.sorted@lhs@data@i, rules.sorted@lhs@data@p, rules.sorted@rhs@data@i,
+      ds.mat@data@i, ds.mat@data@p, ds.mat@data@Dim,
+      gamma, cost, length(class), class.weights)
 
     classifier <- CBA_ruleset(
       formula = formula,

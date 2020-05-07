@@ -106,11 +106,9 @@ pruneCBA_M1 <- function(formula, rules, transactions, verbose = FALSE){
 
   formula <- as.formula(formula)
   parsedFormula <- .parseformula(formula, transactions)
-  class <- parsedFormula$class_names
   class_ids <- parsedFormula$class_ids
-  vars <- parsedFormula$var_names
 
-  # Pre Step: Get rid of redundent rules sice they can never cover transactions
+  # Pre Step: Get rid of redundant rules since they can never cover transactions
   rules <- rules[!is.redundant(rules)]
   if(verbose)
     cat(paste("Using", length(rules), " non-redundant rules.\n"))
@@ -286,9 +284,7 @@ pruneCBA_M2 <- function(formula, rules, transactions, verbose = FALSE){
 
   if(verbose) warning("verbose not implemented yet for pruneCBA_M2.")
   formula <- as.formula(formula)
-  vars <- .parseformula(formula, transactions)
-  class <- vars$class_names
-  vars <- vars$var_names
+  class <- .parseformula(formula, transactions)$class_items
 
   quality(rules)$size <- size(rules)
 

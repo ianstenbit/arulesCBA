@@ -131,7 +131,7 @@ mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, ba
     ### suppress maxlen warnings!
     suppressWarnings(
       cars <- apriori(transactions, parameter = parameter,
-        appearance = list(rhs=vars$class_names, lhs=vars$var_names),
+        appearance = list(rhs=vars$class_items, lhs=vars$var_items),
         control=control)
     )
   }else{
@@ -140,7 +140,7 @@ mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, ba
       if(length(balanceSupport) != length(vars$class_ids))
         stop("balanceSupport requires One support value for each class label.")
       support <- balanceSupport
-      if(is.null(names(support))) names(support) <- vars$class_names
+      if(is.null(names(support))) names(support) <- vars$class_items
 
     }else{ # balanceSupport is TRUE
       # Following roughly: Liu B., Ma Y., Wong C.K. (2000) Improving an Association
@@ -157,7 +157,7 @@ mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, ba
       ### suppress maxlen warnings!
       suppressWarnings(
         apriori(transactions, parameter = parameter,
-          appearance = list(rhs = rhs, lhs=vars$var_names),
+          appearance = list(rhs = rhs, lhs=vars$var_items),
           control=control)
       )
     })
