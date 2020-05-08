@@ -86,30 +86,6 @@
 #'
 NULL
 
-
-
-# This combines variables and renames variables and values to numbers
-.trans2DF <- function(trans) {
-  ii <- itemInfo(trans)
-  if(is.null(ii$variables)) stop("Transaction itemInfo does not contain variable information.")
-
-  vars <- unique(ii$variables)
-
-  df <- lapply(as.character(vars), FUN = function(v) {
-    #cat(v, "\n")
-    t_v <- trans[,ii$variables == v]
-    #factor(apply(as(t_v, "ngCMatrix"), MARGIN = 2, which), labels = (colnames(t_v)))
-    r <- as(t_v, "ngCMatrix")
-    r2 <- colSums(r * seq(nrow(r)))
-    r2[r2 < 1 | r2 >nrow(r)] <- NA
-    factor(r2, labels = (colnames(t_v)))
-    })
-
-  df <- as.data.frame(df)
-  colnames(df) <- vars
-  df
-}
-
 .rules_RWeka <- function(formula, data, what = RWeka::JRip, control = NULL,
   disc.method = "mdlp") {
 
@@ -121,8 +97,8 @@ NULL
   # convert to transactions
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
-  # convert it back since weka likes it his way
-  data <- .trans2DF(trans)
+  # convert it back since Weka likes it his way
+  data <- transactions2DF(trans, itemLabels = TRUE)
 
   # call classifier
   classifier <- what(formula, data = data, control = control)
@@ -192,8 +168,8 @@ PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
   # convert to transactions
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
-  # convert it back since weka likes it his way
-  data <- .trans2DF(trans)
+  # convert it back since Weka likes it his way
+  data <- transactions2DF(trans, itemLabels = TRUE)
 
   # call classifier
   classifier <- what(formula, data = data, control = control)
