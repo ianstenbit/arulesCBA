@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepareTransactions.R
 \name{prepareTransactions}
 \alias{prepareTransactions}
-\title{Convert Data as a  Data.Frames to Transactions}
+\title{Prepare Data for Associative Classification}
 \usage{
 prepareTransactions(formula, data, disc.method = "mdlp", match = NULL)
 }
@@ -25,15 +25,21 @@ An object of class \code{\link[arules]{transactions}} from
 information on the used discretization for each column.
 }
 \description{
-Convert data in a data.frame into transactions by applying class-based
-discretization.
+Data in a data.frame are discretized using class-based
+discretization and converted into transactions. For transaction data that was not created
+from a data.frame, a negative class item is added to create data for a binary classifier.
 }
 \examples{
 
+# Perform discretization and convert to transactions
 data("iris")
-
 iris_trans <- prepareTransactions(Species ~ ., iris)
-iris_trans
+inspect(head(iris_trans))
+
+# A negative class item is added for regular transaction data (here "!canned beer")
+data("Groceries")
+g2 <- prepareTransactions(`canned beer` ~ ., Groceries)
+inspect(head(g2))
 
 }
 \seealso{

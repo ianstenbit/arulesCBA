@@ -1,7 +1,8 @@
-#' Convert Data as a  Data.Frames to Transactions
+#' Prepare Data for Associative Classification
 #'
-#' Convert data in a data.frame into transactions by applying class-based
-#' discretization.
+#' Data in a data.frame are discretized using class-based
+#' discretization and converted into transactions. For transaction data that was not created
+#' from a data.frame, a negative class item is added to create data for a binary classifier.
 #'
 #' @param formula the formula.
 #' @param data a data.frame with the data.
@@ -18,10 +19,16 @@
 #' @seealso \code{\link[arules]{transactions}}, \code{\link{transactions2DF}}.
 #' @examples
 #'
+#' # Perform discretization and convert to transactions
 #' data("iris")
-#'
 #' iris_trans <- prepareTransactions(Species ~ ., iris)
-#' iris_trans
+#' inspect(head(iris_trans))
+#'
+#' # A negative class item is added for regular transaction data (here "!canned beer")
+#' # Note: backticks are needed in formulas with item labels that contain a space.
+#' data("Groceries")
+#' g2 <- prepareTransactions(`canned beer` ~ ., Groceries)
+#' inspect(head(g2))
 #'
 prepareTransactions <- function(formula, data, disc.method = "mdlp", match = NULL) {
 
