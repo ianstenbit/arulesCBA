@@ -24,13 +24,13 @@
 transactions2DF <- function(transactions, itemLabels = FALSE) {
 
   variables <- itemInfo(transactions)$variables
-  vars <- as.character(unique(variables))
   if(!itemLabels) labels <- itemInfo(transactions)$levels
   else labels <- itemInfo(transactions)$labels
 
-  if(is.null(variables) || is.null(labels)) stop("Transaction itemInfo does not contain variable information.")
+  # regular transactions without variables and levels
+  if(is.null(variables) || is.null(labels)) return(as.data.frame(as(transactions, "matrix")))
 
-  as.data.frame(sapply(vars, FUN = function(v) {
+  as.data.frame(sapply(as.character(unique(variables)), FUN = function(v) {
     #cat(v, "\n")
     r <- as(transactions[, variables == v], "ngCMatrix")
     r2 <- colSums(r * seq(nrow(r)))

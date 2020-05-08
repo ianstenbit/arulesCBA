@@ -25,8 +25,13 @@
 #'
 prepareTransactions <- function(formula, data, disc.method = "mdlp", match = NULL) {
 
-  ### Note: transactions might need recoding!
+
   if(is(data, "transactions")) {
+    ### add negative items to handle regular transaction data without variable info
+    if(is.null(itemInfo(data)$variables))
+      data <- addComplement(data, all.vars(formula)[1])
+
+    ### Note: transactions might need recoding!
     if(!is.null(match)) return(recode(data, match = items(match[1])))
     else return(data)
   }

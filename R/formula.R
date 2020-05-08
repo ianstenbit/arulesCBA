@@ -4,7 +4,7 @@
   formula <- as.formula(formula)
   vars <- all.vars(formula)
 
-  ### class variabels and values
+  ### class variables and values
   class <- vars[1]
 
   if(is(data, "itemMatrix")) {

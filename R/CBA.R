@@ -193,7 +193,7 @@ pruneCBA_M1 <- function(formula, rules, transactions, verbose = FALSE){
   )
 
   s <- itemFrequency(transactions[, defaultClass])
-  quality(default_rule) <- data.frame(support = s, confidence = s, lift = 1,
+  quality(default_rule) <- data.frame(support = s, confidence = s, coverage = 1, lift = 1,
     count = length(transactions), size = 1,
     coveredTransactions = length(transactions) - sum(quality(rulebase)$coveredTransactions),
     totalErrors = min(ruleStats$errorTotal))
