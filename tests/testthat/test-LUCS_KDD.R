@@ -23,10 +23,11 @@ if(length(classifiers) > 0) {
 
   ### use raw data
   dat <- iris
-  true <- iris$Species
+  f <- Species ~ .
+  true <- response(f, dat)
 
   for(cl in classifiers) {
-    res <- cl(Species ~ ., dat)
+    res <- cl(f, dat)
     print(res)
 
     p <- predict(res, dat)

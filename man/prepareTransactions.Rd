@@ -37,6 +37,7 @@ iris_trans <- prepareTransactions(Species ~ ., iris)
 inspect(head(iris_trans))
 
 # A negative class item is added for regular transaction data (here "!canned beer")
+# Note: backticks are needed in formulas with item labels that contain a space.
 data("Groceries")
 g2 <- prepareTransactions(`canned beer` ~ ., Groceries)
 inspect(head(g2))

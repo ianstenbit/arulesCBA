@@ -22,15 +22,24 @@ items for the same variable into a single column.
 \examples{
 
 data("iris")
-
 iris_trans <- prepareTransactions(Species ~ ., iris)
 iris_trans
 
+# standard conversion
 iris_df <- transactions2DF(iris_trans)
 head(iris_df)
 
+# use item labels in the data.frame
 iris_df2 <- transactions2DF(iris_trans, itemLabels = TRUE)
 head(iris_df2)
+
+# Conversion of transactions without variables in itemInfo
+data("Groceries")
+head(transactions2DF(Groceries), 2)
+
+# Conversion of transactions prepared for classification
+g2 <- prepareTransactions(`shopping bags` ~ ., Groceries)
+head(transactions2DF(g2), 2)
 }
 \seealso{
 \code{\link[arules]{transactions}}.

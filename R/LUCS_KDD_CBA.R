@@ -149,10 +149,12 @@ NULL
     rhs <- lapply(rhs, FUN = function(i) itemOrder[i])
   }
 
-  rules <- new("rules",
-    lhs = encode(lhs, itemLabels = itemLabels(trans)),
-    rhs = encode(rhs, itemLabels = itemLabels(trans))
-  )
+  lhs <- encode(lhs, itemLabels = itemLabels(trans))
+  rhs <- encode(rhs, itemLabels = itemLabels(trans))
+  itemInfo(lhs) <- itemInfo(trans)
+  itemInfo(rhs) <- itemInfo(trans)
+
+  rules <- new("rules", lhs = lhs, rhs = rhs)
 
   #quality(rules) <- data.frame(laplace_FOIL = laplace)
   quality(rules) <- interestMeasure(rules, trans,

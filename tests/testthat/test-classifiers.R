@@ -10,10 +10,11 @@ if("RWeka" %in% utils::installed.packages()[,"Package"])
 
 ### use raw data
 dat <- iris
-true <- iris$Species
+f <- Species ~ .
+true <- response(f, dat)
 
 for(cl in classifiers) {
-  res <- cl(Species ~ ., dat)
+  res <- cl(f, dat)
   print(res)
 
   p <- predict(res, dat)
@@ -23,11 +24,10 @@ for(cl in classifiers) {
 }
 
 ### use transactions
-dat <- as(discretizeDF.supervised(Species ~ ., iris), "transactions")
-true <- iris$Species
+dat <- prepareTransactions(f, iris)
 
 for(cl in classifiers) {
-  res <- cl(Species ~ ., dat)
+  res <- cl(f, dat)
   print(res)
 
   p <- predict(res, dat)
@@ -36,4 +36,22 @@ for(cl in classifiers) {
   cat("Accuracy:", round(accuracy, 3), "\n\n")
 }
 
+### use regular transactions
+# NOTE: this does not work with Weka-based classifiers.
+classifiers <- c(CBA, FOIL, RCAR)
+
+data(Groceries)
+dat <- Groceries
+f <- `bottled beer` ~ .
+true <- response(f, dat)
+
+for(cl in classifiers) {
+  res <- cl(f, dat)
+  print(res)
+
+  p <- predict(res, dat)
+  tbl <- table(p, true)
+  accuracy <- sum(diag(tbl))/ sum(tbl)
+  cat("Accuracy:", round(accuracy, 3), "\n\n")
+}
 

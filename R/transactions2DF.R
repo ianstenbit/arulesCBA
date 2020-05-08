@@ -12,30 +12,53 @@
 #' @examples
 #'
 #' data("iris")
-#'
 #' iris_trans <- prepareTransactions(Species ~ ., iris)
 #' iris_trans
 #'
+#' # standard conversion
 #' iris_df <- transactions2DF(iris_trans)
 #' head(iris_df)
 #'
+#' # use item labels in the data.frame
 #' iris_df2 <- transactions2DF(iris_trans, itemLabels = TRUE)
 #' head(iris_df2)
+#'
+#' # Conversion of transactions without variables in itemInfo
+#' data("Groceries")
+#' head(transactions2DF(Groceries), 2)
+#'
+#' # Conversion of transactions prepared for classification
+#' g2 <- prepareTransactions(`shopping bags` ~ ., Groceries)
+#' head(transactions2DF(g2), 2)
 transactions2DF <- function(transactions, itemLabels = FALSE) {
 
   variables <- itemInfo(transactions)$variables
-  if(!itemLabels) labels <- itemInfo(transactions)$levels
-  else labels <- itemInfo(transactions)$labels
+  labels <- levels <- itemInfo(transactions)$levels
+  if(itemLabels) labels <- itemInfo(transactions)$labels
+  labels[is.na(labels)] <- TRUE
+
 
   # regular transactions without variables and levels
-  if(is.null(variables) || is.null(labels)) return(as.data.frame(as(transactions, "matrix")))
+  if(is.null(variables) || is.null(labels) || is.null(levels))
+    return(as.data.frame(as(transactions, "matrix")))
 
-  as.data.frame(sapply(as.character(unique(variables)), FUN = function(v) {
+  vars <- as.character(unique(variables))
+  df <- as.data.frame(lapply(vars, FUN = function(v) {
     #cat(v, "\n")
-    r <- as(transactions[, variables == v], "ngCMatrix")
-    r2 <- colSums(r * seq(nrow(r)))
-    r2[r2 < 1 | r2 > nrow(r)] <- NA
-    factor(r2, labels = as.character(labels[variables == v]))
-    }, simplify = FALSE))
+    cols <- variables == v
+    r <- as(transactions[, cols], "ngCMatrix")
+
+    if(length(which(cols)) == 1 && is.na(levels[cols])) binary_item <- TRUE
+    else binary_item <- FALSE
+
+    if(binary_item) r2 <- rep(0L, nrow(transactions)) # 0L will be FALSE
+    else r2 <- rep(NA_integer_, nrow(transactions))
+
+    for(i in 1:nrow(r)) r2[r[i,]] <- i
+
+    factor(r2, labels = if(binary_item) c(TRUE, FALSE) else labels[cols])
+    }))
+  colnames(df) <- vars # this preserves spaces in item labels
+  df
 }
 

@@ -97,6 +97,9 @@ NULL
   # convert to transactions
   trans <- prepareTransactions(formula, data, disc.method = disc.method)
 
+  if(any(is.na(itemInfo(trans)$levels)))
+    stop("Weka-based classifiers can only be applied to transactions that have levels for all items in itemInfo.")
+
   # convert it back since Weka likes it his way
   data <- transactions2DF(trans, itemLabels = TRUE)
 

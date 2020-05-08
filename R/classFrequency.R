@@ -60,13 +60,17 @@ NULL
 
 #' @rdname CBA_helpers
 response <- function(formula, x) {
-  x <- items(x)
-  if(is(x, "itemMatrix")) {
-    vars <- .parseformula(formula, x)
-    x <- x[,vars$class_ids]
-    l <- sapply(strsplit(itemLabels(x), "="), '[', 2)
-    factor(unlist(LIST(x, decode = FALSE)), levels = 1:length(l), labels = l)
-  } else { stop("Only implemented for transactions!") }
+  if(is.data.frame(x)) return(x[[all.vars(as.formula(formula))[[1]]]])
+
+  # this will add variable info for for regular transactions
+  if(is(x, "transactions")) x <- prepareTransactions(formula, x)
+  if(is(x, "rules")) x <- items(x)
+  if(!is(x, "itemMatrix")) stop("response not implemented for the type of x!")
+
+  vars <- .parseformula(formula, x)
+  x <- x[,vars$class_ids]
+  l <- itemInfo(x)$levels
+  factor(unlist(LIST(x, decode = FALSE)), levels = 1:length(l), labels = l)
 }
 
 #' @rdname CBA_helpers
@@ -81,7 +85,7 @@ classFrequency <- function(formula, x, type = "relative") {
 
 #' @rdname CBA_helpers
 majorityClass <- function(formula, transactions) {
-  majorityItem <- names(which.max(classFrequency(Species ~ ., transactions)))
+  majorityItem <- names(which.max(classFrequency(formula, transactions)))
   strsplit(majorityItem, "=")[[1]][2]
 }
 
