@@ -12,6 +12,15 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
   if(is.na(m)) stop("Unknown method")
   method <- methods[m]
 
+  # no rules. Always predict the default class
+  ### FIXME: Implement score.
+  ### FIXME: class should return a factor.
+  if(length(object$rules) == 0) {
+    if(type == "class") return(rep(object$default, nrow(newdata)))
+    # score
+    stop("prediction type 'score' is not yet implemented for classifier with no rules.")
+  }
+
   ### convert data
   if(is.null(object$discretization) && !is(newdata, "transactions"))
     stop("Classifier does not contain discretization information. New data needs to be in the form of transactions. Check ? discretizeDF.")
