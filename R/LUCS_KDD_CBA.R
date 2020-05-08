@@ -120,7 +120,7 @@ NULL
 # LUCS-KDD uses item ids and the highest item ids are the class labels.
 .write_trans_LUCS_KDD <- function(formula, trans, file = "data.num") {
 
-  # FIXME: make sure that the class ids have the highest id (i.e., are the last items)
+  # make sure that the class ids have the highest id (i.e., are the last items)
   parsedFormula <- .parseformula(formula, trans)
   if(!all(parsedFormula$class_ids > nitems(trans)-length(parsedFormula$class_ids)))
     trans <- trans[,c(parsedFormula$var_ids, parsedFormula$class_ids)]
@@ -162,8 +162,6 @@ NULL
 }
 
 ### Run the algorithms
-### FIXME: add CMAR
-### FIXME: add more memory java -Xms600m -Xmx600m FILE_NAME
 .LUCS_KDD <- function(formula, trans, method = c("FOIL", "PRM", "CPAR", "CMAR"), parameter = "", verbose = FALSE) {
   method <- match.arg(method)
 
@@ -193,7 +191,7 @@ NULL
   rules
 }
 
-### NOTE: MIN_GAIN parameter is not exposed by LUCS-KDD CPAR implmentation. It is set to 0.7
+### NOTE: MIN_GAIN parameter is not exposed by LUCS-KDD CPAR implementation. It is set to 0.7
 ### NOTE: We use the most prevalent class if no rules match!
 #' @rdname LUCS_KDD_CBA
 FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
