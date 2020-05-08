@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepareTransactions.R
 \name{prepareTransactions}
 \alias{prepareTransactions}
-\title{Helper to Convert Data into Transactions}
+\title{Convert Data as a  Data.Frames to Transactions}
 \usage{
 prepareTransactions(formula, data, disc.method = "mdlp", match = NULL)
 }
@@ -25,7 +25,7 @@ An object of class \code{\link[arules]{transactions}} from
 information on the used discretization for each column.
 }
 \description{
-Converts a data.frame into transactions by applying class-based
+Convert data in a data.frame into transactions by applying class-based
 discretization.
 }
 \examples{
@@ -37,7 +37,7 @@ iris_trans
 
 }
 \seealso{
-\code{\link[arules]{transactions}}.
+\code{\link[arules]{transactions}}, \code{\link{transactions2DF}}.
 }
 \author{
 Michael Hahsler

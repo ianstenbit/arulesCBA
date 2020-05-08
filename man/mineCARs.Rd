@@ -78,11 +78,11 @@ numerical vector with a support values for each class can be specified.
 data("iris")
 
 # discretize and convert to transactions
-iris.disc <- discretizeDF.supervised(Species ~ ., iris)
-iris.trans <- as(iris.disc, "transactions")
+iris.trans <- prepareTransactions(Species ~ ., iris)
 
 # mine CARs with items for "Species" in the RHS.
-# Note: mineCars uses a default confidence of .5 and maxlen of 5
+# Note: mineCars uses a default a minimum coverage (lhs support) of 0.1, a
+#       minimum confidence of .5 and maxlen of 5
 cars <- mineCARs(Species ~ ., iris.trans)
 inspect(head(cars))
 

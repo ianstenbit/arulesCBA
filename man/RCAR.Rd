@@ -92,8 +92,10 @@ inspect(sort(rules(classifier), by = "weight"))
 # make predictions for the first few instances of iris
 predict(classifier, head(iris))
 
-# inspecting the regression model and the cross-validation results to determine lambda
+# inspecting the regression model, plot the regularization path, and
+# plot the cross-validation results to determine lambda
 str(classifier$model$reg_model)
+plot(classifier$model$reg_model)
 plot(classifier$model$cv)
 
 # show progress report and use 5 instead of the default 10 cross-validation folds.
