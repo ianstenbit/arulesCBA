@@ -35,28 +35,25 @@ transactions2DF <- function(transactions, itemLabels = FALSE) {
   variables <- itemInfo(transactions)$variables
   labels <- levels <- itemInfo(transactions)$levels
   if(itemLabels) labels <- itemInfo(transactions)$labels
-  labels[is.na(labels)] <- TRUE
-
 
   # regular transactions without variables and levels
   if(is.null(variables) || is.null(labels) || is.null(levels))
     return(as.data.frame(as(transactions, "matrix")))
 
   vars <- as.character(unique(variables))
+  trans_ngC <- as(transactions, "ngCMatrix") # it is faster to do this once
   df <- as.data.frame(lapply(vars, FUN = function(v) {
     #cat(v, "\n")
-    cols <- variables == v
-    r <- as(transactions[, cols], "ngCMatrix")
+    cols <- which(variables == v)
+    #r <- as(transactions[, cols], "ngCMatrix")
+    r <- trans_ngC[cols, ]
 
-    if(length(which(cols)) == 1 && is.na(levels[cols])) binary_item <- TRUE
-    else binary_item <- FALSE
+    if(length(cols) == 1 && is.na(levels[cols])) return(drop(as(r, "matrix")))
 
-    if(binary_item) r2 <- rep(0L, nrow(transactions)) # 0L will be FALSE
-    else r2 <- rep(NA_integer_, nrow(transactions))
-
+    r2 <- rep(NA_integer_, nrow(transactions))
     for(i in 1:nrow(r)) r2[r[i,]] <- i
 
-    factor(r2, labels = if(binary_item) c(TRUE, FALSE) else labels[cols])
+    factor(r2, labels = labels[cols])
     }))
   colnames(df) <- vars # this preserves spaces in item labels
   df
