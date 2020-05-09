@@ -41,7 +41,7 @@ for(cl in classifiers) {
 classifiers <- c(CBA, FOIL, RCAR)
 
 data(Groceries)
-dat <- Groceries
+dat <- sample(Groceries, 500)
 f <- `bottled beer` ~ .
 true <- response(f, dat)
 

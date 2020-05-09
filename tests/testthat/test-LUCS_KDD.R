@@ -37,11 +37,26 @@ if(length(classifiers) > 0) {
   }
 
   ### use transactions
-  dat <- as(discretizeDF.supervised(Species ~ ., iris), "transactions")
-  true <- iris$Species
+  dat <- prepareTransactions(f, iris)
+  true <- response(f, dat)
 
   for(cl in classifiers) {
     res <- cl(Species ~ ., dat)
+    print(res)
+
+    p <- predict(res, dat)
+    tbl <- table(p, true)
+    accuracy <- sum(diag(tbl))/ sum(tbl)
+    cat("Accuracy:", round(accuracy, 3), "\n\n")
+  }
+
+  data(Groceries)
+  dat <- sample(Groceries, 500)
+  f <- `bottled beer` ~ .
+  true <- response(f, dat)
+
+  for(cl in classifiers) {
+    res <- cl(f, dat)
     print(res)
 
     p <- predict(res, dat)
