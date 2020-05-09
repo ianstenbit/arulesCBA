@@ -88,7 +88,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
     scores <- t(apply(rulesMatchLHS, MARGIN = 2, FUN = function(m) {
       m_weights <- weights*m
-      m_weights <- apply(m_weights, MARGIN = 2, sort, decreasing = TRUE)[1:object$best_k, , drop = FALSE]
+      m_weights <- apply(m_weights, MARGIN = 2, sort, decreasing = TRUE)[1:min(object$best_k, nrow(m_weights)), , drop = FALSE]
       m_weights[m_weights == 0] <- NA
       score <- colMeans(m_weights, na.rm = TRUE)
       score[is.na(score)] <- 0
