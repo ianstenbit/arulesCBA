@@ -3,7 +3,7 @@
 [![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 [![Rdoc](http://www.rdocumentation.org/badges/version/arulesCBA)](http://www.rdocumentation.org/packages/arulesCBA)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
-[![Travis-CI Build Status](https://api.travis-ci.org/ianjjohnson/arulesCBA.svg?branch=master)](https://travis-ci.org/ianjjohnson/arulesCBA)
+  [![R-CMD-check](https://github.com/ianjjohnson/arulesCBA/workflows/R-CMD-check/badge.svg)](https://github.com/ianjjohnson/arulesCBA/actions)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
 
 The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler et al, 2020) 
