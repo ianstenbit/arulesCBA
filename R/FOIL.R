@@ -7,7 +7,7 @@
 #' Implements FOIL (Quinlan and Cameron-Jones, 1995) to learn rules and then
 #' use them as a classifier following Xiaoxin and Han (2003).
 #'
-#' For each class, we find the positive and negative examples and lean the
+#' For each class, we find the positive and negative examples and learn the
 #' rules using FOIL. Then the rules for all classes are combined and sorted by
 #' Laplace accuracy on the training data.
 #'
