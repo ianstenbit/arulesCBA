@@ -47,8 +47,7 @@
 #'
 #' data("iris")
 #'
-#' classifier <- bCBA(Species ~ ., data = iris, supp = 0.05, conf = 0.9,
-#' 		   lhs.support = TRUE)
+#' classifier <- bCBA(Species ~ ., data = iris, supp = 0.05, conf = 0.9)
 #' classifier
 #'
 #' predict(classifier, head(iris))
@@ -158,7 +157,8 @@ CBA.internal <- function(formula, data, method="boosted", gamma = 0.05, cost = 1
     ### Assemble rules and add quality
     rules <- new("rules", lhs = pot_lhs, rhs = pot_rhs)
     quality(rules) <- cbind(lhs_support = lhs_sup,
-                            interestMeasure(rules, measure = c("support", "confidence", "lift"), transactions = ds.mat))
+      interestMeasure(rules, measure = c("support", "confidence", "lift"),
+        transactions = ds.mat))
 
   } else {
     #Generate association rules with apriori

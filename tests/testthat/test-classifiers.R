@@ -20,7 +20,7 @@ for(cl in classifiers) {
   p <- predict(res, dat)
   tbl <- table(p, true)
   accuracy <- sum(diag(tbl))/ sum(tbl)
-  cat("Accuracy:", round(accuracy, 3), "\n")
+  cat("Accuracy:", round(accuracy, 3), "\n\n")
 }
 
 ### use transactions
@@ -54,4 +54,29 @@ for(cl in classifiers) {
   accuracy <- sum(diag(tbl))/ sum(tbl)
   cat("Accuracy:", round(accuracy, 3), "\n\n")
 }
+
+## test transactions with logical variables
+#classifiers <- c(CBA, FOIL, RCAR)
+# RCAR is too slow
+classifiers <- c(CBA, FOIL)
+if("RWeka" %in% utils::installed.packages()[,"Package"])
+  classifiers <- append(classifiers, c(RIPPER_CBA, PART_CBA, C4.5_CBA))
+
+data(Zoo, package = "mlbench")
+Zoo$legs <- Zoo$legs > 0
+
+dat <- Zoo
+f <- type ~ .
+true <- response(f, dat)
+
+for(cl in classifiers) {
+  res <- cl(f, dat)
+  print(res)
+
+  p <- predict(res, dat)
+  tbl <- table(p, true)
+  accuracy <- sum(diag(tbl))/ sum(tbl)
+  cat("Accuracy:", round(accuracy, 3), "\n\n")
+}
+
 

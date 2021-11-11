@@ -100,20 +100,25 @@ NULL
   if(any(is.na(itemInfo(trans)$levels)))
     stop("Weka-based classifiers can only be applied to transactions that have levels for all items in itemInfo.")
 
-  # convert it back since Weka likes it his way
-  data <- transactions2DF(trans, itemLabels = TRUE)
+  # convert it back since Weka likes it this way
+  data <- transactions2DF(trans, itemLabels = FALSE)
 
   # call classifier
   classifier <- what(formula, data = data, control = control)
 
   # convert rules
   rules <- rJava::.jcall(classifier$classifier, "S", "toString")
+  ilabels <- itemLabels(trans)
+
   if(substr(rules[1], 1, 4) == "JRIP") { ### RIPPER
     rule_sep <- '\\s+=>\\s+'
   }else{ ### PART
     rules <- gsub(' AND\\n', ' ', x = rules, ) # replace AND used in PART
     rule_sep <- ':\\s+'
+    #part does not use Value instead of Variable=Value for RHS!
+    ilabels <- gsub(paste0(formula[[2]], '='), '', ilabels)
   }
+  rules <- gsub('\\s+=\\s+', '=', rules) # deal with difference in logical and factor
 
   rules <- strsplit(rules, '\\n+')[[1]]
   rules <- rules[-c(1,2, length(rules))]
@@ -122,7 +127,6 @@ NULL
   lhs <- sapply(rules, '[', 1)
   rhs <- sapply(rules, '[', 2)
 
-  ilabels <- itemLabels(trans)
   n <- length(rules)
   m <- nitems(trans)
 
@@ -138,6 +142,9 @@ NULL
   itemInfo(rhs) <- itemInfo(trans)
 
   rules <- new("rules", lhs = lhs, rhs = rhs)
+
+  # FIXME: C4.5 is missing a default rule.
+
   quality(rules) <- interestMeasure(rules, measure = c("support", "confidence"),
     transactions = trans)
 

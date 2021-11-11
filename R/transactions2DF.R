@@ -42,18 +42,25 @@ transactions2DF <- function(transactions, itemLabels = FALSE) {
 
   vars <- as.character(unique(variables))
   trans_ngC <- as(transactions, "ngCMatrix") # it is faster to do this once
+
   df <- as.data.frame(lapply(vars, FUN = function(v) {
     #cat(v, "\n")
     cols <- which(variables == v)
     #r <- as(transactions[, cols], "ngCMatrix")
-    r <- trans_ngC[cols, ]
+    r <- trans_ngC[cols, , drop = FALSE]
 
     if(length(cols) == 1 && is.na(levels[cols])) return(drop(as(r, "matrix")))
 
     r2 <- rep(NA_integer_, nrow(transactions))
     for(i in 1:nrow(r)) r2[r[i,]] <- i
 
-    factor(r2, labels = labels[cols])
+    # fix logicals that only store TRUE
+    ls <- labels[cols]
+    if (length(ls) == 1 && ls == 'TRUE') {
+      r2 <- as.logical(r2)
+      r2[is.na(r2)] <- FALSE
+      r2
+    } else factor(r2, labels = ls)
     }))
   colnames(df) <- vars # this preserves spaces in item labels
   df

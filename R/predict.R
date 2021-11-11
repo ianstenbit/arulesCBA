@@ -43,7 +43,7 @@ predict.CBA <- function(object, newdata, type = c("class", "score"), ...){
 
     w <- apply(rulesMatchLHS, MARGIN = 2, FUN = function(x) which(x)[1])
     output <- RHSclass[w]
-    if(any(is.na(w)) && is.na(object$default)) warning("Classifier has not default class when no rules matches! Producing NAs!")
+    if(any(is.na(w)) && is.na(object$default)) warning("Classifier has no default class when no rules matches! Producing NAs!")
     output[is.na(w)] <- object$default
 
     # preserve the levels of original data for data.frames

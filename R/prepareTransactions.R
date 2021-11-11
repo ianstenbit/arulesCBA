@@ -39,10 +39,16 @@ prepareTransactions <- function(formula, data, disc.method = "mdlp", match = NUL
       data <- addComplement(data, all.vars(formula)[1])
 
     ### Note: transactions might need recoding!
-    if(!is.null(match)) return(recode(data, match = match))
+    if(!is.null(match)) return(recode(data, itemLabels = itemLabels(match)))
     else return(data)
   }
 
+  # handle logical variables by making them into factors (so FALSE is preserved)
+  if(!is(data, "transactions")) {
+    for (i in 1:ncol(data))
+      if(is.logical(data[[i]]))
+        data[[i]] <- factor(data[[i]], levels = c(TRUE, FALSE))
+  }
   # disc.method is a character string with the method
   if(!is.list(disc.method)) {
 

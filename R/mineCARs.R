@@ -122,20 +122,17 @@ mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, ba
   control <- as(control, "APcontrol")
   if(!verbose) control@verbose <- FALSE
 
-  dotParameter <-  list(...)
-  if(!is.null(parameter) && length(dotParameter)>0) stop("You cannot specify parameters only either using parameter or ...")
-  if(is.null(parameter)) parameter <- dotParameter
-  if(is.null(parameter) || is.list(parameter)) {
-    parameter <- as.list(parameter)
+  if(is.null(parameter) || !is(parameter, "APparameter")) {
+    parameter <-  c(parameter, list(...))
     if(is.null(parameter$sup)) parameter$support <- .1
     if(is.null(parameter$con)) parameter$confidence <- .5
     if(is.null(parameter$maxlen)) parameter$maxlen <- 5L
     if(is.null(parameter$originalSupport)) parameter$originalSupport <- FALSE
+    parameter <- as(parameter, "APparameter")
   }
-  #parameter <- as(parameter, "APparameter")
 
   # Generate CARs with APRIORI
-  if(is.logical(balanceSupport) &&!balanceSupport) {
+  if(is.logical(balanceSupport) && !balanceSupport) {
     # single support
 
     ### suppress maxlen warnings!
@@ -178,3 +175,4 @@ mineCARs <- function(formula, transactions, parameter = NULL, control = NULL, ba
 
   cars
 }
+

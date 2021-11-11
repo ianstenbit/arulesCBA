@@ -7,7 +7,6 @@
 * added transactions2DF to convert transactions to a data.frame.
 * RCAR is now faster (does not run glmnet again for the chosen lambda) and returns the whole regularization path.
 * prepareTransactions does now automatically add a negative class item if needed.
-* Fixed support and confidence for CBA.
 
 
 # arulesCBA 1.2.0 (2020-04-19)
