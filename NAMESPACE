@@ -19,8 +19,9 @@ export("CBA",
         "pruneCBA_M2",
         "RCAR",
         "FOIL",
-        "bCBA",
-        "wCBA",
+# these experimental methods are now in Work
+#        "bCBA",
+#        "wCBA",
 
         "RIPPER_CBA",
         "PART_CBA",

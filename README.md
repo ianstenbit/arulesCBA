@@ -1,7 +1,6 @@
 # Classification Based on Association Rules
 
 [![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
-[![Rdoc](http://www.rdocumentation.org/badges/version/arulesCBA)](http://www.rdocumentation.org/packages/arulesCBA)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
   [![R-CMD-check](https://github.com/ianjjohnson/arulesCBA/workflows/R-CMD-check/badge.svg)](https://github.com/ianjjohnson/arulesCBA/actions)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
@@ -11,7 +10,6 @@ is an extension of the package [arules](https://cran.r-project.org/package=arule
 association rule-based classification. The package provides the infrastructure for class association rules and implements associative classifiers based on the following algorithms:
 
 * CBA (Liu et al, 1998)
-* bCBA, wCBA (Ian Johnson, unpublished)
 * CMAR via LUCS-KDD Software Library (Li, Han and Pei, 2001)
 * CPAR via LUCS-KDD Software Library (Yin and Han, 2003)
 * C4.5 via J48 in R/Weka (Quinlan, 1993)
