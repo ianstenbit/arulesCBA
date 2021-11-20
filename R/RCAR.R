@@ -53,7 +53,6 @@
 #' categorical data space. \emph{Information Sciences,} Volume 483, May 2019.
 #' Pages 313-331.
 #'
-#' Azmi's implementation on GitHub: \url{https://github.com/azemi/RCAR}.
 #' @examples
 #'
 #' data("iris")
