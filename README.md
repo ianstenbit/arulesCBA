@@ -9,15 +9,15 @@ The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
 association rule-based classification. The package provides the infrastructure for class association rules and implements associative classifiers based on the following algorithms:
 
-* CBA:    Classification Based on Association Rules (Liu et al, 1998).
-* CMAR:   Classification based on Multiple Association Rule  (Li, Han and Pei, 2001) via LUCS-KDD Software Library.
-* CPAR:   Classification based on Predictive Association Rules (Yin and Han, 2003) via LUCS-KDD Software Library.
-* C4.5:   Rules extracted from a C4.5 decision tree (Quinlan, 1993) via J48 in R/Weka.
-* FOIL:   First-Order Inductive Learner (Yin and Han, 2003).
-* PART:   Rules from Partial Decision Trees (Frank and Witten, 1998) via R/Weka.
-* PRM:    Predictive Rule Mining (Yin and Han, 2003) via LUCS-KDD Software Library.
-* RCAR:   Regularized Class Association Rules using Logistic Regression (Azmi et al, 2019).
-* RIPPER: Repeated Incremental Pruning to Produce Error Reduction (Cohen, 1995) via R/Weka.
+* __CBA__:    Classification Based on Association Rules (Liu et al, 1998).
+* __CMAR__:   Classification based on Multiple Association Rule  (Li, Han and Pei, 2001) via LUCS-KDD Software Library.
+* __CPAR__:   Classification based on Predictive Association Rules (Yin and Han, 2003) via LUCS-KDD Software Library.
+* __C4.5__:   Rules extracted from a C4.5 decision tree (Quinlan, 1993) via J48 in R/Weka.
+* __FOIL__:   First-Order Inductive Learner (Yin and Han, 2003).
+* __PART__:   Rules from Partial Decision Trees (Frank and Witten, 1998) via R/Weka.
+* __PRM__:    Predictive Rule Mining (Yin and Han, 2003) via LUCS-KDD Software Library.
+* __RCAR__:   Regularized Class Association Rules using Logistic Regression (Azmi et al, 2019).
+* __RIPPER__: Repeated Incremental Pruning to Produce Error Reduction (Cohen, 1995) via R/Weka.
 
 The package also provides the infrastructure for associative classification (supervised discetization, mining class association rules (CARs)), and implements various association rule-based classification strategies
 (first match, majority voting, weighted voting, etc.).
