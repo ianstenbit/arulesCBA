@@ -1,6 +1,6 @@
 Package: arulesCBA
-Version: 1.2.0.1
-Date: 2020-xx-xx
+Version: 1.2.1
+Date: 2021-11-20
 Title: Classification Based on Association Rules
 Authors@R: c(
   person("Michael", "Hahsler", role=c("aut", "cre", "cph"),
@@ -17,5 +17,5 @@ Suggests: testthat, mlbench, rJava, RWeka
 License: GPL-3
 URL: https://github.com/ianjjohnson/arulesCBA
 BugReports: https://github.com/ianjjohnson/arulesCBA
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
 Encoding: UTF-8

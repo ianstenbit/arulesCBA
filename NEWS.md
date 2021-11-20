@@ -1,4 +1,4 @@
-# arulesCBA 1.2.0.1 (2020-xx-xx)
+# arulesCBA 1.2.1 (2021-11-20)
 * mineCARs now uses by default minimum LHS-support (via parameter originalSupport = FALSE).
 * the CBA_ruleset function is now used consistently as constructor for CBA objects.
 * added transactionCoverage.
@@ -6,7 +6,8 @@
 * added uncoveredMajorityClass.
 * added transactions2DF to convert transactions to a data.frame.
 * RCAR is now faster (does not run glmnet again for the chosen lambda) and returns the whole regularization path.
-* prepareTransactions does now automatically add a negative class item if needed.
+* prepareTransactions now automatically add a negative class item if needed.
+* moved the experimental algorithms wCBA and bCBA to Work
 
 
 # arulesCBA 1.2.0 (2020-04-19)
