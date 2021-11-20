@@ -53,7 +53,9 @@ single items representing the class label.
 \code{\link[arules]{apriori}} can be either specified as a list (or object
 of \code{\link[arules]{APparameter}}) as argument \code{parameter} or, for
 convenience, as arguments in \code{...}. \bold{Note:} \code{mineCARs} uses
-by default a support of 0.1, a confidence of 0.5 and a \code{maxlen} (rule
+by default a minimum support of 0.1 (for the LHS of the rules via parameter
+\code{originalSupport = FALSE}),
+a minimum confidence of 0.5 and a \code{maxlen} (rule
 length including items in the LHS and RHS) of 5.
 
 \bold{Balancing minimum support.} Using a single minimum support threshold
@@ -91,11 +93,11 @@ cars <- mineCARs(Species ~ ., iris.trans,
   parameter = list(support = 0.3, confidence = 0.9, maxlen = 3))
 inspect(head(cars))
 
-# for conveniance this can also be written without a list for parameter using ...
+# for convenience this can also be written without a list for parameter using ...
 cars <- mineCARs(Species ~ ., iris.trans, support = 0.3, confidence = 0.9, maxlen = 3)
 
 # restrict the predictors to items starting with "Sepal"
-cars <- mineCARs(Species ~ Sepal, iris.trans)
+cars <- mineCARs(Species ~ Sepal.Length + Sepal.Width, iris.trans)
 inspect(cars)
 
 # using different support for each class
@@ -120,6 +122,11 @@ cars <- mineCARs(class ~ ., Lymphography_trans, support = .3, maxlen = 3,
   balanceSupport = TRUE)
 classFrequency(class ~ ., cars, type = "absolute")
 
+# Mine CARs from regular transactions (a negative class item is automatically added)
+data(Groceries)
+cars <- mineCARs(`whole milk` ~ ., Groceries,
+  balanceSupport = TRUE, support = 0.01, confidence = 0.8)
+inspect(sort(cars, by = "lift"))
 }
 \references{
 Liu, B. Hsu, W. and Ma, Y (1998). Integrating Classification and
