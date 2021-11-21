@@ -143,8 +143,6 @@ NULL
 
   rules <- new("rules", lhs = lhs, rhs = rhs)
 
-  # FIXME: C4.5 is missing a default rule.
-
   quality(rules) <- interestMeasure(rules, measure = c("support", "confidence"),
     transactions = trans)
 
@@ -152,6 +150,7 @@ NULL
   CBA_ruleset(
     formula = formula,
     rules = rules,
+    default = uncoveredMajorityClass(formula, trans, rules),
     method = "first",
     discretization = attr(trans, "disc_info"),
     description = paste("RWeka classifier", attr(what, "meta")$name)
@@ -220,6 +219,7 @@ PART_CBA <- function(formula, data, control = NULL, disc.method = "mdlp")
   CBA_ruleset(
     formula = formula,
     rules = rules,
+    default = uncoveredMajorityClass(formula, trans, rules),
     method = "first",
     discretization = attr(trans, "disc_info"),
     description = paste("RWeka classifier", attr(what, "meta")$name)
