@@ -1,6 +1,6 @@
 # arulesCBA 1.2.1 (2021-11-20)
 * mineCARs now uses by default minimum LHS-support (via parameter originalSupport = FALSE).
-* the CBA_ruleset function is now used consistently as constructor for CBA objects.
+* the CBA_ruleset function is now used consistently as the constructor for CBA objects.
 * added transactionCoverage.
 * added uncoveredClassExamples.
 * added uncoveredMajorityClass.
