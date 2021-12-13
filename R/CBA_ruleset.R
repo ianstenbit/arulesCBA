@@ -108,12 +108,12 @@ CBA_ruleset <- function(formula, rules, default = NA,
   # RHS can only contain class items
   take <- rhs(rules) %in% parsedformula$class_items
   if(any(!take)) {
-    warning("Some provided rules are not CARs with the class in the RHS and are ignored. Only ",
-    length(rules), " rules used.")
-
     rules <- rules[take]
     if(is.matrix(weights)) weights <- weights[take, ]
     else weights <- weights[take]
+
+    warning("Some provided rules are not CARs with the class in the RHS and are ignored.",
+    " Only ", length(rules), " rules used for the classifier.")
   }
 
   # check if LHS is in formula!
