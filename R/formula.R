@@ -8,9 +8,17 @@
   class <- vars[1]
 
   if(is(data, "itemMatrix")) {
+    # make sure we only have the variable name
+    class <- strsplit(class, "=")[[1]]
+    if(length(class) > 1) {
+      warning("lhs in formula contains a class variable with a value. Using only ",
+        sQuote(class[1]), " as the class variable.")
+      class <- class[1]
+      }
+
     ii <- itemInfo(data)
     if(is.null(ii$variables) || is.null(ii$levels))
-      stop("data does not contain variables and levels in itemInfo.")
+      stop("transaction data does not contain variables and levels in itemInfo.")
     class_ids <- which(ii$variables == class)
     class_names <- as.character(ii$levels[class_ids])
     class_items <- itemLabels(data)[class_ids]
@@ -18,13 +26,13 @@
   } else { ### for data.frame
     class_ids <- pmatch(class, colnames(data))
     if(!is.factor(data[[class_ids]]))
-      stop("class variable needs to be a factor!")
+      stop("class variable needs to be a factor in the data!")
     class_names <- colnames(data)[class_ids]
     class_items <- NA
   }
 
   if(any(is.na(class_ids)) || length(class_ids) == 0)
-    stop("Cannot identify column specified as class in the formula.")
+    stop("Cannot identify column ", sQuote(class), " specified as class in the formula.")
 
   ### predictors
   vars <- vars[-1]
