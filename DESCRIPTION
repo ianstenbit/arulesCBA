@@ -1,6 +1,6 @@
 Package: arulesCBA
-Version: 1.2.1-1
-Date: 2021-xx-xx
+Version: 1.2.2
+Date: 2021-05-19
 Title: Classification Based on Association Rules
 Authors@R: c(
   person("Michael", "Hahsler", role=c("aut", "cre", "cph"),

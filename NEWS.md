@@ -1,4 +1,5 @@
-# arulesCBA 1.2.1-1 (2021-xx-xx)
+# arulesCBA 1.2.2 (2021-05-19)
+* install_LUCS_KDD_CMAR() and install_LUCS_KDD_CPAR(): Added more checks. This fixes timing issues with untar.
 
 # arulesCBA 1.2.1 (2021-11-20)
 * mineCARs now uses by default minimum LHS-support (via parameter originalSupport = FALSE).

@@ -318,14 +318,22 @@ install_LUCS_KDD_CPAR <- function(force = FALSE, source = "https://cgi.csc.liv.a
   if(!is.null(options()$LUCS_KDD_CPAR_FILE))
     source <- paste0("file://", normalizePath(options()$LUCS_KDD_CPAR_FILE))
 
-  cat("Installing from:", source, "\n")
+  cat("Downloading from", source, "to", path, "\n")
   utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
-  utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory))
 
-  cat("to:", path, "\n")
-  file.copy(file.path(src, "runCPAR.java"), path)
-  file.copy(file.path(src, "runFOIL.java"), path)
-  file.copy(file.path(src, "runPRM.java"), path)
+  if (utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory)))
+    stop("Could not expand the archive!")
+
+  cat("Copy runCMAR.java from", src, "to", path, "\n")
+  if (!file.copy(file.path(src, "runCMAR.java"), path))
+    stop("Copying file failed!")
+
+  run_files <- c("runCPAR.java", "runFOIL.java", "runPRM.java")
+  for (rf in run_files) {
+    cat("Copy", rf, "from", src, "to", path, "\n")
+    if (!file.copy(file.path(src, rf), path))
+      stop("Copying file failed!")
+  }
 
   cat("Compiling.\n")
   exe <- paste(.javac(), "-cp", path, file.path(path, "runCPAR.java"))
@@ -363,15 +371,17 @@ install_LUCS_KDD_CMAR <- function(force = FALSE, source = "https://cgi.csc.liv.a
   if(!is.null(options()$LUCS_KDD_CMAR_FILE))
     source <- paste0("file://", normalizePath(options()$LUCS_KDD_CMAR_FILE))
 
-  cat("Installing from:", source, "\n")
+  cat("Downloading from", source, "to", path, "\n")
   utils::download.file(source,
     destfile = file.path(directory, "cmar.tgz"))
 
-  cat("to:", path, "\n")
   #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
-  utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path))
+  if (utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path)))
+    stop("Could not expand the archive!")
 
-  file.copy(file.path(src, "runCMAR.java"), path)
+  cat("Copy runCMAR.java from", src, "to", path, "\n")
+  if (!file.copy(file.path(src, "runCMAR.java"), path))
+    stop("Copying file failed!")
 
   cat("Compiling.\n")
   exe <- paste(.javac(), "-cp", path, file.path(path, "runCMAR.java"))
