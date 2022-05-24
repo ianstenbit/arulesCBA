@@ -1,4 +1,4 @@
-# arulesCBA 1.2.2 (2021-05-19)
+# arulesCBA 1.2.3 (2022-05-24)
 * install_LUCS_KDD_CMAR() and install_LUCS_KDD_CPAR(): Added more checks. This fixes timing issues with untar.
 
 # arulesCBA 1.2.1 (2021-11-20)
