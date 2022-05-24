@@ -8,10 +8,16 @@ options(digits = 2)
 knitr::opts_chunk$set(tidy = TRUE, message = FALSE)
 ```
 
-[![CRAN version](https://www.r-pkg.org/badges/version/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
-[![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
-  [![R-CMD-check](https://github.com/ianjjohnson/arulesCBA/workflows/R-CMD-check/badge.svg)](https://github.com/ianjjohnson/arulesCBA/actions)
-[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/arulesCBA)](https://cran.r-project.org/package=arulesCBA)
+```{r echo=FALSE, results = 'asis'}
+pkg <- 'arulesCBA'
+
+library(stringr)
+
+  cat(str_interp("[![CRAN version](http://www.r-pkg.org/badges/version/${pkg})](https://CRAN.R-project.org/package=${pkg})\n"))
+  cat(str_interp("[![stream r-universe status](https://mhahsler.r-universe.dev/badges/${pkg})](https://mhahsler.r-universe.dev/ui#package:${pkg})\n"))
+  cat(str_interp("[![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/grand-total/${pkg})](https://CRAN.R-project.org/package=${pkg})\n"))
+```
+
 
 The R package [arulesCBA](https://cran.r-project.org/package=arulesCBA) (Hahsler et al, 2020) 
 is an extension of the package [arules](https://cran.r-project.org/package=arules) to perform
@@ -36,10 +42,8 @@ __Stable CRAN version:__ install from within R with
 ```{r eval=FALSE}
 install.packages("arulesCBA")
 ```
-__Current development version:__ 
-```{r eval=FALSE}
-devtools::install_github("ianjjohnson/arulesCBA")
-```
+
+__Current development version:__ Install from [r-universe.](https://mhahsler.r-universe.dev/ui#package:arulesCBA)
 
 ## Usage
 
