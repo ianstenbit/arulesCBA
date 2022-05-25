@@ -8,8 +8,10 @@
 #'
 #' \bold{Installation:} The LUCS-KDD code is not part of the package and has to
 #' be downloaded, compiled and installed using \code{install_LUCS_KDD_CMAR()}
-#' and \code{install_LUCS_KDD_CPAR()}. You need a complete Java JDK
-#' installation including the \code{javac} compiler. On some systems (Windows),
+#' and \code{install_LUCS_KDD_CPAR()}. You need a complete
+#' \bold{Java2 SDK (Software Development Kit) Version 1.4.0 (or higher)}
+#' installation including the \code{javac} compiler. A **headless Java installation is not sufficient.**
+#' On some systems (Windows),
 #' you may need to set the \code{JAVA_HOME} environment variable so the system
 #' finds the compiler.
 #'
@@ -54,6 +56,9 @@
 #' @examples
 #'
 #' \dontrun{
+#' # make sure you have a Java SDK Version 1.4.0+ and not a headless installation.
+#' system("java -version")
+#'
 #' data("iris")
 #'
 #' # install and compile CMAR
@@ -88,47 +93,53 @@ NULL
   stopifnot(length(cmd) == 1)
   if (.Platform$OS.type == "windows") {
     suppressWarnings({
-      pathname <- shell(sprintf("where %s 2> NUL", cmd), intern=TRUE)[1]
+      pathname <- shell(sprintf("where %s 2> NUL", cmd), intern = TRUE)[1]
     })
-    if (!is.na(pathname)) return(dQuote(stats::setNames(pathname, cmd)))
+    if (!is.na(pathname))
+      return(dQuote(stats::setNames(pathname, cmd)))
   }
 
   found <- Sys.which(cmd)
 
-  if(found == "") stop(cmd, " not found! Make sure it is installed correcly.")
+  if (found == "")
+    stop(cmd, " not found! Make sure it is installed correcly.")
   found
 }
 
-.java <- function() .Sys.which2("java")
-.javac <- function() .Sys.which2("javac")
+.java <- function()
+  .Sys.which2("java")
+.javac <- function()
+  .Sys.which2("javac")
 
 ## Install and compile
 .getLUCS_KDD <- function(what, stop = TRUE) {
-
   dir <- what
-  if(what == "CPAR") dir <- "FOIL_PRM_CPAR"
-  path <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD", dir)
+  if (what == "CPAR")
+    dir <- "FOIL_PRM_CPAR"
+  path <-
+    file.path(system.file(package = "arulesCBA"), "LUCS_KDD", dir)
   attr(path, "exists") <- file.exists(path)
 
-  if(!attr(path, "exists") && stop)
-    stop("You need to install ", what, ". See ? ", what," for instructions.")
+  if (!attr(path, "exists") && stop)
+    stop("You need to install ", what, ". See ? ", what, " for instructions.")
 
   path
 }
 
 ### Write and read LUCS-KDD format files
 # LUCS-KDD uses item ids and the highest item ids are the class labels.
-.write_trans_LUCS_KDD <- function(formula, trans, file = "data.num") {
+.write_trans_LUCS_KDD <-
+  function(formula, trans, file = "data.num") {
+    # make sure that the class ids have the highest id (i.e., are the last items)
+    parsedFormula <- .parseformula(formula, trans)
+    if (!all(parsedFormula$class_ids > nitems(trans) - length(parsedFormula$class_ids)))
+      trans <-
+        trans[, c(parsedFormula$var_ids, parsedFormula$class_ids)]
 
-  # make sure that the class ids have the highest id (i.e., are the last items)
-  parsedFormula <- .parseformula(formula, trans)
-  if(!all(parsedFormula$class_ids > nitems(trans)-length(parsedFormula$class_ids)))
-    trans <- trans[,c(parsedFormula$var_ids, parsedFormula$class_ids)]
-
-  l <- LIST(trans, decode = FALSE)
-  l <- sapply(l, paste, collapse = ' ')
-  writeLines(l, con = file)
-}
+    l <- LIST(trans, decode = FALSE)
+    l <- sapply(l, paste, collapse = ' ')
+    writeLines(l, con = file)
+  }
 
 .parse_rules_LUCS_KDD <- function(ret, formula, trans) {
   k <- grep("Num.*classes.*=", ret, fixed = FALSE, value = TRUE)
@@ -137,16 +148,38 @@ NULL
   # we calulate laplace below
   #laplace <- as.numeric(sapply(r, FUN = function(r) gsub('.*\\s(\\S+)%', '\\1', r)))
   r <- strsplit(r, "->")
-  r <- lapply(r, FUN = function(r) gsub('.*\\{(.*)\\}.*', '\\1', r))
-  lhs <- lapply(r, FUN = function(rs) as.integer(strsplit(rs[1], " ")[[1]]))
-  rhs <- lapply(r, FUN = function(rs) as.integer(strsplit(rs[2], " ")[[1]]))
+  r <- lapply(
+    r,
+    FUN = function(r)
+      gsub('.*\\{(.*)\\}.*', '\\1', r)
+  )
+  lhs <-
+    lapply(
+      r,
+      FUN = function(rs)
+        as.integer(strsplit(rs[1], " ")[[1]])
+    )
+  rhs <-
+    lapply(
+      r,
+      FUN = function(rs)
+        as.integer(strsplit(rs[2], " ")[[1]])
+    )
 
   # fix item order if class items were not the last
   parsedFormula <- .parseformula(formula, trans)
-  if(!all(parsedFormula$class_ids > nitems(trans)-length(parsedFormula$class_ids))) {
+  if (!all(parsedFormula$class_ids > nitems(trans) - length(parsedFormula$class_ids))) {
     itemOrder <- c(parsedFormula$var_ids, parsedFormula$class_ids)
-    lhs <- lapply(lhs, FUN = function(i) itemOrder[i])
-    rhs <- lapply(rhs, FUN = function(i) itemOrder[i])
+    lhs <- lapply(
+      lhs,
+      FUN = function(i)
+        itemOrder[i]
+    )
+    rhs <- lapply(
+      rhs,
+      FUN = function(i)
+        itemOrder[i]
+    )
   }
 
   lhs <- encode(lhs, itemLabels = itemLabels(trans))
@@ -157,234 +190,333 @@ NULL
   rules <- new("rules", lhs = lhs, rhs = rhs)
 
   #quality(rules) <- data.frame(laplace_FOIL = laplace)
-  quality(rules) <- interestMeasure(rules, trans,
-    measure = c("support", "confidence", "lift", "laplace"), k = k)
+  quality(rules) <- interestMeasure(
+    rules,
+    trans,
+    measure = c("support", "confidence", "lift", "laplace"),
+    k = k
+  )
 
   rules
 }
 
 ### Run the algorithms
-.LUCS_KDD <- function(formula, trans, method = c("FOIL", "PRM", "CPAR", "CMAR"), parameter = "", verbose = FALSE) {
-  method <- match.arg(method)
+.LUCS_KDD <-
+  function(formula,
+    trans,
+    method = c("FOIL", "PRM", "CPAR", "CMAR"),
+    parameter = "",
+    verbose = FALSE) {
+    method <- match.arg(method)
 
-  if(verbose) cat(paste("LUCS-KDD:", method, "\n"))
+    if (verbose)
+      cat(paste("LUCS-KDD:", method, "\n"))
 
-  if(method == "CMAR") path <- .getLUCS_KDD("CMAR")
-  else path <- .getLUCS_KDD("CPAR")
+    if (method == "CMAR")
+      path <- .getLUCS_KDD("CMAR")
+    else
+      path <- .getLUCS_KDD("CPAR")
 
-  parsedFormula <- .parseformula(formula, trans)
-  classParameter <- paste0("-N", length(parsedFormula$class_ids))
+    parsedFormula <- .parseformula(formula, trans)
+    classParameter <- paste0("-N", length(parsedFormula$class_ids))
 
-  # write transactions
-  filename <- tempfile(fileext = ".num")
-  .write_trans_LUCS_KDD(formula, trans, filename)
+    # write transactions
+    filename <- tempfile(fileext = ".num")
+    .write_trans_LUCS_KDD(formula, trans, filename)
 
-  exe <- paste(.java(), options()$java.parameters[1], "-cp", path, paste0("run", method),
-    classParameter, paste0("-F", filename), parameter)
-  if(verbose) cat(paste("Call:", exe, "\n\n"))
+    exe <-
+      paste(
+        .java(),
+        options()$java.parameters[1],
+        "-cp",
+        path,
+        paste0("run", method),
+        classParameter,
+        paste0("-F", filename),
+        parameter
+      )
+    if (verbose)
+      cat(paste("Call:", exe, "\n\n"))
 
-  ret <- system(exe, intern = TRUE)
-  if(!is.null(attr(ret, "status")) && attr(ret, "status") != 0) stop("Error in call: ", exe, "\n",ret)
-  if(verbose) print(ret)
+    ret <- system(exe, intern = TRUE)
 
-  rules <- .parse_rules_LUCS_KDD(ret, formula, trans)
-  if(verbose) cat(paste("\nRules used:", length(rules), "\n"))
+    if (!is.null(attr(ret, "status")) && attr(ret, "status") != 0)
+      stop("\nSystem call: ", sQuote(exe), "\n",
+        "\nMake sure you have the right Java version installed (JDK 1.4.0+, not headless).\n")
 
-  rules
-}
+    if (verbose)
+      print(ret)
+
+    rules <- .parse_rules_LUCS_KDD(ret, formula, trans)
+    if (verbose)
+      cat(paste("\nRules used:", length(rules), "\n"))
+
+    rules
+  }
 
 ### NOTE: MIN_GAIN parameter is not exposed by LUCS-KDD CPAR implementation. It is set to 0.7
 ### NOTE: We use the most prevalent class if no rules match!
 #' @rdname LUCS_KDD_CBA
-FOIL2 <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
-  formula <- as.formula(formula)
-  trans <- prepareTransactions(formula, data, disc.method = disc.method)
-  parsed_formula <- .parseformula(formula, trans)
+FOIL2 <-
+  function(formula,
+    data,
+    best_k = 5,
+    disc.method = "mdlp",
+    verbose = FALSE) {
+    formula <- as.formula(formula)
+    trans <-
+      prepareTransactions(formula, data, disc.method = disc.method)
+    parsed_formula <- .parseformula(formula, trans)
 
-  rules <- .LUCS_KDD(formula, trans, method = "FOIL", parameter = "", verbose = verbose)
+    rules <-
+      .LUCS_KDD(
+        formula,
+        trans,
+        method = "FOIL",
+        parameter = "",
+        verbose = verbose
+      )
 
-  CBA_ruleset(
-    formula = formula,
-    rules = rules,
-    default = majorityClass(formula, trans),
-    method = "weighted",
-    weights = "laplace",
-    best_k = best_k,
-    discretization = attr(trans, "disc_info"),
-    description = "FOIL-based classifier (Yin and Han, 2003 - LUCS-KDD implementation)."
-  )
-}
-
-#' @rdname LUCS_KDD_CBA
-CPAR <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
-  formula <- as.formula(formula)
-  trans <- prepareTransactions(formula, data, disc.method = disc.method)
-  parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "CPAR", parameter = "", verbose = verbose)
-
-  structure(list(
-    formula = formula,
-    class = parsed_formula$class_name,
-    rules = rules,
-    default = majorityClass(formula, trans),
-    discretization = attr(trans, "disc_info"),
-    method = "weighted",
-    weights = "laplace",
-    best_k = best_k,
-    description = paste0("CPAR (Yin and Han, 2003 - LUCS-KDD implementation).")
-  ),
-    class = "CBA"
-  )
-}
-
-#' @rdname LUCS_KDD_CBA
-PRM <- function(formula, data, best_k = 5, disc.method = "mdlp", verbose = FALSE) {
-  formula <- as.formula(formula)
-  trans <- prepareTransactions(formula, data, disc.method = disc.method)
-  parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "PRM", parameter = "", verbose = verbose)
-
-  structure(list(
-    formula = formula,
-    discretization = attr(trans, "disc_info"),
-    rules = rules,
-    default = majorityClass(formula, trans),
-    method = "weighted",
-    weights = "laplace",
-    best_k = best_k,
-    description = paste0("PRM (Yin and Han, 2003 - LUCS-KDD implementation).")
-  ),
-    class = "CBA"
-  )
-}
-
-#' @rdname LUCS_KDD_CBA
-CMAR <- function(formula, data, support = 0.1, confidence = 0.5, disc.method = "mdlp", verbose = FALSE) {
-  formula <- as.formula(formula)
-  trans <- prepareTransactions(formula, data, disc.method = disc.method)
-  parsed_formula <- .parseformula(formula, trans)
-  rules <- .LUCS_KDD(formula, trans, method = "CMAR",
-    parameter = paste0("-S",floor(support*100)," -C", floor(confidence*100)),
-    verbose = verbose)
-
-  # add weighted Chi2 to the rules
-  quality(rules)$chiSquared <- interestMeasure(rules, "chiSquared", transactions = trans)
-  supP <- support(lhs(rules), trans, type = "absolute")
-  supC <- support(rhs(rules), trans, type = "absolute")
-  n <- length(trans)
-  e <- 1/(supP*supC) + 1/(supP*(n-supC)) + 1/((n-supP)*supC) + 1/((n-supP)*(n-supC))
-  maxChiSquared <- (pmin(supP, supC) - supP*supC/n)^2 * n * e
-  quality(rules)$weightedChiSquared <- quality(rules)$chiSquared^2/maxChiSquared
-
-  structure(list(
-    formula = formula,
-    discretization = attr(trans, "disc_info"),
-    parameter = list(support = support, confidence = confidence),
-    rules = rules,
-    default = majorityClass(formula, trans),
-    weights = "weightedChiSquared",
-    method = "weighted",
-    description = paste0("CMAR (Li, Han and Pei, 2001 - LUCS-KDD implementation).")
-  ),
-    class = "CBA"
-  )
-}
-
-
-#' @rdname LUCS_KDD_CBA
-install_LUCS_KDD_CPAR <- function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/FOIL_PRM_CPAR/foilPrmCpar.tgz") {
-
-  path <- .getLUCS_KDD("CPAR", stop = FALSE)
-  if(attr(path, "exists") && !force) {
-    cat(paste0("LUCS-KDD CPAR is already installed.\nLocation: ", path, "\n"))
-    return(invisible())
+    CBA_ruleset(
+      formula = formula,
+      rules = rules,
+      default = majorityClass(formula, trans),
+      method = "weighted",
+      weights = "laplace",
+      best_k = best_k,
+      discretization = attr(trans, "disc_info"),
+      description = "FOIL-based classifier (Yin and Han, 2003 - LUCS-KDD implementation)."
+    )
   }
 
-  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
-  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
+#' @rdname LUCS_KDD_CBA
+CPAR <-
+  function(formula,
+    data,
+    best_k = 5,
+    disc.method = "mdlp",
+    verbose = FALSE) {
+    formula <- as.formula(formula)
+    trans <-
+      prepareTransactions(formula, data, disc.method = disc.method)
+    parsed_formula <- .parseformula(formula, trans)
+    rules <-
+      .LUCS_KDD(
+        formula,
+        trans,
+        method = "CPAR",
+        parameter = "",
+        verbose = verbose
+      )
 
-  dir.create(directory, showWarnings = FALSE)
+    structure(
+      list(
+        formula = formula,
+        class = parsed_formula$class_name,
+        rules = rules,
+        default = majorityClass(formula, trans),
+        discretization = attr(trans, "disc_info"),
+        method = "weighted",
+        weights = "laplace",
+        best_k = best_k,
+        description = paste0("CPAR (Yin and Han, 2003 - LUCS-KDD implementation).")
+      ),
+      class = "CBA"
+    )
+  }
 
-  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CPAR algorithms.",
-    "\nThis requires a working installation of the Java JDK including java and javac.",
-    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
-    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
-    "\n")
+#' @rdname LUCS_KDD_CBA
+PRM <-
+  function(formula,
+    data,
+    best_k = 5,
+    disc.method = "mdlp",
+    verbose = FALSE) {
+    formula <- as.formula(formula)
+    trans <-
+      prepareTransactions(formula, data, disc.method = disc.method)
+    parsed_formula <- .parseformula(formula, trans)
+    rules <-
+      .LUCS_KDD(
+        formula,
+        trans,
+        method = "PRM",
+        parameter = "",
+        verbose = verbose
+      )
 
-  # check for java/javac (stops if not found)
-  .java()
-  .javac()
+    structure(
+      list(
+        formula = formula,
+        discretization = attr(trans, "disc_info"),
+        rules = rules,
+        default = majorityClass(formula, trans),
+        method = "weighted",
+        weights = "laplace",
+        best_k = best_k,
+        description = paste0("PRM (Yin and Han, 2003 - LUCS-KDD implementation).")
+      ),
+      class = "CBA"
+    )
+  }
 
-  if(!is.null(options()$LUCS_KDD_CPAR_FILE))
-    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CPAR_FILE))
+#' @rdname LUCS_KDD_CBA
+CMAR <-
+  function(formula,
+    data,
+    support = 0.1,
+    confidence = 0.5,
+    disc.method = "mdlp",
+    verbose = FALSE) {
+    formula <- as.formula(formula)
+    trans <-
+      prepareTransactions(formula, data, disc.method = disc.method)
+    parsed_formula <- .parseformula(formula, trans)
+    rules <- .LUCS_KDD(
+      formula,
+      trans,
+      method = "CMAR",
+      parameter = paste0("-S", floor(support * 100), " -C", floor(confidence *
+          100)),
+      verbose = verbose
+    )
 
-  cat("Downloading from", source, "to", path, "\n")
-  utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
+    # add weighted Chi2 to the rules
+    quality(rules)$chiSquared <-
+      interestMeasure(rules, "chiSquared", transactions = trans)
+    supP <- support(lhs(rules), trans, type = "absolute")
+    supC <- support(rhs(rules), trans, type = "absolute")
+    n <- length(trans)
+    e <-
+      1 / (supP * supC) + 1 / (supP * (n - supC)) + 1 / ((n - supP) * supC) + 1 /
+      ((n - supP) * (n - supC))
+    maxChiSquared <- (pmin(supP, supC) - supP * supC / n) ^ 2 * n * e
+    quality(rules)$weightedChiSquared <-
+      quality(rules)$chiSquared ^ 2 / maxChiSquared
 
-  if (utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory)))
-    stop("Could not expand the archive!")
+    structure(
+      list(
+        formula = formula,
+        discretization = attr(trans, "disc_info"),
+        parameter = list(support = support, confidence = confidence),
+        rules = rules,
+        default = majorityClass(formula, trans),
+        weights = "weightedChiSquared",
+        method = "weighted",
+        description = paste0("CMAR (Li, Han and Pei, 2001 - LUCS-KDD implementation).")
+      ),
+      class = "CBA"
+    )
+  }
 
-  cat("Copy runCMAR.java from", src, "to", path, "\n")
-  if (!file.copy(file.path(src, "runCMAR.java"), path))
-    stop("Copying file failed!")
 
-  run_files <- c("runCPAR.java", "runFOIL.java", "runPRM.java")
-  for (rf in run_files) {
-    cat("Copy", rf, "from", src, "to", path, "\n")
-    if (!file.copy(file.path(src, rf), path))
+#' @rdname LUCS_KDD_CBA
+install_LUCS_KDD_CPAR <-
+  function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/FOIL_PRM_CPAR/foilPrmCpar.tgz") {
+    path <- .getLUCS_KDD("CPAR", stop = FALSE)
+    if (attr(path, "exists") && !force) {
+      cat(paste0("LUCS-KDD CPAR is already installed.\nLocation: ", path, "\n"))
+      return(invisible())
+    }
+
+    directory <-
+      file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
+    src <-
+      file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
+
+    dir.create(directory, showWarnings = FALSE)
+
+    message(
+      "You are about to download and compile the LUCS-KDD Software Library implementations of the CPAR algorithms.",
+      "\nThis requires a working installation of the Java JDK including java and javac.",
+      "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
+      "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
+      "\n"
+    )
+
+    # check for java/javac (stops if not found)
+    .java()
+    .javac()
+
+    if (!is.null(options()$LUCS_KDD_CPAR_FILE))
+      source <-
+      paste0("file://", normalizePath(options()$LUCS_KDD_CPAR_FILE))
+
+    cat("Downloading from", source, "to", path, "\n")
+    utils::download.file(source, destfile = file.path(directory, "foilPrmCpar.tgz"))
+
+    if (utils::untar(file.path(directory, "foilPrmCpar.tgz"), exdir = file.path(directory)))
+      stop("Could not expand the archive!")
+
+    cat("Copy runCMAR.java from", src, "to", path, "\n")
+    if (!file.copy(file.path(src, "runCMAR.java"), path))
       stop("Copying file failed!")
-  }
 
-  cat("Compiling.\n")
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runCPAR.java"))
-  ret <- system(exe, intern = TRUE)
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runFOIL.java"))
-  ret <- system(exe, intern = TRUE)
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runPRM.java"))
-  ret <- system(exe, intern = TRUE)
-}
+    run_files <- c("runCPAR.java", "runFOIL.java", "runPRM.java")
+    for (rf in run_files) {
+      cat("Copy", rf, "from", src, "to", path, "\n")
+      if (!file.copy(file.path(src, rf), path))
+        stop("Copying file failed!")
+    }
+
+    cat("Compiling.\n")
+    exe <-
+      paste(.javac(), "-cp", path, file.path(path, "runCPAR.java"))
+    ret <- system(exe, intern = TRUE)
+    exe <-
+      paste(.javac(), "-cp", path, file.path(path, "runFOIL.java"))
+    ret <- system(exe, intern = TRUE)
+    exe <-
+      paste(.javac(), "-cp", path, file.path(path, "runPRM.java"))
+    ret <- system(exe, intern = TRUE)
+  }
 
 #' @rdname LUCS_KDD_CBA
-install_LUCS_KDD_CMAR <- function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/CMAR/cmar.tgz") {
+install_LUCS_KDD_CMAR <-
+  function(force = FALSE, source = "https://cgi.csc.liv.ac.uk/~frans/KDD/Software/CMAR/cmar.tgz") {
+    path <- .getLUCS_KDD("CMAR", stop = FALSE)
+    if (attr(path, "exists") && !force) {
+      cat(paste0("LUCS-KDD CMAR is already installed.\nLocation: ", path, "\n"))
+      return(invisible())
+    }
 
-  path <- .getLUCS_KDD("CMAR", stop = FALSE)
-  if(attr(path, "exists") && !force) {
-    cat(paste0("LUCS-KDD CMAR is already installed.\nLocation: ", path, "\n"))
-    return(invisible())
+    directory <-
+      file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
+    src <-
+      file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
+
+    dir.create(directory, showWarnings = FALSE)
+
+    message(
+      "You are about to download and compile the LUCS-KDD Software Library implementations of the CMAR algorithms.",
+      "\nThis requires a working installation of the Java JDK including java and javac.",
+      "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
+      "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
+      "\n"
+    )
+
+    # check for java/javac (stops if not found)
+    .java()
+    .javac()
+
+    if (!is.null(options()$LUCS_KDD_CMAR_FILE))
+      source <-
+      paste0("file://", normalizePath(options()$LUCS_KDD_CMAR_FILE))
+
+    cat("Downloading from", source, "to", path, "\n")
+    utils::download.file(source,
+      destfile = file.path(directory, "cmar.tgz"))
+
+    #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
+    if (utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path)))
+      stop("Could not expand the archive!")
+
+    cat("Copy runCMAR.java from", src, "to", path, "\n")
+    if (!file.copy(file.path(src, "runCMAR.java"), path))
+      stop("Copying file failed!")
+
+    cat("Compiling.\n")
+    exe <-
+      paste(.javac(), "-cp", path, file.path(path, "runCMAR.java"))
+    ret <- system(exe, intern = TRUE)
   }
-
-  directory <- file.path(system.file(package = "arulesCBA"), "LUCS_KDD")
-  src <- file.path(system.file("LUCS_KDD_java", package = "arulesCBA"))
-
-  dir.create(directory, showWarnings = FALSE)
-
-  message("You are about to download and compile the LUCS-KDD Software Library implementations of the CMAR algorithms.",
-    "\nThis requires a working installation of the Java JDK including java and javac.",
-    "\nNote: The algorithms are only free to use for **non-commercial purpose**!",
-    "\nFor details see: https://cgi.csc.liv.ac.uk/~frans/KDD/Software/",
-    "\n")
-
-  # check for java/javac (stops if not found)
-  .java()
-  .javac()
-
-  if(!is.null(options()$LUCS_KDD_CMAR_FILE))
-    source <- paste0("file://", normalizePath(options()$LUCS_KDD_CMAR_FILE))
-
-  cat("Downloading from", source, "to", path, "\n")
-  utils::download.file(source,
-    destfile = file.path(directory, "cmar.tgz"))
-
-  #utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(directory))
-  if (utils::untar(file.path(directory, "cmar.tgz"), exdir = file.path(path)))
-    stop("Could not expand the archive!")
-
-  cat("Copy runCMAR.java from", src, "to", path, "\n")
-  if (!file.copy(file.path(src, "runCMAR.java"), path))
-    stop("Copying file failed!")
-
-  cat("Compiling.\n")
-  exe <- paste(.javac(), "-cp", path, file.path(path, "runCMAR.java"))
-  ret <- system(exe, intern = TRUE)
-}
-
