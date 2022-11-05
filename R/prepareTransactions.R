@@ -49,23 +49,33 @@ prepareTransactions <- function(formula, data, disc.method = "mdlp", match = NUL
       if(is.logical(data[[i]]))
         data[[i]] <- factor(data[[i]], levels = c(TRUE, FALSE))
   }
+
   # disc.method is a character string with the method
-  if(!is.list(disc.method)) {
+  if(!is.null(disc.method)) {
+    if(!is.list(disc.method)) {
+      disc_info <- NULL
+      data <- discretizeDF.supervised(formula, data, method = disc.method)
+      disc_info <- lapply(data, attr, "discretized:breaks")
+      
+      data <- as(data, "transactions")
+      attr(data, "disc_info") <- disc_info
 
-    disc_info <- NULL
-    data <- discretizeDF.supervised(formula, data, method = disc.method)
-    disc_info <- lapply(data, attr, "discretized:breaks")
+      return(data)
+    }
+
+    ### disc is a list with discretization info
+    data <- discretizeDF(
+      df = data,
+      methods = lapply(
+        X = disc.method,
+        FUN = function(x) list(method = "fixed", breaks = x)
+      )
+    )
 
     data <- as(data, "transactions")
-    attr(data, "disc_info") <- disc_info
-
-    return(data)
+  } else {
+    data <- as(data, "transactions")
   }
-
-  ### disc is a list with discretization info
-    data <- discretizeDF(data, lapply(disc.method,
-      FUN = function(x) list(method = "fixed", breaks = x)))
-    data <- as(data, "transactions")
 
   return(data)
 }
