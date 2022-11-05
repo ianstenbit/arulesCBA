@@ -30,7 +30,7 @@ of form \code{class ~ .} or \code{class ~ predictor1 + predictor2}.}
 \item{data}{A data.frame or a transaction set containing the training data.
 Data frames are automatically discretized and converted to transactions.}
 
-\item{pruning}{Pruning strategy used: "M1" or "M2".}
+\item{pruning}{Pruning strategy used: "M1" or "M2". NULL to skip pruning step.}
 
 \item{parameter, control}{Optional parameter and control lists for apriori.}
 
